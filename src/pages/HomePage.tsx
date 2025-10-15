@@ -40,7 +40,7 @@ export default function HomePage() {
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-16">
-            <a href="/apply">
+            <a href="/become-a-provider/">
               <Button variant="secondary" className="px-12 py-5">
                 Join as a Contractor
                 <ArrowRight className="inline ml-2" size={20} />
@@ -155,12 +155,12 @@ export default function HomePage() {
               Zero risk. Maximum growth.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <a href="/apply">
+              <a href="/become-a-provider/">
                 <Button variant="secondary" className="px-12 py-5">
                   Join Elite Service Hub
                 </Button>
               </a>
-              <a href="/apply">
+              <a href="/become-a-provider/">
                 <Button variant="secondary" className="px-12 py-5">
                   Schedule a Call
                 </Button>
