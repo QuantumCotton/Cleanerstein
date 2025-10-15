@@ -1,13 +1,12 @@
-import Hero from '../components/Hero';
-import ValueProposition from '../components/ValueProposition';
-import ApplicationForm from '../components/ApplicationForm';
+import { useEffect } from 'react';
 
 export default function ApplyPage() {
+  useEffect(() => {
+    window.location.href = '/contractor-application-form.html';
+  }, []);
   return (
-    <>
-      <Hero />
-      <ValueProposition />
-      <ApplicationForm />
-    </>
+    <div className="min-h-screen flex items-center justify-center bg-black text-zinc-400">
+      Redirecting to application...
+    </div>
   );
 }
