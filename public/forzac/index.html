@@ -25,12 +25,12 @@
     header.hero { position: relative; padding: 48px 40px; text-align: center; border-bottom: 2px solid var(--esh-gold); background: linear-gradient(135deg, var(--esh-black) 0%, var(--esh-zinc-800) 100%); }
     header.hero::before { content: ''; position: absolute; inset: 0; background-image: repeating-linear-gradient(45deg, transparent, transparent 100px, rgba(212,175,55,0.03) 100px, rgba(212,175,55,0.03) 200px); }
     .hero-content { position: relative; z-index: 1; }
-    .logo { width: 90px; opacity: .9; }
+    .logo { height: 72px; width: auto; opacity: .95; object-fit: contain; display: block; margin: 0 auto 10px; }
     h1, h2, h3, h4 { font-family: 'Cormorant Garamond', serif; letter-spacing: .02em; margin: 0 0 12px; color: var(--esh-white); }
     h1 { font-size: 3rem; font-weight: 300; }
     h1 .gold { color: var(--esh-gold); font-weight: 400; }
     p.lead { color: var(--esh-zinc-400); margin: 8px auto 0; max-width: 720px; font-weight: 300; }
-    .content { padding: 40px; }
+    .content { padding: 40px; line-height: 1.75; font-size: 1.02rem; }
     .section { margin: 28px 0; padding: 28px; background: var(--esh-black); border: 1px solid var(--esh-zinc-800); border-radius: 12px; }
     .section h2 { color: var(--esh-gold); font-weight: 400; letter-spacing: .04em; }
     .muted { color: var(--esh-zinc-500); }
@@ -48,7 +48,7 @@
       .toolbar { display: none !important; }
       .card { box-shadow: none; border: 1px solid #333; }
       header.hero { background: var(--esh-black) !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; padding: 20px 30px !important; }
-      .content { padding: 20px 30px !important; }
+      .content { padding: 20px 30px !important; font-size: .95rem; line-height: 1.55; }
       .section { background: #fff !important; border: 1px solid #333; }
       .logo { width: 60px !important; }
     }
@@ -121,13 +121,55 @@
         </section>
 
         <section class="section">
-          <h2>WinOLS Workflow (Example)</h2>
+          <h2>Acquiring ECU Data: Step-by-Step</h2>
+          <div class="grid">
+            <div>
+              <h3>2010 Corvette (GM E38)</h3>
+              <ol class="list">
+                <li>Connect a stable 13.5–14.0V power supply to battery.</li>
+                <li>Plug HP Tuners/EFILive/KESSv2 into OBD-II and laptop.</li>
+                <li>Ignition ON (engine off). Identify ECU and software ID.</li>
+                <li>Full read of calibration. Save BIN and back up separately.</li>
+              </ol>
+            </div>
+            <div>
+              <h3>2008 Ram 2500 Cummins</h3>
+              <ol class="list">
+                <li>Use EFILive or Flex with diesel protocol.</li>
+                <li>Maintain stable power. Key ON, perform controller ID.</li>
+                <li>Execute full read; verify checksum and file size.</li>
+                <li>Save multiple copies of the stock file.</li>
+              </ol>
+            </div>
+            <div>
+              <h3>2000 Honda Accord</h3>
+              <ol class="list">
+                <li>Prefer Hondata/KTuner ECU platform (may require ECU mod).</li>
+                <li>Connect via their USB interface; load base map definition.</li>
+                <li>Read or start from provided stock map matching ECU code.</li>
+                <li>Back up the map; label with ECU part/SW revision.</li>
+              </ol>
+            </div>
+            <div>
+              <h3>1991 Ford F‑150 (EEC‑IV)</h3>
+              <ol class="list">
+                <li>Disconnect battery; remove ECU from kick panel.</li>
+                <li>Open case; identify EPROM. Use chip puller or desolder.</li>
+                <li>Read EPROM with programmer (e.g., Burn2). Save BIN.</li>
+                <li>Optional: Install QuarterHorse for real-time tuning.</li>
+              </ol>
+            </div>
+          </div>
+        </section>
+
+        <section class="section">
+          <h2>WinOLS Workflow (After Read)</h2>
           <ol class="list">
-            <li>Import stock BIN and apply the correct map pack/Damos.</li>
-            <li>Identify and adjust key maps: Spark, Fuel/VE, Torque limits, Boost (diesel).</li>
-            <li>Maintain safe AFR/MBT, watch knock, and respect hardware limits.</li>
-            <li>Correct checksums before writing.</li>
-            <li>Flash with stable power; do not interrupt.</li>
+            <li>Open BIN in WinOLS and import the correct Damos/map pack.</li>
+            <li>Edit calibrated areas conservatively: Spark, Fuel/VE, Torque, Boost.</li>
+            <li>Target safe AFR and monitor knock/EGT; respect hardware limits.</li>
+            <li>Correct checksums via plugin or writer tool; export.</li>
+            <li>Flash back with stable power; avoid any interruption.</li>
           </ol>
         </section>
 
