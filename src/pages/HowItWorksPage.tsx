@@ -183,7 +183,7 @@ export default function HowItWorksPage() {
             ))}
           </div>
           <div className="text-center mt-16">
-            <Button variant="primary" className="px-12 py-5" onClick={() => navigate('/apply')}>Apply as Partner</Button>
+            <Button variant="primary" className="px-12 py-5" onClick={() => navigate('/become-a-provider/')}>Apply as Partner</Button>
           </div>
         </div>
       </section>
@@ -217,7 +217,7 @@ export default function HowItWorksPage() {
           <h2 className="text-4xl font-light mb-6 text-black font-serif">Ready to Experience the Difference?</h2>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button variant="primary" className="px-12 py-5" onClick={() => navigate('/')}>Find a Contractor</Button>
-            <Button variant="secondary" className="px-12 py-5 border-black text-black" onClick={() => navigate('/apply')}>Become a Partner</Button>
+            <Button variant="secondary" className="px-12 py-5 border-black text-black" onClick={() => navigate('/become-a-provider/')}>Become a Partner</Button>
           </div>
         </div>
       </section>
