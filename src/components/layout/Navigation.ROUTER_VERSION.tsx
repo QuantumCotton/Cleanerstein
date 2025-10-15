@@ -64,7 +64,7 @@ export default function Navigation() {
             <Button 
               variant={isScrolled ? 'accent' : 'primary'}
               className="px-6 py-3 text-xs"
-              onClick={() => navigate('/apply')}
+              onClick={() => navigate('/become-a-provider/')}
             >
               Get Started
             </Button>
@@ -101,7 +101,7 @@ export default function Navigation() {
                 className="w-full text-xs"
                 onClick={() => {
                   setIsMobileMenuOpen(false);
-                  navigate('/apply');
+                  navigate('/become-a-provider/');
                 }}
               >
                 Get Started

@@ -57,7 +57,7 @@ export default function Navigation() {
             <Button 
               variant="secondary"
               className="px-6 py-3 text-xs"
-              onClick={() => navigate('/apply')}
+              onClick={() => { window.location.href = '/become-a-provider/'; }}
             >
               Get Started
             </Button>
@@ -91,7 +91,7 @@ export default function Navigation() {
                 className="w-full text-xs"
                 onClick={() => {
                   setIsMobileMenuOpen(false);
-                  navigate('/apply');
+                  window.location.href = '/become-a-provider/';
                 }}
               >
                 Get Started
