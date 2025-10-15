@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Request Service - Elite Service Hub</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --esh-black: #000000;
+            --esh-gold: #d4af37;
+            --esh-zinc-900: #18181b;
+            --esh-zinc-800: #27272a;
+            --esh-zinc-700: #3f3f46;
+            --esh-zinc-600: #52525b;
+            --esh-zinc-500: #71717a;
+            --esh-zinc-400: #a1a1aa;
+            --esh-zinc-300: #d4d4d8;
+            --esh-white: #ffffff;
+        }
+
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: linear-gradient(135deg, var(--esh-black) 0%, var(--esh-zinc-900) 100%);
+            color: var(--esh-zinc-300);
+            padding: 20px;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Cormorant Garamond', serif;
+            letter-spacing: 0.02em;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: var(--esh-zinc-900);
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            border: 1px solid var(--esh-zinc-800);
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--esh-black) 0%, var(--esh-zinc-800) 100%);
+            padding: 48px 40px;
+            text-align: center;
+            border-bottom: 2px solid var(--esh-gold);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image: repeating-linear-gradient(45deg, transparent, transparent 100px, rgba(212, 175, 55, 0.03) 100px, rgba(212, 175, 55, 0.03) 200px);
+            pointer-events: none;
+        }
+
+        .header-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .logo {
+            width: 100px;
+            height: auto;
+            margin-bottom: 24px;
+            opacity: 0.9;
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            font-weight: 300;
+            color: var(--esh-white);
+            margin-bottom: 16px;
+            letter-spacing: 0.05em;
+        }
+
+        .header h1 .gold {
+            color: var(--esh-gold);
+            font-weight: 400;
+        }
+
+        .header p {
+            font-size: 1.125rem;
+            color: var(--esh-zinc-400);
+            max-width: 600px;
+            margin: 0 auto;
+            font-weight: 300;
+            letter-spacing: 0.02em;
+        }
+
+        .content {
+            padding: 48px 40px;
+        }
+
+        .intro-box {
+            background: linear-gradient(135deg, rgba(212, 175, 55, 0.1) 0%, rgba(212, 175, 55, 0.05) 100%);
+            border-left: 3px solid var(--esh-gold);
+            padding: 24px 28px;
+            margin-bottom: 40px;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            line-height: 1.7;
+        }
+
+        .intro-box p + p {
+            margin-top: 12px;
+        }
+
+        .section {
+            margin-bottom: 40px;
+            padding: 32px;
+            background: var(--esh-black);
+            border: 1px solid var(--esh-zinc-800);
+            border-radius: 12px;
+            transition: border-color 0.3s ease;
+        }
+
+        .section:hover {
+            border-color: var(--esh-zinc-700);
+        }
+
+        .section-title {
+            font-size: 1.75rem;
+            font-weight: 400;
+            color: var(--esh-gold);
+            margin-bottom: 12px;
+            letter-spacing: 0.05em;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .section-number {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 36px;
+            height: 36px;
+            background: var(--esh-gold);
+            color: var(--esh-black);
+            border-radius: 50%;
+            font-size: 1rem;
+            font-weight: 600;
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .section-description {
+            font-size: 0.9rem;
+            color: var(--esh-zinc-500);
+            margin-bottom: 24px;
+            line-height: 1.6;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+
+        label {
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: var(--esh-zinc-300);
+            margin-bottom: 8px;
+            letter-spacing: 0.02em;
+            text-transform: uppercase;
+        }
+
+        label .required {
+            color: var(--esh-gold);
+            margin-left: 4px;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        input[type="tel"],
+        input[type="number"],
+        select,
+        textarea {
+            width: 100%;
+            padding: 14px 16px;
+            background: var(--esh-zinc-900);
+            border: 1px solid var(--esh-zinc-700);
+            border-radius: 8px;
+            color: var(--esh-white);
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        input:focus,
+        select:focus,
+        textarea:focus {
+            outline: none;
+            border-color: var(--esh-gold);
+            box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.1);
+            background: var(--esh-black);
+        }
+
+        input::placeholder,
+        textarea::placeholder {
+            color: var(--esh-zinc-600);
+        }
+
+        textarea {
+            min-height: 120px;
+            resize: vertical;
+            line-height: 1.6;
+        }
+
+        select {
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L6 6L11 1' stroke='%23d4af37' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 16px center;
+            padding-right: 48px;
+        }
+
+        .checkbox-group {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            margin-top: 16px;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 14px;
+            background: var(--esh-zinc-900);
+            border: 1px solid var(--esh-zinc-800);
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .checkbox-item:hover {
+            background: var(--esh-black);
+            border-color: var(--esh-zinc-700);
+        }
+
+        .checkbox-item input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            margin-top: 2px;
+            cursor: pointer;
+            accent-color: var(--esh-gold);
+            flex-shrink: 0;
+        }
+
+        .checkbox-item label {
+            margin: 0;
+            cursor: pointer;
+            text-transform: none;
+            font-size: 0.95rem;
+            color: var(--esh-zinc-300);
+            font-weight: 400;
+        }
+
+        .radio-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 12px;
+            margin-top: 12px;
+        }
+
+        .radio-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 16px;
+            background: var(--esh-zinc-900);
+            border: 1px solid var(--esh-zinc-800);
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .radio-item:hover {
+            background: var(--esh-black);
+            border-color: var(--esh-gold);
+        }
+
+        .radio-item input[type="radio"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            accent-color: var(--esh-gold);
+        }
+
+        .radio-item label {
+            margin: 0;
+            cursor: pointer;
+            text-transform: none;
+            font-size: 0.9rem;
+            color: var(--esh-zinc-300);
+            font-weight: 400;
+        }
+
+        .subsection-title {
+            font-size: 1.1rem;
+            font-weight: 500;
+            color: var(--esh-zinc-300);
+            margin: 28px 0 16px;
+            letter-spacing: 0.02em;
+        }
+
+        .note {
+            font-size: 0.85rem;
+            color: var(--esh-zinc-500);
+            margin-top: 12px;
+            font-style: italic;
+        }
+
+        .button-container {
+            display: flex;
+            justify-content: center;
+            margin-top: 48px;
+            padding-top: 32px;
+            border-top: 1px solid var(--esh-zinc-800);
+        }
+
+        button[type="submit"] {
+            padding: 16px 48px;
+            font-size: 1rem;
+            font-weight: 600;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            border: 2px solid var(--esh-gold);
+            background: var(--esh-gold);
+            color: var(--esh-black);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        button[type="submit"]:hover {
+            background: transparent;
+            color: var(--esh-gold);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(212, 175, 55, 0.2);
+        }
+
+        @media (max-width: 768px) {
+            body { padding: 10px; }
+            .header { padding: 32px 24px; }
+            .header h1 { font-size: 2rem; }
+            .content { padding: 32px 24px; }
+            .section { padding: 24px 20px; }
+            .form-grid { grid-template-columns: 1fr; }
+            .radio-group { grid-template-columns: 1fr; }
+        }
+
+        @media print {
+            body { background: white; padding: 0; margin: 0; }
+            .container { box-shadow: none; border: none; border-radius: 0; max-width: 100%; }
+            .header { background: var(--esh-black); -webkit-print-color-adjust: exact; print-color-adjust: exact; padding: 20px 30px !important; }
+            .logo { width: 60px !important; margin-bottom: 12px !important; }
+            .header h1 { font-size: 1.8rem !important; margin-bottom: 8px !important; }
+            .header p { font-size: 0.85rem !important; }
+            .content { padding: 20px 30px !important; }
+            .intro-box { padding: 12px 16px !important; margin-bottom: 16px !important; font-size: 0.8rem !important; line-height: 1.4 !important; }
+            .intro-box p + p { margin-top: 6px !important; }
+            .section { page-break-inside: avoid; background: white !important; border: 1px solid #333; padding: 16px 20px !important; margin-bottom: 16px !important; border-radius: 6px; }
+            .section-title { font-size: 1.2rem !important; margin-bottom: 8px !important; }
+            .section-number { width: 28px !important; height: 28px !important; font-size: 0.85rem !important; }
+            .section-description { font-size: 0.75rem !important; margin-bottom: 12px !important; }
+            .form-grid { gap: 12px 16px !important; margin-bottom: 10px !important; }
+            label { font-size: 0.65rem !important; margin-bottom: 4px !important; }
+            input, textarea { background: white !important; border: 1px solid #000 !important; color: #000 !important; padding: 6px 8px !important; font-size: 0.8rem !important; }
+            textarea { min-height: 60px !important; }
+            input::placeholder, textarea::placeholder { color: transparent !important; }
+            
+            /* Hide dropdowns on print, show options list instead */
+            select { 
+                display: none !important;
+            }
+            .form-group:has(select)::after {
+                content: '';
+                display: block;
+                margin-top: 6px;
+                padding: 8px;
+                border: 1px solid #000;
+                font-size: 0.7rem;
+                line-height: 1.8;
+                min-height: 50px;
+            }
+            #preferred-contact:not(:checked) ~ *::after,
+            .form-group:has(#preferred-contact)::after {
+                content: '☐ Phone Call    ☐ Text Message    ☐ Email    ☐ Any Method';
+            }
+            .form-group:has(#best-time)::after {
+                content: '☐ Morning (8am-12pm)    ☐ Afternoon (12pm-5pm)    ☐ Evening (5pm-8pm)    ☐ Anytime';
+            }
+            .form-group:has(#service-type)::after {
+                content: '☐ Kitchen Remodel    ☐ Bathroom Remodel    ☐ Home Addition    ☐ Roofing    ☐ Plumbing    ☐ Electrical    ☐ HVAC    ☐ Flooring    ☐ Painting    ☐ Landscaping    ☐ Concrete    ☐ Pool    ☐ Solar    ☐ Fencing    ☐ Other: _______';
+            }
+            .form-group:has(#project-budget)::after {
+                content: '☐ Under $5K    ☐ $5K-$10K    ☐ $10K-$25K    ☐ $25K-$50K    ☐ $50K-$100K    ☐ $100K+    ☐ Not Sure';
+            }
+            .form-group:has(#timeline)::after {
+                content: '☐ Urgent (1 week)    ☐ Soon (1-4 weeks)    ☐ Flexible (1-3 months)    ☐ Planning (3+ months)';
+            }
+            .form-group:has(#property-type)::after {
+                content: '☐ Single Family    ☐ Townhouse    ☐ Condo    ☐ Multi-Unit    ☐ Commercial    ☐ Other';
+            }
+            .form-group:has(#hoa-involved)::after {
+                content: '☐ Yes    ☐ No    ☐ Not Sure';
+            }
+            .form-group:has(#referral-source)::after {
+                content: '☐ Google    ☐ Social Media    ☐ Referral    ☐ Previous Customer    ☐ Advertisement    ☐ Other';
+            }
+            
+            .subsection-title { font-size: 0.9rem !important; margin: 12px 0 8px !important; }
+            .checkbox-group { gap: 8px !important; margin-top: 8px !important; }
+            .checkbox-item { padding: 6px 8px !important; border: 1px solid #333; }
+            .checkbox-item label { font-size: 0.75rem !important; }
+            .radio-group { gap: 8px !important; margin-top: 8px !important; }
+            .radio-item { padding: 6px 10px !important; border: 1px solid #333; }
+            .radio-item label { font-size: 0.75rem !important; }
+            .note { font-size: 0.7rem !important; margin-top: 6px !important; page-break-before: avoid; }
+            .button-container, button[type="submit"] { display: none !important; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <img src="public/images/logos/esh-dark-bg.png" alt="Elite Service Hub Logo" class="logo">
+                <h1>Get Your <span class="gold">Elite Service</span></h1>
+                <p>Connect with verified, professional contractors in your area. Zero hassle. Elite results.</p>
+            </div>
+        </header>
+
+        <!-- Form Content -->
+        <div class="content">
+            <div class="intro-box">
+                <p>Welcome to Elite Service Hub! We carefully select one elite contractor per service type in strategic markets across the country. Complete this form to tell us about your project, and we'll connect you with your region's exclusive Elite contractor who can deliver exceptional results.</p>
+                <p>Our contractors are licensed, insured, and backed by our Elite Service Guarantee. You'll receive a response within 24 hours.</p>
+            </div>
+
+            <form id="customer-form" action="/submit-service-request" method="POST">
+                
+                <!-- Section 1: Contact Information -->
+                <section class="section">
+                    <h2 class="section-title">
+                        <span class="section-number">1</span>
+                        Contact Information
+                    </h2>
+                    <p class="section-description">Tell us how to reach you. We'll use this information to connect you with the right contractor.</p>
+                    
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="first-name">First Name <span class="required">*</span></label>
+                            <input type="text" id="first-name" name="first-name" placeholder="John" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="last-name">Last Name <span class="required">*</span></label>
+                            <input type="text" id="last-name" name="last-name" placeholder="Smith" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Email Address <span class="required">*</span></label>
+                            <input type="email" id="email" name="email" placeholder="john.smith@example.com" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="phone">Phone Number <span class="required">*</span></label>
+                            <input type="tel" id="phone" name="phone" placeholder="(555) 123-4567" required>
+                        </div>
+                        <div class="form-group full-width">
+                            <label for="address">Project Address <span class="required">*</span></label>
+                            <input type="text" id="address" name="address" placeholder="123 Main Street, Stuart, FL 34994" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="preferred-contact">Preferred Contact Method <span class="required">*</span></label>
+                            <select id="preferred-contact" name="preferred-contact" required>
+                                <option value="">Select One</option>
+                                <option value="phone">Phone Call</option>
+                                <option value="text">Text Message</option>
+                                <option value="email">Email</option>
+                                <option value="any">Any Method</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="best-time">Best Time to Contact</label>
+                            <select id="best-time" name="best-time">
+                                <option value="">Select One</option>
+                                <option value="morning">Morning (8am - 12pm)</option>
+                                <option value="afternoon">Afternoon (12pm - 5pm)</option>
+                                <option value="evening">Evening (5pm - 8pm)</option>
+                                <option value="anytime">Anytime</option>
+                            </select>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Section 2: Service Details -->
+                <section class="section">
+                    <h2 class="section-title">
+                        <span class="section-number">2</span>
+                        Service Request
+                    </h2>
+                    <p class="section-description">Help us understand what you need. The more details you provide, the better we can match you with the perfect contractor.</p>
+                    
+                    <div class="form-grid">
+                        <div class="form-group full-width">
+                            <label for="service-type">Type of Service Needed <span class="required">*</span></label>
+                            <select id="service-type" name="service-type" required>
+                                <option value="">Select Service Type</option>
+                                <option value="kitchen-remodel">Kitchen Remodeling</option>
+                                <option value="bathroom-remodel">Bathroom Remodeling</option>
+                                <option value="home-addition">Home Addition</option>
+                                <option value="roofing">Roofing</option>
+                                <option value="plumbing">Plumbing</option>
+                                <option value="electrical">Electrical Work</option>
+                                <option value="hvac">HVAC Services</option>
+                                <option value="flooring">Flooring Installation</option>
+                                <option value="painting">Painting</option>
+                                <option value="landscaping">Landscaping</option>
+                                <option value="concrete">Concrete Work</option>
+                                <option value="pool">Pool Services</option>
+                                <option value="solar">Solar Installation</option>
+                                <option value="fencing">Fencing</option>
+                                <option value="other">Other (Please Specify)</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="project-budget">Estimated Budget <span class="required">*</span></label>
+                            <select id="project-budget" name="project-budget" required>
+                                <option value="">Select Budget Range</option>
+                                <option value="under-5k">Under $5,000</option>
+                                <option value="5k-10k">$5,000 - $10,000</option>
+                                <option value="10k-25k">$10,000 - $25,000</option>
+                                <option value="25k-50k">$25,000 - $50,000</option>
+                                <option value="50k-100k">$50,000 - $100,000</option>
+                                <option value="100k-plus">$100,000+</option>
+                                <option value="not-sure">Not Sure Yet</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="timeline">Project Timeline <span class="required">*</span></label>
+                            <select id="timeline" name="timeline" required>
+                                <option value="">Select Timeline</option>
+                                <option value="urgent">Urgent (Within 1 week)</option>
+                                <option value="soon">Soon (1-4 weeks)</option>
+                                <option value="flexible">Flexible (1-3 months)</option>
+                                <option value="planning">Planning Phase (3+ months)</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group full-width">
+                            <label for="project-description">Project Description <span class="required">*</span></label>
+                            <textarea id="project-description" name="project-description" placeholder="Please describe your project in detail. Include measurements, materials, specific requirements, and any other information that would help us serve you better..." required></textarea>
+                        </div>
+                    </div>
+
+                    <div class="subsection-title">Property Details</div>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="property-type">Property Type</label>
+                            <select id="property-type" name="property-type">
+                                <option value="">Select One</option>
+                                <option value="single-family">Single Family Home</option>
+                                <option value="townhouse">Townhouse</option>
+                                <option value="condo">Condo/Apartment</option>
+                                <option value="commercial">Commercial Property</option>
+                                <option value="multi-family">Multi-Family</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="property-age">Property Age</label>
+                            <input type="text" id="property-age" name="property-age" placeholder="e.g., 15 years">
+                        </div>
+                        <div class="form-group">
+                            <label for="square-footage">Approximate Square Footage</label>
+                            <input type="text" id="square-footage" name="square-footage" placeholder="e.g., 2,500 sq ft">
+                        </div>
+                        <div class="form-group">
+                            <label for="hoa">HOA Involved?</label>
+                            <select id="hoa" name="hoa">
+                                <option value="">Select One</option>
+                                <option value="yes">Yes</option>
+                                <option value="no">No</option>
+                                <option value="not-sure">Not Sure</option>
+                            </select>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Section 3: Project Preferences -->
+                <section class="section">
+                    <h2 class="section-title">
+                        <span class="section-number">3</span>
+                        Your Preferences
+                    </h2>
+                    <p class="section-description">Tell us what matters most to you. This helps us find contractors who align with your priorities.</p>
+
+                    <div class="subsection-title">What's Most Important to You? (Check all that apply)</div>
+                    <div class="checkbox-group">
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="pref-quality" name="preferences" value="quality">
+                            <label for="pref-quality">Premium Quality & Craftsmanship</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="pref-speed" name="preferences" value="speed">
+                            <label for="pref-speed">Fast Completion Time</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="pref-budget" name="preferences" value="budget">
+                            <label for="pref-budget">Competitive Pricing</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="pref-communication" name="preferences" value="communication">
+                            <label for="pref-communication">Excellent Communication</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="pref-warranty" name="preferences" value="warranty">
+                            <label for="pref-warranty">Strong Warranty/Guarantee</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="pref-experience" name="preferences" value="experience">
+                            <label for="pref-experience">Years of Experience</label>
+                        </div>
+                    </div>
+
+                    <div class="subsection-title">Have You Obtained Necessary Permits?</div>
+                    <div class="radio-group">
+                        <div class="radio-item">
+                            <input type="radio" id="permit-yes" name="permits" value="yes">
+                            <label for="permit-yes">Yes, Already Obtained</label>
+                        </div>
+                        <div class="radio-item">
+                            <input type="radio" id="permit-no" name="permits" value="no">
+                            <label for="permit-no">No, Need Help</label>
+                        </div>
+                        <div class="radio-item">
+                            <input type="radio" id="permit-unsure" name="permits" value="unsure">
+                            <label for="permit-unsure">Not Sure</label>
+                        </div>
+                    </div>
+
+                    <div class="subsection-title">Do You Have Materials Selected?</div>
+                    <div class="radio-group">
+                        <div class="radio-item">
+                            <input type="radio" id="materials-yes" name="materials" value="yes">
+                            <label for="materials-yes">Yes, Ready to Order</label>
+                        </div>
+                        <div class="radio-item">
+                            <input type="radio" id="materials-help" name="materials" value="help">
+                            <label for="materials-help">Need Guidance</label>
+                        </div>
+                        <div class="radio-item">
+                            <input type="radio" id="materials-contractor" name="materials" value="contractor">
+                            <label for="materials-contractor">Let Contractor Decide</label>
+                        </div>
+                    </div>
+
+                    <div class="form-grid" style="margin-top: 24px;">
+                        <div class="form-group full-width">
+                            <label for="additional-info">Additional Information or Special Requests</label>
+                            <textarea id="additional-info" name="additional-info" placeholder="Any other details, concerns, or requirements we should know about? Previous contractor issues? Design inspiration? Accessibility needs?"></textarea>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Section 4: How Did You Hear About Us? -->
+                <section class="section">
+                    <h2 class="section-title">
+                        <span class="section-number">4</span>
+                        How Did You Find Us?
+                    </h2>
+                    
+                    <div class="form-grid">
+                        <div class="form-group full-width">
+                            <label for="referral-source">Referral Source</label>
+                            <select id="referral-source" name="referral-source">
+                                <option value="">Select One</option>
+                                <option value="google">Google Search</option>
+                                <option value="facebook">Facebook</option>
+                                <option value="instagram">Instagram</option>
+                                <option value="friend">Friend/Family Referral</option>
+                                <option value="contractor">Contractor Recommendation</option>
+                                <option value="sign">Yard Sign</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                        <div class="form-group full-width">
+                            <label for="referral-details">Referral Details (Optional)</label>
+                            <input type="text" id="referral-details" name="referral-details" placeholder="If referred by someone, please provide their name">
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Submit Button -->
+                <div class="button-container">
+                    <button type="submit">Submit Service Request</button>
+                </div>
+
+                <p class="note" style="text-align: center; margin-top: 16px;">
+                    By submitting this form, you agree to be contacted by Elite Service Hub and our verified contractor partners. Your information is secure and will never be sold to third parties.
+                </p>
+
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Form validation and enhancement
+        document.getElementById('customer-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const requiredFields = this.querySelectorAll('[required]');
+            let isValid = true;
+            
+            requiredFields.forEach(field => {
+                if (!field.value.trim()) {
+                    isValid = false;
+                    field.style.borderColor = '#ef4444';
+                } else {
+                    field.style.borderColor = '';
+                }
+            });
+            
+            if (isValid) {
+                alert('Thank you! Your service request has been submitted. An Elite Service Hub representative will contact you within 24 hours.');
+                // this.submit(); // Uncomment when backend is ready
+            } else {
+                alert('Please fill in all required fields marked with *');
+            }
+        });
+
+        // Remove error styling on input
+        document.querySelectorAll('input, select, textarea').forEach(field => {
+            field.addEventListener('input', function() {
+                this.style.borderColor = '';
+            });
+        });
+    </script>
+</body>
+</html>
