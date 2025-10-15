@@ -28,6 +28,9 @@
         .container { max-width: 1000px; margin: 0 auto; background: var(--esh-zinc-900); border-radius: 16px; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); border: 1px solid var(--esh-zinc-800); }
         
         .header { background: linear-gradient(135deg, var(--esh-black) 0%, var(--esh-zinc-800) 100%); padding: 48px 40px; text-align: center; border-bottom: 2px solid var(--esh-gold); position: relative; overflow: hidden; }
+        .header-tools { position: absolute; top: 16px; right: 16px; display: flex; gap: 8px; }
+        .tool-btn { padding: 10px 14px; border-radius: 8px; border: 1px solid var(--esh-zinc-700); background: var(--esh-zinc-900); color: var(--esh-zinc-300); cursor: pointer; font-weight: 600; letter-spacing: 0.04em; }
+        .tool-btn:hover { border-color: var(--esh-gold); color: var(--esh-gold); }
         
         .header::before { content: ''; position: absolute; inset: 0; background-image: repeating-linear-gradient(45deg, transparent, transparent 100px, rgba(212, 175, 55, 0.03) 100px, rgba(212, 175, 55, 0.03) 200px); pointer-events: none; }
         
@@ -119,6 +122,7 @@
             body { background: white; padding: 0; margin: 0; }
             .container { box-shadow: none; border: none; border-radius: 0; max-width: 100%; }
             .header { background: var(--esh-black); -webkit-print-color-adjust: exact; print-color-adjust: exact; padding: 20px 30px !important; }
+            .header-tools { display: none !important; }
             .logo { width: 60px !important; margin-bottom: 12px !important; }
             .header h1 { font-size: 1.8rem !important; margin-bottom: 8px !important; }
             .header p { font-size: 0.85rem !important; }
@@ -172,8 +176,11 @@
 <body>
     <div class="container">
         <header class="header">
+            <div class="header-tools" aria-hidden="false">
+                <button id="btn-print" type="button" class="tool-btn">Print</button>
+            </div>
             <div class="header-content">
-                <img src="public/images/logos/esh-dark-bg.png" alt="Elite Service Hub Logo" class="logo">
+                <img src="/images/logos/esh-dark-bg.png" alt="Elite Service Hub Logo" class="logo">
                 <h1>Join the <span class="gold">Elite Network</span></h1>
                 <p>Apply to become the exclusive contractor for your service type in your region. Zero upfront cost. 15% commission only.</p>
             </div>
@@ -185,7 +192,11 @@
                 <p>Our contractors enjoy exclusive territory rights, pre-qualified leads, and zero marketing costs. You only pay 15% commission on closed deals. No upfront fees. Ever.</p>
             </div>
 
-            <form id="contractor-form" action="/submit-contractor-application" method="POST">
+            <form id="contractor-form" name="contractor-application" method="POST" data-netlify="true" netlify-honeypot="bot-field">
+                <input type="hidden" name="form-name" value="contractor-application">
+                <div style="display:none">
+                    <label>Don’t fill this out if you’re human: <input name="bot-field"></label>
+                </div>
                 
                 <!-- Section 1: Business Identity -->
                 <section class="section">
@@ -532,6 +543,10 @@
 
     <script>
         const form = document.getElementById('contractor-form');
+        const printBtn = document.getElementById('btn-print');
+        if (printBtn) {
+            printBtn.addEventListener('click', () => window.print());
+        }
 
         // Relax native required enforcement; keep our own soft-checks
         document.addEventListener('DOMContentLoaded', () => {
