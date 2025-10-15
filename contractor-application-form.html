@@ -97,6 +97,22 @@
         
         button[type="submit"]:hover { background: transparent; color: var(--esh-gold); transform: translateY(-2px); box-shadow: 0 10px 25px rgba(212, 175, 55, 0.2); }
         
+        /* Modal: Missing Info */
+        .modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.7); display: none; align-items: center; justify-content: center; z-index: 50; }
+        .modal { width: min(720px, 92vw); background: var(--esh-black); border: 1px solid var(--esh-zinc-800); border-radius: 12px; box-shadow: 0 25px 60px rgba(0,0,0,0.6); overflow: hidden; }
+        .modal header { padding: 20px 24px; background: linear-gradient(135deg, var(--esh-black) 0%, var(--esh-zinc-800) 100%); border-bottom: 1px solid var(--esh-zinc-800); }
+        .modal header h3 { margin: 0; color: var(--esh-gold); font-weight: 500; letter-spacing: 0.04em; }
+        .modal .modal-body { padding: 20px 24px; color: var(--esh-zinc-300); max-height: 60vh; overflow: auto; }
+        .modal .missing-list { margin-top: 8px; display: grid; gap: 12px; }
+        .modal .missing-section { padding: 12px; background: var(--esh-zinc-900); border: 1px solid var(--esh-zinc-800); border-radius: 8px; }
+        .modal .missing-section h4 { color: var(--esh-zinc-300); font-size: 0.95rem; margin-bottom: 6px; font-weight: 600; }
+        .modal .missing-section ul { margin-left: 18px; color: var(--esh-zinc-400); }
+        .modal footer { display: flex; gap: 12px; justify-content: flex-end; padding: 16px 24px; border-top: 1px solid var(--esh-zinc-800); background: var(--esh-zinc-900); }
+        .btn { padding: 12px 20px; border-radius: 8px; border: 1px solid var(--esh-zinc-700); background: var(--esh-zinc-900); color: var(--esh-zinc-300); cursor: pointer; font-weight: 600; letter-spacing: 0.04em; }
+        .btn:hover { border-color: var(--esh-zinc-600); }
+        .btn-primary { border-color: var(--esh-gold); background: var(--esh-gold); color: var(--esh-black); }
+        .btn-primary:hover { background: transparent; color: var(--esh-gold); box-shadow: 0 8px 22px rgba(212,175,55,0.18); }
+        
         @media (max-width: 768px) { body { padding: 10px; } .header { padding: 32px 24px; } .header h1 { font-size: 2rem; } .content { padding: 32px 24px; } .section { padding: 24px 20px; } .form-grid { grid-template-columns: 1fr; } }
         
         @media print {
@@ -497,43 +513,119 @@
         </div>
     </div>
 
+    <!-- Missing Info Modal -->
+    <div id="missing-backdrop" class="modal-backdrop" aria-hidden="true">
+        <div class="modal" role="dialog" aria-modal="true" aria-labelledby="missing-title">
+            <header>
+                <h3 id="missing-title">Some details are missing</h3>
+            </header>
+            <div class="modal-body">
+                <p>We can proceed now, or you can fix the sections below. You may complete missing information later during onboarding.</p>
+                <div id="missing-list" class="missing-list"></div>
+            </div>
+            <footer>
+                <button id="btn-fix" class="btn" type="button">Fix missing</button>
+                <button id="btn-proceed" class="btn btn-primary" type="button">Proceed anyway</button>
+            </footer>
+        </div>
+    </div>
+
     <script>
-        document.getElementById('contractor-form').addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const requiredFields = this.querySelectorAll('[required]');
-            let isValid = true;
-            
-            requiredFields.forEach(field => {
-                if (!field.value.trim() && field.type !== 'checkbox') {
-                    isValid = false;
-                    field.style.borderColor = '#ef4444';
-                } else if (field.type === 'checkbox' && !field.checked) {
-                    isValid = false;
-                    field.parentElement.style.borderColor = '#ef4444';
+        const form = document.getElementById('contractor-form');
+
+        // Relax native required enforcement; keep our own soft-checks
+        document.addEventListener('DOMContentLoaded', () => {
+            form.setAttribute('novalidate', 'novalidate');
+            form.querySelectorAll('[required]').forEach(el => {
+                el.dataset.wasRequired = 'true';
+                el.removeAttribute('required');
+            });
+        });
+
+        const backdrop = document.getElementById('missing-backdrop');
+        const missingList = document.getElementById('missing-list');
+        const btnFix = document.getElementById('btn-fix');
+        const btnProceed = document.getElementById('btn-proceed');
+
+        function openModal() { backdrop.style.display = 'flex'; }
+        function closeModal() { backdrop.style.display = 'none'; }
+
+        function buildMissingReport(missing) {
+            missingList.innerHTML = '';
+            // Group by nearest section title
+            const groups = new Map();
+            missing.forEach(field => {
+                const section = field.closest('section.section');
+                const title = section ? section.querySelector('.section-title')?.innerText?.trim() || 'Section' : 'Section';
+                const label = (field.closest('.form-group')?.querySelector('label')?.innerText || field.name || field.id || 'Field').replace('*','').trim();
+                if (!groups.has(title)) groups.set(title, []);
+                groups.get(title).push({label, field});
+            });
+            groups.forEach((items, title) => {
+                const wrap = document.createElement('div');
+                wrap.className = 'missing-section';
+                wrap.innerHTML = `<h4>${title}</h4>`;
+                const ul = document.createElement('ul');
+                items.forEach(i => { const li = document.createElement('li'); li.textContent = i.label; ul.appendChild(li); });
+                wrap.appendChild(ul);
+                missingList.appendChild(wrap);
+            });
+        }
+
+        function softValidate() {
+            const candidates = form.querySelectorAll('[data-was-required="true"]');
+            const missing = [];
+            candidates.forEach(field => {
+                const isCheckbox = field.type === 'checkbox';
+                const empty = isCheckbox ? !field.checked : !String(field.value || '').trim();
+                // Visual cue only, never blocks
+                if (empty) {
+                    if (isCheckbox) {
+                        field.parentElement && (field.parentElement.style.borderColor = '#ef4444');
+                    } else {
+                        field.style.borderColor = '#ef4444';
+                    }
+                    missing.push(field);
                 } else {
                     field.style.borderColor = '';
-                    if (field.parentElement.classList.contains('checkbox-item')) {
+                    if (field.parentElement?.classList?.contains('checkbox-item')) {
                         field.parentElement.style.borderColor = '';
                     }
                 }
             });
-            
-            if (isValid) {
-                alert('Thank you for your application! An Elite Service Hub representative will review your submission and contact you within 3-5 business days.');
-                // this.submit(); // Uncomment when backend is ready
-            } else {
-                alert('Please complete all required fields marked with *');
+            return missing;
+        }
+
+        let cachedMissing = [];
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            cachedMissing = softValidate();
+            if (cachedMissing.length) {
+                buildMissingReport(cachedMissing);
+                openModal();
+                return;
+            }
+            // No missing -> proceed immediately
+            // Replace with real submit endpoint later
+            alert('Thank you for your application! An Elite Service Hub representative will review your submission and contact you within 3-5 business days.');
+            // this.submit(); // enable when backend endpoint is ready
+        });
+
+        btnFix.addEventListener('click', () => {
+            closeModal();
+            // scroll to first missing field
+            const first = cachedMissing[0];
+            if (first) {
+                first.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                first.focus({ preventScroll: true });
             }
         });
 
-        document.querySelectorAll('input, select, textarea').forEach(field => {
-            field.addEventListener('input', function() {
-                this.style.borderColor = '';
-                if (this.parentElement.classList.contains('checkbox-item')) {
-                    this.parentElement.style.borderColor = '';
-                }
-            });
+        btnProceed.addEventListener('click', () => {
+            closeModal();
+            // Proceed without blocking; show a themed confirmation (for now)
+            alert('Submitted with some information left blank. Our team will follow up to complete your onboarding.');
+            form.submit();
         });
     </script>
 </body>
