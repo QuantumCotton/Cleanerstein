@@ -7,5 +7,5 @@
 
 [[redirects]]
   from = "/thanks"
-  to = "/thanks.html"
+  to = "/thanks/index.html"
   status = 200
