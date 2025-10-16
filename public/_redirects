@@ -1,8 +1,10 @@
-# Don't route these static HTML files through React
-/contractor-application-form.html /contractor-application-form.html 200
-/customer-acquisition-form.html /customer-acquisition-form.html 200
+# Static HTML form pages - serve directly
+/contractor-application-form.html 200
+/customer-acquisition-form.html 200
+/thanks.html 200
+
+# Redirect /thanks to /thanks.html
 /thanks /thanks.html 200
-/thanks.html /thanks.html 200
 
 # Route all other requests to index.html for React Router
 /* /index.html 200

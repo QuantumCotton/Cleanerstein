@@ -1,6 +1,6 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
-import { copyFileSync } from 'fs';
+import { copyFileSync, mkdirSync } from 'fs';
 import { resolve } from 'path';
 
 // https://vitejs.dev/config/
@@ -11,17 +11,26 @@ export default defineConfig({
       name: 'copy-html-files',
       apply: 'build',
       enforce: 'post',
-      generateBundle() {
+      async writeBundle() {
         const files = ['thanks.html', 'contractor-application-form.html', 'customer-acquisition-form.html'];
+        const distDir = resolve(__dirname, 'dist');
+        
+        // Ensure dist directory exists
+        try {
+          mkdirSync(distDir, { recursive: true });
+        } catch (e) {
+          // Directory already exists
+        }
+        
         files.forEach(file => {
           try {
             const src = resolve(__dirname, 'public', file);
-            const dest = resolve(__dirname, 'dist', file);
+            const dest = resolve(distDir, file);
             copyFileSync(src, dest);
-            console.log(`Copied ${file} to dist/`);
+            console.log(`✓ Copied ${file} to dist/`);
           } catch (err: unknown) {
             const message = err instanceof Error ? err.message : String(err);
-            console.warn(`Could not copy ${file}:`, message);
+            console.error(`✗ Failed to copy ${file}:`, message);
           }
         });
       }
