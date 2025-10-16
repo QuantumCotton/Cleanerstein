@@ -77,9 +77,9 @@
       </header>
 
       <div class="content">
-        <form name="client-growth-form" method="POST" action="/thanks/index.html" data-netlify="true" netlify-honeypot="bot-field" enctype="multipart/form-data">
+        <form id="growth-form" name="client-growth-form" method="POST" netlify-honeypot="bot-field">
           <input type="hidden" name="form-name" value="client-growth-form" />
-          <p hidden><label>Don’t fill this out: <input name="bot-field" /></label></p>
+          <p hidden><label>Don't fill this out: <input name="bot-field" /></label></p>
 
           <section class="section">
             <h2>Contact</h2>
@@ -250,7 +250,7 @@
   </div>
   <script>
     (function(){
-      const form = document.querySelector('form[name="client-growth-form"]');
+      const form = document.getElementById('growth-form');
       const btn = document.getElementById('btn-print');
       let cache = null;
 
@@ -290,6 +290,53 @@
 
       btn && btn.addEventListener('click', () => { enterPrintBlank(); window.print(); });
       window.addEventListener('afterprint', exitPrintBlank);
+
+      // Web3Forms submission
+      form && form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const formData = new FormData(this);
+        const object = {};
+        formData.forEach((value, key) => {
+          if (key !== 'bot-field' && key !== 'form-name') {
+            object[key] = value;
+          }
+        });
+        
+        // Web3Forms configuration
+        object['access_key'] = '8e63e7e3-ab53-43a9-80c5-ebc113c25912';
+        object['subject'] = 'New Client Growth Form - ' + (object['company'] || 'Unknown');
+        object['from_name'] = object['contact'] || object['company'];
+        object['emails'] = 'chris@theeliteservicehub.com';
+        const userEmail = (object['email'] || '').toString();
+        object['from_email'] = 'noreply@eliteservicehub.com';
+        if (userEmail) object['reply_to'] = userEmail;
+        
+        const json = JSON.stringify(object);
+        
+        fetch('https://api.web3forms.com/submit', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          body: json
+        })
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            this.reset();
+            window.location.href = '/thanks.html';
+          } else {
+            console.error('Web3Forms error:', data);
+            alert('Submission error: ' + (data.message || 'Unknown error. Please try again.'));
+          }
+        })
+        .catch(error => {
+          console.error('Network error:', error);
+          alert('Network error submitting your form. Please try again.');
+        });
+      });
     })();
   </script>
 </body>
