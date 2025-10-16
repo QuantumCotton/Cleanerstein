@@ -192,7 +192,7 @@
                 <p>Our contractors enjoy exclusive territory rights, pre-qualified leads, and zero marketing costs. You only pay 15% commission on closed deals. No upfront fees. Ever.</p>
             </div>
 
-            <form id="contractor-form" name="contractor-application" method="POST" action="/thanks.html" data-netlify="true" netlify-honeypot="bot-field">
+            <form id="contractor-form" name="contractor-application" method="POST" action="/.netlify/functions/submit-form" netlify-honeypot="bot-field">
                 <input type="hidden" name="form-name" value="contractor-application">
                 <div style="display:none">
                     <label>Don’t fill this out if you’re human: <input name="bot-field"></label>
@@ -501,6 +501,7 @@
                     </div>
 
                     <div class="button-container">
+                        <button type="button" id="btn-save-pdf" style="margin-right: 16px; background: transparent; color: var(--esh-gold); border: 2px solid var(--esh-gold);">Save as PDF</button>
                         <button type="submit">Submit Application</button>
                     </div>
                 </section>
@@ -544,6 +545,36 @@
             });
         });
 
+        // PDF Download
+        document.getElementById('btn-save-pdf').addEventListener('click', function() {
+            window.print();
+        });
+
+        // Form submission
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+            const data = Object.fromEntries(formData);
+            data['form-name'] = 'contractor-application';
+            
+            fetch('/.netlify/functions/submit-form', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            })
+            .then(res => res.json())
+            .then(result => {
+                if (result.success) {
+                    window.location.href = '/thanks.html';
+                } else {
+                    alert('Error submitting form. Please try again.');
+                }
+            })
+            .catch(err => {
+                console.error('Submission error:', err);
+                alert('Error submitting form. Please try again.');
+            });
+        });
     </script>
 </body>
 </html>
