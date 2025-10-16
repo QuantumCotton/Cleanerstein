@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contractor Application - Elite Service Hub</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --esh-black: #000000;
+            --esh-gold: #d4af37;
+            --esh-zinc-900: #18181b;
+            --esh-zinc-800: #27272a;
+            --esh-zinc-700: #3f3f46;
+            --esh-zinc-600: #52525b;
+            --esh-zinc-500: #71717a;
+            --esh-zinc-400: #a1a1aa;
+            --esh-zinc-300: #d4d4d8;
+            --esh-white: #ffffff;
+        }
+
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        body { font-family: 'Montserrat', sans-serif; background: linear-gradient(135deg, var(--esh-black) 0%, var(--esh-zinc-900) 100%); color: var(--esh-zinc-300); padding: 20px; line-height: 1.6; min-height: 100vh; }
+        
+        h1, h2, h3, h4, h5, h6 { font-family: 'Cormorant Garamond', serif; letter-spacing: 0.02em; }
+        
+        .container { max-width: 1000px; margin: 0 auto; background: var(--esh-zinc-900); border-radius: 16px; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); border: 1px solid var(--esh-zinc-800); }
+        
+        .header { background: linear-gradient(135deg, var(--esh-black) 0%, var(--esh-zinc-800) 100%); padding: 48px 40px; text-align: center; border-bottom: 2px solid var(--esh-gold); position: relative; overflow: hidden; }
+        .header-tools { position: absolute; top: 16px; right: 16px; display: flex; gap: 8px; }
+        .tool-btn { padding: 10px 14px; border-radius: 8px; border: 1px solid var(--esh-zinc-700); background: var(--esh-zinc-900); color: var(--esh-zinc-300); cursor: pointer; font-weight: 600; letter-spacing: 0.04em; }
+        .tool-btn:hover { border-color: var(--esh-gold); color: var(--esh-gold); }
+        
+        .header::before { content: ''; position: absolute; inset: 0; background-image: repeating-linear-gradient(45deg, transparent, transparent 100px, rgba(212, 175, 55, 0.03) 100px, rgba(212, 175, 55, 0.03) 200px); pointer-events: none; }
+        
+        .header-content { position: relative; z-index: 1; }
+        
+        .logo { width: 100px; height: auto; margin-bottom: 24px; opacity: 0.9; }
+        
+        .header h1 { font-size: 3rem; font-weight: 300; color: var(--esh-white); margin-bottom: 16px; letter-spacing: 0.05em; }
+        
+        .header h1 .gold { color: var(--esh-gold); font-weight: 400; }
+        
+        .header p { font-size: 1.125rem; color: var(--esh-zinc-400); max-width: 700px; margin: 0 auto; font-weight: 300; letter-spacing: 0.02em; }
+        
+        .content { padding: 48px 40px; }
+        
+        .intro-box { background: linear-gradient(135deg, rgba(212, 175, 55, 0.1) 0%, rgba(212, 175, 55, 0.05) 100%); border-left: 3px solid var(--esh-gold); padding: 24px 28px; margin-bottom: 40px; border-radius: 8px; font-size: 0.95rem; line-height: 1.7; }
+        
+        .intro-box p + p { margin-top: 12px; }
+        
+        .section { margin-bottom: 40px; padding: 32px; background: var(--esh-black); border: 1px solid var(--esh-zinc-800); border-radius: 12px; transition: border-color 0.3s ease; }
+        
+        .section:hover { border-color: var(--esh-zinc-700); }
+        
+        .section-title { font-size: 1.75rem; font-weight: 400; color: var(--esh-gold); margin-bottom: 12px; letter-spacing: 0.05em; display: flex; align-items: center; gap: 12px; }
+        
+        .section-number { display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px; background: var(--esh-gold); color: var(--esh-black); border-radius: 50%; font-size: 1rem; font-weight: 600; font-family: 'Montserrat', sans-serif; }
+        
+        .section-description { font-size: 0.9rem; color: var(--esh-zinc-500); margin-bottom: 24px; line-height: 1.6; }
+        
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; margin-bottom: 20px; }
+        
+        .form-group { display: flex; flex-direction: column; }
+        
+        .form-group.full-width { grid-column: 1 / -1; }
+        
+        label { font-size: 0.75rem; font-weight: 500; color: var(--esh-zinc-300); margin-bottom: 8px; letter-spacing: 0.02em; text-transform: uppercase; }
+        
+        label .required { color: var(--esh-gold); margin-left: 4px; }
+        
+        input[type="text"], input[type="email"], input[type="tel"], input[type="number"], input[type="url"], select, textarea { width: 100%; padding: 14px 16px; background: var(--esh-zinc-900); border: 1px solid var(--esh-zinc-700); border-radius: 8px; color: var(--esh-white); font-family: 'Montserrat', sans-serif; font-size: 1rem; transition: all 0.3s ease; }
+        
+        input:focus, select:focus, textarea:focus { outline: none; border-color: var(--esh-gold); box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.1); background: var(--esh-black); }
+        
+        input::placeholder, textarea::placeholder { color: var(--esh-zinc-600); }
+        
+        textarea { min-height: 120px; resize: vertical; line-height: 1.6; }
+        
+        select { cursor: pointer; appearance: none; background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L6 6L11 1' stroke='%23d4af37' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 16px center; padding-right: 48px; }
+        
+        .checkbox-group { display: flex; flex-direction: column; gap: 16px; margin-top: 16px; }
+        
+        .checkbox-item { display: flex; align-items: flex-start; gap: 12px; padding: 14px; background: var(--esh-zinc-900); border: 1px solid var(--esh-zinc-800); border-radius: 8px; transition: all 0.3s ease; cursor: pointer; }
+        
+        .checkbox-item:hover { background: var(--esh-black); border-color: var(--esh-zinc-700); }
+        
+        .checkbox-item input[type="checkbox"] { width: 20px; height: 20px; margin-top: 2px; cursor: pointer; accent-color: var(--esh-gold); flex-shrink: 0; }
+        
+        .checkbox-item label { margin: 0; cursor: pointer; text-transform: none; font-size: 0.95rem; color: var(--esh-zinc-300); font-weight: 400; }
+        
+        .subsection-title { font-size: 1.1rem; font-weight: 500; color: var(--esh-zinc-300); margin: 28px 0 16px; letter-spacing: 0.02em; }
+        
+        .note { font-size: 0.85rem; color: var(--esh-zinc-500); margin-top: 12px; font-style: italic; }
+        
+        .button-container { display: flex; justify-content: center; margin-top: 48px; padding-top: 32px; border-top: 1px solid var(--esh-zinc-800); }
+        
+        button[type="submit"] { padding: 16px 48px; font-size: 1rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; border: 2px solid var(--esh-gold); background: var(--esh-gold); color: var(--esh-black); border-radius: 8px; cursor: pointer; transition: all 0.3s ease; font-family: 'Montserrat', sans-serif; }
+        
+        button[type="submit"]:hover { background: transparent; color: var(--esh-gold); transform: translateY(-2px); box-shadow: 0 10px 25px rgba(212, 175, 55, 0.2); }
+        
+        /* Modal: Missing Info */
+        .modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.7); display: none; align-items: center; justify-content: center; z-index: 50; }
+        .modal { width: min(720px, 92vw); background: var(--esh-black); border: 1px solid var(--esh-zinc-800); border-radius: 12px; box-shadow: 0 25px 60px rgba(0,0,0,0.6); overflow: hidden; }
+        .modal header { padding: 20px 24px; background: linear-gradient(135deg, var(--esh-black) 0%, var(--esh-zinc-800) 100%); border-bottom: 1px solid var(--esh-zinc-800); }
+        .modal header h3 { margin: 0; color: var(--esh-gold); font-weight: 500; letter-spacing: 0.04em; }
+        .modal .modal-body { padding: 20px 24px; color: var(--esh-zinc-300); max-height: 60vh; overflow: auto; }
+        .modal .missing-list { margin-top: 8px; display: grid; gap: 12px; }
+        .modal .missing-section { padding: 12px; background: var(--esh-zinc-900); border: 1px solid var(--esh-zinc-800); border-radius: 8px; }
+        .modal .missing-section h4 { color: var(--esh-zinc-300); font-size: 0.95rem; margin-bottom: 6px; font-weight: 600; }
+        .modal .missing-section ul { margin-left: 18px; color: var(--esh-zinc-400); }
+        .modal footer { display: flex; gap: 12px; justify-content: flex-end; padding: 16px 24px; border-top: 1px solid var(--esh-zinc-800); background: var(--esh-zinc-900); }
+        .btn { padding: 12px 20px; border-radius: 8px; border: 1px solid var(--esh-zinc-700); background: var(--esh-zinc-900); color: var(--esh-zinc-300); cursor: pointer; font-weight: 600; letter-spacing: 0.04em; }
+        .btn:hover { border-color: var(--esh-zinc-600); }
+        .btn-primary { border-color: var(--esh-gold); background: var(--esh-gold); color: var(--esh-black); }
+        .btn-primary:hover { background: transparent; color: var(--esh-gold); box-shadow: 0 8px 22px rgba(212,175,55,0.18); }
+        
+        @media (max-width: 768px) { body { padding: 10px; } .header { padding: 32px 24px; } .header h1 { font-size: 2rem; } .content { padding: 32px 24px; } .section { padding: 24px 20px; } .form-grid { grid-template-columns: 1fr; } }
+        
+        @media print {
+            body { background: white; padding: 0; margin: 0; }
+            .container { box-shadow: none; border: none; border-radius: 0; max-width: 100%; }
+            .header { background: var(--esh-black); -webkit-print-color-adjust: exact; print-color-adjust: exact; padding: 20px 30px !important; }
+            .header-tools { display: none !important; }
+            .logo { width: 60px !important; margin-bottom: 12px !important; }
+            .header h1 { font-size: 1.8rem !important; margin-bottom: 8px !important; }
+            .header p { font-size: 0.85rem !important; }
+            .content { padding: 20px 30px !important; }
+            .intro-box { padding: 12px 16px !important; margin-bottom: 16px !important; font-size: 0.8rem !important; line-height: 1.4 !important; }
+            .intro-box p + p { margin-top: 6px !important; }
+            .section { page-break-inside: avoid; background: white !important; border: 1px solid #333; padding: 16px 20px !important; margin-bottom: 16px !important; border-radius: 6px; }
+            .section-title { font-size: 1.2rem !important; margin-bottom: 8px !important; }
+            .section-number { width: 28px !important; height: 28px !important; font-size: 0.85rem !important; }
+            .section-description { font-size: 0.75rem !important; margin-bottom: 12px !important; }
+            .form-grid { gap: 12px 16px !important; margin-bottom: 10px !important; }
+            label { font-size: 0.65rem !important; margin-bottom: 4px !important; }
+            input, textarea { background: white !important; border: 1px solid #000 !important; color: #000 !important; padding: 6px 8px !important; font-size: 0.8rem !important; }
+            textarea { min-height: 60px !important; }
+            input::placeholder, textarea::placeholder { color: transparent !important; }
+            
+            /* Hide dropdowns on print, show checkbox options instead */
+            select { display: none !important; }
+            .form-group:has(select)::after {
+                content: '';
+                display: block;
+                margin-top: 6px;
+                padding: 8px;
+                border: 1px solid #000;
+                font-size: 0.7rem;
+                line-height: 1.8;
+                min-height: 50px;
+            }
+            .form-group:has(#business-structure)::after {
+                content: '☐ LLC    ☐ S-Corp    ☐ C-Corp    ☐ Sole Proprietor    ☐ Partnership';
+            }
+            .form-group:has(#wc-status)::after {
+                content: '☐ Active Policy    ☐ Exempt    ☐ Not Applicable';
+            }
+            .form-group:has(#annual-revenue)::after {
+                content: '☐ Under $250K    ☐ $250K-$500K    ☐ $500K-$1M    ☐ $1M-$2.5M    ☐ $2.5M-$5M    ☐ $5M+';
+            }
+            .form-group:has(#primary-service)::after {
+                content: '☐ Kitchen Remodel    ☐ Bathroom Remodel    ☐ General Remodel    ☐ Roofing    ☐ Plumbing    ☐ Electrical    ☐ HVAC    ☐ Flooring    ☐ Painting    ☐ Landscaping    ☐ Concrete    ☐ Pool    ☐ Solar    ☐ Fencing';
+            }
+            
+            .subsection-title { font-size: 0.9rem !important; margin: 12px 0 8px !important; }
+            .checkbox-group { gap: 8px !important; margin-top: 8px !important; }
+            .checkbox-item { padding: 6px 8px !important; border: 1px solid #333; }
+            .checkbox-item label { font-size: 0.75rem !important; }
+            .note { font-size: 0.7rem !important; margin-top: 6px !important; page-break-before: avoid; }
+            .button-container, button[type="submit"] { display: none !important; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <div class="header-tools" aria-hidden="false">
+                <button id="btn-print" type="button" class="tool-btn">Print</button>
+            </div>
+            <div class="header-content">
+                <img src="/images/logos/esh-dark-bg.png" alt="Elite Service Hub Logo" class="logo">
+                <h1>Join the <span class="gold">Elite Network</span></h1>
+                <p>Apply to become the exclusive contractor for your service type in your region. Zero upfront cost. 15% commission only.</p>
+            </div>
+        </header>
+
+        <div class="content">
+            <div class="intro-box">
+                <p><strong>Elite Service Hub</strong> selects one elite contractor per service type in strategic markets nationwide. We provide complete marketing, lead generation, and customer management—you focus on exceptional execution.</p>
+                <p>Our contractors enjoy exclusive territory rights, pre-qualified leads, and zero marketing costs. You only pay 15% commission on closed deals. No upfront fees. Ever.</p>
+            </div>
+
+            <form id="contractor-form" name="contractor-application" method="POST" action="/thanks.html" data-netlify="true" netlify-honeypot="bot-field">
+                <input type="hidden" name="form-name" value="contractor-application">
+                <div style="display:none">
+                    <label>Don’t fill this out if you’re human: <input name="bot-field"></label>
+                </div>
+                
+                <!-- Section 1: Business Identity -->
+                <section class="section">
+                    <h2 class="section-title">
+                        <span class="section-number">1</span>
+                        Business Identity
+                    </h2>
+                    <p class="section-description">Tell us about your business and how to reach you.</p>
+                    
+                    <div class="form-grid">
+                        <div class="form-group full-width">
+                            <label for="business-name">Legal Business Name <span class="required">*</span></label>
+                            <input type="text" id="business-name" name="business-name" placeholder="e.g., Coastal Elite Renovations LLC" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="contact-name">Primary Contact Name <span class="required">*</span></label>
+                            <input type="text" id="contact-name" name="contact-name" placeholder="Full Name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="contact-title">Title / Role <span class="required">*</span></label>
+                            <input type="text" id="contact-title" name="contact-title" placeholder="Owner, President, etc." required>
+                        </div>
+                        <div class="form-group">
+                            <label for="phone">Direct Phone <span class="required">*</span></label>
+                            <input type="tel" id="phone" name="phone" placeholder="(555) 123-4567" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Email Address <span class="required">*</span></label>
+                            <input type="email" id="email" name="email" placeholder="name@company.com" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="business-structure">Business Structure <span class="required">*</span></label>
+                            <select id="business-structure" name="business-structure" required>
+                                <option value="">Select One</option>
+                                <option value="llc">LLC</option>
+                                <option value="s-corp">S-Corporation</option>
+                                <option value="c-corp">C-Corporation</option>
+                                <option value="sole-prop">Sole Proprietor</option>
+                                <option value="partnership">Partnership</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="years-in-business">Years in Business <span class="required">*</span></label>
+                            <input type="number" id="years-in-business" name="years-in-business" min="0" placeholder="e.g., 8" required>
+                        </div>
+                        <div class="form-group full-width">
+                            <label for="business-address">Business Address / Shop Location <span class="required">*</span></label>
+                            <input type="text" id="business-address" name="business-address" placeholder="Street, City, State, ZIP" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="website">Website / Portfolio URL</label>
+                            <input type="url" id="website" name="website" placeholder="https://yourcompany.com">
+                        </div>
+                        <div class="form-group">
+                            <label for="service-area">Primary Service Area <span class="required">*</span></label>
+                            <input type="text" id="service-area" name="service-area" placeholder="City/County, State" required>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Section 2: Licensing & Insurance -->
+                <section class="section">
+                    <h2 class="section-title">
+                        <span class="section-number">2</span>
+                        Licensing & Insurance
+                    </h2>
+                    <p class="section-description">We require verified licensing and active coverage to protect homeowners and our brand.</p>
+                    
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="license-type">Primary Trade License Type <span class="required">*</span></label>
+                            <input type="text" id="license-type" name="license-type" placeholder="e.g., Residential Contractor" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="license-number">License Number <span class="required">*</span></label>
+                            <input type="text" id="license-number" name="license-number" placeholder="##-#######" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="license-state">Licensing State(s) <span class="required">*</span></label>
+                            <input type="text" id="license-state" name="license-state" placeholder="FL, GA, etc." required>
+                        </div>
+                        <div class="form-group">
+                            <label for="gl-carrier">General Liability Carrier <span class="required">*</span></label>
+                            <input type="text" id="gl-carrier" name="gl-carrier" placeholder="Insurance Company Name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="gl-coverage">GL Coverage Limits <span class="required">*</span></label>
+                            <input type="text" id="gl-coverage" name="gl-coverage" placeholder="e.g., $1M/$2M" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="wc-status">Workers' Comp Status <span class="required">*</span></label>
+                            <select id="wc-status" name="wc-status" required>
+                                <option value="">Select One</option>
+                                <option value="active">Active Policy</option>
+                                <option value="exempt">Exempt</option>
+                                <option value="n/a">Not Applicable</option>
+                            </select>
+                        </div>
+                    </div>
+                    <p class="note">You'll be asked to upload proof of licenses and insurance certificates after submission.</p>
+                </section>
+
+                <!-- Section 3: Financial Overview -->
+                <section class="section">
+                    <h2 class="section-title">
+                        <span class="section-number">3</span>
+                        Financial Overview
+                    </h2>
+                    <p class="section-description">Help us understand your financial capacity. This helps us provide the right volume of leads and assists with future growth opportunities.</p>
+                    
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="ein">Federal EIN <span class="required">*</span></label>
+                            <input type="text" id="ein" name="ein" placeholder="##-#######" required>
+                            <p class="note">Used for tax documentation (W-9/1099) and account setup.</p>
+                        </div>
+                        <div class="form-group">
+                            <label for="annual-revenue">Annual Revenue Range <span class="required">*</span></label>
+                            <select id="annual-revenue" name="annual-revenue" required>
+                                <option value="">Select range</option>
+                                <option value="under-50k">Under $50K</option>
+                                <option value="51k-99k">$51K - $99K</option>
+                                <option value="100k-250k">$100K - $250K</option>
+                                <option value="250k-500k">$250K - $500K</option>
+                                <option value="500k-2m">$500K - $2M</option>
+                                <option value="2m-10m">$2M - $10M</option>
+                                <option value="10m-plus">Over $10M</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="avg-project-value">Average Completed Project Value <span class="required">*</span></label>
+                            <input type="text" id="avg-project-value" name="avg-project-value" placeholder="e.g., $25K - $60K" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="material-suppliers">Main Material Suppliers / Credit Lines</label>
+                            <input type="text" id="material-suppliers" name="material-suppliers" placeholder="Home Depot, 84 Lumber, etc.">
+                        </div>
+                        <div class="form-group">
+                            <label for="monthly-capacity">Projects You Can Accept Monthly <span class="required">*</span></label>
+                            <input type="number" id="monthly-capacity" name="monthly-capacity" min="1" placeholder="e.g., 4" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="lead-time">Lead Time to Start New Projects <span class="required">*</span></label>
+                            <input type="text" id="lead-time" name="lead-time" placeholder="e.g., 2 weeks" required>
+                        </div>
+                    </div>
+                    <p class="note">All financial information is kept strictly confidential and used only for partnership planning.</p>
+                </section>
+
+                <!-- Section 4: Services & Capabilities -->
+                <section class="section">
+                    <h2 class="section-title">
+                        <span class="section-number">4</span>
+                        Services & Capabilities
+                    </h2>
+                    <p class="section-description">Tell us what you do best and what makes you elite.</p>
+                    
+                    <div class="form-grid">
+                        <div class="form-group full-width">
+                            <label for="primary-service">Primary Service Type <span class="required">*</span></label>
+                            <select id="primary-service" name="primary-service" required>
+                                <option value="">Select Primary Service</option>
+                                <option value="kitchen-remodel">Kitchen Remodeling</option>
+                                <option value="bathroom-remodel">Bathroom Remodeling</option>
+                                <option value="general-remodel">General Remodeling</option>
+                                <option value="roofing">Roofing</option>
+                                <option value="plumbing">Plumbing</option>
+                                <option value="electrical">Electrical</option>
+                                <option value="hvac">HVAC</option>
+                                <option value="flooring">Flooring</option>
+                                <option value="painting">Painting</option>
+                                <option value="landscaping">Landscaping</option>
+                                <option value="concrete">Concrete</option>
+                                <option value="pool">Pool Services</option>
+                                <option value="solar">Solar</option>
+                                <option value="fencing">Fencing</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="subsection-title">Additional Services Offered (Check all that apply)</div>
+                    <div class="checkbox-group">
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="service-design" name="additional-services" value="design">
+                            <label for="service-design">Design Consultation</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="service-permits" name="additional-services" value="permits">
+                            <label for="service-permits">Permitting Services</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="service-3d" name="additional-services" value="3d-rendering">
+                            <label for="service-3d">3D Rendering / Visualization</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="service-warranty" name="additional-services" value="extended-warranty">
+                            <label for="service-warranty">Extended Warranties</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="service-financing" name="additional-services" value="financing">
+                            <label for="service-financing">Financing Options</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="service-emergency" name="additional-services" value="emergency">
+                            <label for="service-emergency">Emergency/24-7 Services</label>
+                        </div>
+                    </div>
+
+                    <div class="form-grid" style="margin-top: 24px;">
+                        <div class="form-group">
+                            <label for="crew-size">Average Crew Size <span class="required">*</span></label>
+                            <input type="number" id="crew-size" name="crew-size" min="1" placeholder="e.g., 5" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="service-radius">Service Radius (Miles) <span class="required">*</span></label>
+                            <input type="number" id="service-radius" name="service-radius" min="1" placeholder="e.g., 50" required>
+                        </div>
+                        <div class="form-group full-width">
+                            <label for="differentiators">What Makes You Elite? <span class="required">*</span></label>
+                            <textarea id="differentiators" name="differentiators" placeholder="Describe what sets your company apart in quality, communication, or service delivery..." required></textarea>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Section 5: References & Experience -->
+                <section class="section">
+                    <h2 class="section-title">
+                        <span class="section-number">5</span>
+                        References & Track Record
+                    </h2>
+                    <p class="section-description">Help us verify your reputation and quality of work.</p>
+                    
+                    <div class="subsection-title">Client Reference #1</div>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="ref1-name">Client Name</label>
+                            <input type="text" id="ref1-name" name="ref1-name" placeholder="Full Name">
+                        </div>
+                        <div class="form-group">
+                            <label for="ref1-phone">Phone Number</label>
+                            <input type="tel" id="ref1-phone" name="ref1-phone" placeholder="(555) 123-4567">
+                        </div>
+                        <div class="form-group full-width">
+                            <label for="ref1-project">Project Description</label>
+                            <input type="text" id="ref1-project" name="ref1-project" placeholder="e.g., Complete kitchen remodel, $45K">
+                        </div>
+                    </div>
+
+                    <div class="subsection-title">Client Reference #2</div>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="ref2-name">Client Name</label>
+                            <input type="text" id="ref2-name" name="ref2-name" placeholder="Full Name">
+                        </div>
+                        <div class="form-group">
+                            <label for="ref2-phone">Phone Number</label>
+                            <input type="tel" id="ref2-phone" name="ref2-phone" placeholder="(555) 123-4567">
+                        </div>
+                        <div class="form-group full-width">
+                            <label for="ref2-project">Project Description</label>
+                            <input type="text" id="ref2-project" name="ref2-project" placeholder="e.g., Master bathroom renovation, $28K">
+                        </div>
+                    </div>
+
+                    <div class="form-grid" style="margin-top: 24px;">
+                        <div class="form-group full-width">
+                            <label for="portfolio-links">Portfolio Links / Social Media</label>
+                            <textarea id="portfolio-links" name="portfolio-links" placeholder="Instagram, Facebook, Houzz, or other portfolio links (one per line)"></textarea>
+                        </div>
+                        <div class="form-group full-width">
+                            <label for="additional-info">Additional Information</label>
+                            <textarea id="additional-info" name="additional-info" placeholder="Awards, certifications, manufacturer partnerships, or anything else that demonstrates your elite status..."></textarea>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Section 6: Commitment & Understanding -->
+                <section class="section">
+                    <h2 class="section-title">
+                        <span class="section-number">6</span>
+                        Partnership Agreement
+                    </h2>
+                    <p class="section-description">Confirm your understanding of the Elite Service Hub partnership model.</p>
+                    
+                    <div class="checkbox-group">
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="agree-commission" name="agreements" value="commission" required>
+                            <label for="agree-commission">I understand ESH earns a 15% commission on closed projects, collected only after homeowner payment clears.</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="agree-exclusive" name="agreements" value="exclusive" required>
+                            <label for="agree-exclusive">I understand I will be the exclusive ESH contractor for my service type in my region.</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="agree-no-upfront" name="agreements" value="no-upfront" required>
+                            <label for="agree-no-upfront">I understand there are zero upfront costs—ESH covers all marketing, website, and lead generation.</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="agree-standards" name="agreements" value="standards" required>
+                            <label for="agree-standards">I understand I must maintain elite workmanship, communication, and service standards for all ESH homeowners.</label>
+                        </div>
+                    </div>
+
+                    <div class="button-container">
+                        <button type="submit">Submit Application</button>
+                    </div>
+                </section>
+            </form>
+        </div>
+    </div>
+</body>
+</html>
