@@ -466,7 +466,7 @@
                 <p>Our contractors are licensed, insured, and backed by our Elite Service Guarantee. You'll receive a response within 24 hours.</p>
             </div>
 
-            <form id="customer-form" name="customer-service-request" method="POST" action="/thanks" data-netlify="true" netlify-honeypot="bot-field">
+            <form id="customer-form" name="customer-service-request" method="POST" data-netlify="true" netlify-honeypot="bot-field">
                 <input type="hidden" name="form-name" value="customer-service-request">
                 <div style="display:none">
                     <label>Don't fill this out if you're human: <input name="bot-field"></label>
@@ -765,6 +765,14 @@
             field.addEventListener('input', function() {
                 this.style.borderColor = '';
             });
+        });
+
+        // Handle form submission for Netlify
+        document.getElementById('customer-form').addEventListener('submit', function(e) {
+            // Let Netlify handle the submission, then redirect
+            setTimeout(() => {
+                window.location.href = '/thanks';
+            }, 1000);
         });
     </script>
 </body>
