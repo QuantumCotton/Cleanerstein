@@ -543,6 +543,14 @@
                 }
             });
         });
+
+        // Handle form submission for Netlify
+        document.getElementById('contractor-form').addEventListener('submit', function(e) {
+            // Let Netlify handle the submission, then redirect
+            setTimeout(() => {
+                window.location.href = '/thanks.html';
+            }, 1000);
+        });
     </script>
 </body>
 </html>
