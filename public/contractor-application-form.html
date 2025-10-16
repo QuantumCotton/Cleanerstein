@@ -584,10 +584,16 @@
                 }
             });
             
-            // Web3Forms access key - sends to chris@theeliteservicehub.com
+            // Web3Forms configuration
             object['access_key'] = '8e63e7e3-ab53-43a9-80c5-ebc113c25912';
             object['subject'] = 'New Contractor Application - ' + (object['business-name'] || 'Unknown');
-            object['from_name'] = object['business-name'] || object['first-name'] + ' ' + object['last-name'];
+            object['from_name'] = object['business-name'] || (object['first-name'] + ' ' + object['last-name']);
+            // Explicitly set recipient (Web3Forms supports `emails` to override dashboard email)
+            object['emails'] = 'chris@theeliteservicehub.com';
+            // Deliverability: use neutral from_email and set reply_to to user's email
+            const userEmail = (object['email'] || '').toString();
+            object['from_email'] = 'noreply@eliteservicehub.com';
+            if (userEmail) object['reply_to'] = userEmail;
             
             const json = JSON.stringify(object);
             
@@ -602,17 +608,16 @@
             .then(res => res.json())
             .then(data => {
                 if (data.success) {
-                    alert('Application submitted successfully! We will contact you within 24-48 hours.');
                     form.reset();
-                    // Optionally redirect to thanks page
                     window.location.href = '/thanks.html';
                 } else {
-                    alert('There was an error submitting your application. Please try again.');
+                    console.error('Web3Forms error:', data);
+                    alert('Submission error: ' + (data.message || 'Unknown error. Please try again.'));
                 }
             })
             .catch(error => {
-                console.error('Error:', error);
-                alert('There was an error submitting your application. Please try again.');
+                console.error('Network error:', error);
+                alert('Network error submitting your application. Please try again.');
             });
         });
     </script>

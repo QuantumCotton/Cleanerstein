@@ -448,10 +448,14 @@
                 }
             });
             
-            // Web3Forms access key - sends to chris@theeliteservicehub.com
+            // Web3Forms configuration
             object['access_key'] = '8e63e7e3-ab53-43a9-80c5-ebc113c25912';
             object['subject'] = 'New Service Request - ' + (object['first-name'] || '') + ' ' + (object['last-name'] || '');
-            object['from_name'] = object['first-name'] + ' ' + object['last-name'];
+            object['from_name'] = (object['first-name'] || '') + ' ' + (object['last-name'] || '');
+            object['emails'] = 'chris@theeliteservicehub.com';
+            const userEmail = (object['email'] || '').toString();
+            object['from_email'] = 'noreply@eliteservicehub.com';
+            if (userEmail) object['reply_to'] = userEmail;
             
             const json = JSON.stringify(object);
             
@@ -466,17 +470,16 @@
             .then(res => res.json())
             .then(data => {
                 if (data.success) {
-                    alert('Service request submitted successfully! We will contact you within 24 hours.');
                     this.reset();
-                    // Optionally redirect to thanks page
                     window.location.href = '/thanks.html';
                 } else {
-                    alert('There was an error submitting your request. Please try again.');
+                    console.error('Web3Forms error:', data);
+                    alert('Submission error: ' + (data.message || 'Unknown error. Please try again.'));
                 }
             })
             .catch(error => {
-                console.error('Error:', error);
-                alert('There was an error submitting your request. Please try again.');
+                console.error('Network error:', error);
+                alert('Network error submitting your request. Please try again.');
             });
         });
     </script>
