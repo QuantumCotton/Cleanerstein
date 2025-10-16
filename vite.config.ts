@@ -8,21 +8,25 @@ export default defineConfig({
   plugins: [
     react(),
     {
-      name: 'copy-html-files',
+      name: 'copy-static-files',
       apply: 'build',
       enforce: 'post',
       async writeBundle() {
-        const files = ['thanks.html', 'contractor-application-form.html', 'customer-acquisition-form.html'];
+        const filesToCopy = [
+          'thanks.html',
+          'contractor-application-form.html',
+          'customer-acquisition-form.html',
+          '_redirects'
+        ];
         const distDir = resolve(__dirname, 'dist');
         
-        // Ensure dist directory exists
         try {
           mkdirSync(distDir, { recursive: true });
         } catch (e) {
-          // Directory already exists
+          // Directory exists
         }
         
-        files.forEach(file => {
+        filesToCopy.forEach(file => {
           try {
             const src = resolve(__dirname, 'public', file);
             const dest = resolve(distDir, file);

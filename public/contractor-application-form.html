@@ -192,7 +192,7 @@
                 <p>Our contractors enjoy exclusive territory rights, pre-qualified leads, and zero marketing costs. You only pay 15% commission on closed deals. No upfront fees. Ever.</p>
             </div>
 
-            <form id="contractor-form" name="contractor-application" method="POST" data-netlify="true" netlify-honeypot="bot-field">
+            <form id="contractor-form" name="contractor-application" method="POST" action="/thanks.html" data-netlify="true" netlify-honeypot="bot-field">
                 <input type="hidden" name="form-name" value="contractor-application">
                 <div style="display:none">
                     <label>Don’t fill this out if you’re human: <input name="bot-field"></label>
@@ -544,13 +544,6 @@
             });
         });
 
-        // Handle form submission for Netlify
-        document.getElementById('contractor-form').addEventListener('submit', function(e) {
-            // Let Netlify handle the submission, then redirect
-            setTimeout(() => {
-                window.location.href = '/thanks.html';
-            }, 1000);
-        });
     </script>
 </body>
 </html>
