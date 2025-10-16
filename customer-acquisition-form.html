@@ -466,7 +466,11 @@
                 <p>Our contractors are licensed, insured, and backed by our Elite Service Guarantee. You'll receive a response within 24 hours.</p>
             </div>
 
-            <form id="customer-form" action="/submit-service-request" method="POST">
+            <form id="customer-form" name="customer-service-request" method="POST" action="/thanks" data-netlify="true" netlify-honeypot="bot-field">
+                <input type="hidden" name="form-name" value="customer-service-request">
+                <div style="display:none">
+                    <label>Don't fill this out if you're human: <input name="bot-field"></label>
+                </div>
                 
                 <!-- Section 1: Contact Information -->
                 <section class="section">
@@ -750,8 +754,7 @@
             });
             
             if (isValid) {
-                alert('Thank you! Your service request has been submitted. An Elite Service Hub representative will contact you within 24 hours.');
-                // this.submit(); // Uncomment when backend is ready
+                this.submit();
             } else {
                 alert('Please fill in all required fields marked with *');
             }

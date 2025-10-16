@@ -507,5 +507,42 @@
             </form>
         </div>
     </div>
+
+    <script>
+        const form = document.getElementById('contractor-form');
+        form.addEventListener('submit', function(e) {
+            const requiredFields = this.querySelectorAll('[required]');
+            let isValid = true;
+            
+            requiredFields.forEach(field => {
+                if (!field.value.trim() && field.type !== 'checkbox') {
+                    isValid = false;
+                    field.style.borderColor = '#ef4444';
+                } else if (field.type === 'checkbox' && field.dataset.wasRequired && !field.checked) {
+                    isValid = false;
+                    field.parentElement && (field.parentElement.style.borderColor = '#ef4444');
+                } else {
+                    field.style.borderColor = '';
+                    if (field.parentElement?.classList?.contains('checkbox-item')) {
+                        field.parentElement.style.borderColor = '';
+                    }
+                }
+            });
+            
+            if (!isValid) {
+                e.preventDefault();
+                alert('Please fill in all required fields marked with *');
+            }
+        });
+
+        document.querySelectorAll('input, select, textarea').forEach(field => {
+            field.addEventListener('input', function() {
+                this.style.borderColor = '';
+                if (this.parentElement?.classList?.contains('checkbox-item')) {
+                    this.parentElement.style.borderColor = '';
+                }
+            });
+        });
+    </script>
 </body>
 </html>
