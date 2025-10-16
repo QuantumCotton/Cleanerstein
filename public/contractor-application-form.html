@@ -501,7 +501,7 @@
                     </div>
 
                     <div class="button-container">
-                        <button type="button" id="btn-save-pdf" style="margin-right: 16px; background: transparent; color: var(--esh-gold); border: 2px solid var(--esh-gold);">Save as PDF</button>
+                        <button type="button" id="btn-save-pdf" style="margin-right: 16px; background: transparent; color: var(--esh-gold); border: 2px solid var(--esh-gold);">Download Copy</button>
                         <button type="submit">Submit Application</button>
                     </div>
                 </section>
@@ -545,34 +545,74 @@
             });
         });
 
-        // PDF Download
+        // Save as Text File
         document.getElementById('btn-save-pdf').addEventListener('click', function() {
-            window.print();
+            const formData = new FormData(form);
+            let text = 'CONTRACTOR APPLICATION - Elite Service Hub\n';
+            text += '==========================================\n\n';
+            
+            for (let [key, value] of formData.entries()) {
+                if (key !== 'bot-field' && key !== 'form-name') {
+                    const label = key.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+                    text += `${label}: ${value}\n`;
+                }
+            }
+            
+            text += '\n\nSubmitted: ' + new Date().toLocaleString();
+            
+            // Create download link
+            const blob = new Blob([text], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'contractor-application-' + Date.now() + '.txt';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
         });
 
-        // Form submission
+        // Form submission - send directly to your email
         form.addEventListener('submit', function(e) {
             e.preventDefault();
-            const formData = new FormData(this);
-            const data = Object.fromEntries(formData);
-            data['form-name'] = 'contractor-application';
             
-            fetch('/.netlify/functions/submit-form', {
+            const formData = new FormData(this);
+            const object = {};
+            formData.forEach((value, key) => {
+                if (key !== 'bot-field') {
+                    object[key] = value;
+                }
+            });
+            
+            // Web3Forms access key - sends to chris@theeliteservicehub.com
+            object['access_key'] = '8e63e7e3-ab53-43a9-80c5-ebc113c25912';
+            object['subject'] = 'New Contractor Application - ' + (object['business-name'] || 'Unknown');
+            object['from_name'] = object['business-name'] || object['first-name'] + ' ' + object['last-name'];
+            
+            const json = JSON.stringify(object);
+            
+            fetch('https://api.web3forms.com/submit', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(data)
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: json
             })
             .then(res => res.json())
-            .then(result => {
-                if (result.success) {
+            .then(data => {
+                if (data.success) {
+                    alert('Application submitted successfully! We will contact you within 24-48 hours.');
+                    form.reset();
+                    // Optionally redirect to thanks page
                     window.location.href = '/thanks.html';
                 } else {
-                    alert('Error submitting form. Please try again.');
+                    alert('There was an error submitting your application. Please try again.');
                 }
             })
-            .catch(err => {
-                console.error('Submission error:', err);
-                alert('Error submitting form. Please try again.');
+            .catch(error => {
+                console.error('Error:', error);
+                alert('There was an error submitting your application. Please try again.');
             });
         });
     </script>
