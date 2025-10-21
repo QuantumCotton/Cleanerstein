@@ -19,6 +19,7 @@ export default function Navigation() {
   const navLinks = [
     { name: 'How It Works', href: '/how-it-works' },
     { name: 'For Contractors', href: '/for-contractors' },
+    { name: 'Forms', href: '/forms' },
     { name: 'Markets', href: '/markets' },
     { name: 'About', href: '/about' },
     { name: 'Blog', href: '/blog' },

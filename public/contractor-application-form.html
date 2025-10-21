@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Contractor Application - Elite Service Hub</title>
+    <title>Service Partner Application - Elite Service Hub</title>
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -45,6 +45,86 @@
         .header p { font-size: 1.125rem; color: var(--esh-zinc-400); max-width: 700px; margin: 0 auto; font-weight: 300; letter-spacing: 0.02em; }
         
         .content { padding: 48px 40px; }
+        
+        .cover-page {
+            padding: 72px 40px 64px;
+            margin-bottom: 48px;
+            border: 1px solid var(--esh-zinc-800);
+            border-radius: 16px;
+            background: linear-gradient(135deg, rgba(212, 175, 55, 0.16) 0%, rgba(212, 175, 55, 0.05) 100%);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cover-page::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at top right, rgba(212, 175, 55, 0.25), transparent 55%);
+            opacity: 0.5;
+            pointer-events: none;
+        }
+
+        .cover-inner {
+            position: relative;
+            z-index: 1;
+            max-width: 760px;
+            margin: 0 auto;
+        }
+
+        .cover-tagline {
+            font-size: 0.75rem;
+            letter-spacing: 0.4em;
+            text-transform: uppercase;
+            color: var(--esh-gold);
+            margin-bottom: 18px;
+        }
+
+        .cover-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 3.25rem;
+            font-weight: 300;
+            letter-spacing: 0.08em;
+            margin-bottom: 18px;
+        }
+
+        .cover-subtitle {
+            color: var(--esh-zinc-400);
+            font-size: 1.05rem;
+            line-height: 1.8;
+        }
+
+        .cover-meta {
+            margin-top: 36px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 28px;
+        }
+
+        .cover-meta-item {
+            min-width: 180px;
+            border: 1px solid var(--esh-zinc-800);
+            border-radius: 12px;
+            padding: 16px 20px;
+            background: rgba(0, 0, 0, 0.35);
+        }
+
+        .cover-meta-label {
+            display: block;
+            font-size: 0.7rem;
+            letter-spacing: 0.28em;
+            text-transform: uppercase;
+            color: var(--esh-zinc-500);
+            margin-bottom: 8px;
+        }
+
+        .cover-meta-value {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.25rem;
+            color: var(--esh-gold);
+        }
         
         .intro-box { background: linear-gradient(135deg, rgba(212, 175, 55, 0.1) 0%, rgba(212, 175, 55, 0.05) 100%); border-left: 3px solid var(--esh-gold); padding: 24px 28px; margin-bottom: 40px; border-radius: 8px; font-size: 0.95rem; line-height: 1.7; }
         
@@ -127,6 +207,9 @@
             .header h1 { font-size: 1.8rem !important; margin-bottom: 8px !important; }
             .header p { font-size: 0.85rem !important; }
             .content { padding: 20px 30px !important; }
+            .cover-page { page-break-after: always; background: #fff !important; border: 1px solid #000 !important; padding: 24px 20px !important; }
+            .cover-tagline, .cover-title, .cover-subtitle, .cover-meta-label, .cover-meta-value { color: #000 !important; }
+            .cover-meta-item { background: #fff !important; border-color: #000 !important; }
             .intro-box { padding: 12px 16px !important; margin-bottom: 16px !important; font-size: 0.8rem !important; line-height: 1.4 !important; }
             .intro-box p + p { margin-top: 6px !important; }
             .section { page-break-inside: avoid; background: white !important; border: 1px solid #333; padding: 16px 20px !important; margin-bottom: 16px !important; border-radius: 6px; }
@@ -157,11 +240,11 @@
             .form-group:has(#wc-status)::after {
                 content: '☐ Active Policy    ☐ Exempt    ☐ Not Applicable';
             }
-            .form-group:has(#annual-revenue)::after {
-                content: '☐ Under $250K    ☐ $250K-$500K    ☐ $500K-$1M    ☐ $1M-$2.5M    ☐ $2.5M-$5M    ☐ $5M+';
+            .form-group:has(#monthly-revenue)::after {
+                content: '☐ Under $1,999    ☐ $2,000-$3,999    ☐ $4,000-$9,999    ☐ $10,000-$49,999    ☐ $50,000+';
             }
             .form-group:has(#primary-service)::after {
-                content: '☐ Kitchen Remodel    ☐ Bathroom Remodel    ☐ General Remodel    ☐ Roofing    ☐ Plumbing    ☐ Electrical    ☐ HVAC    ☐ Flooring    ☐ Painting    ☐ Landscaping    ☐ Concrete    ☐ Pool    ☐ Solar    ☐ Fencing';
+                content: '☐ Luxury Remodel    ☐ Kitchen Remodel    ☐ Bathroom Remodel    ☐ General Remodel    ☐ Roofing    ☐ Plumbing    ☐ Electrical    ☐ HVAC    ☐ Flooring & Surfaces    ☐ Painting & Coatings    ☐ Landscaping & Outdoor    ☐ Concrete & Masonry    ☐ Pool & Spa    ☐ Solar & Energy    ☐ Fencing & Gates    ☐ Cleaning Services    ☐ Pressure Washing    ☐ Auto Detailing    ☐ Mobile Mechanics    ☐ Property Turnover    ☐ Handyman    ☐ Other Specialty';
             }
             
             .subsection-title { font-size: 0.9rem !important; margin: 12px 0 8px !important; }
@@ -182,14 +265,37 @@
             <div class="header-content">
                 <img src="/images/logos/esh-dark-bg.png" alt="Elite Service Hub Logo" class="logo">
                 <h1>Join the <span class="gold">Elite Network</span></h1>
-                <p>Apply to become the exclusive contractor for your service type in your region. Zero upfront cost. 15% commission only.</p>
+                <p>Apply to become the exclusive Elite Service Hub partner for your category—remodelers, cleaning crews, pressure washers, auto detailers, mobile mechanics, and more. Zero upfront cost. 15% commission only.</p>
             </div>
         </header>
 
         <div class="content">
+            <section class="cover-page">
+                <div class="cover-inner">
+                    <div class="cover-tagline">Elite Service Hub</div>
+                    <h2 class="cover-title">Service Partner Application</h2>
+                    <p class="cover-subtitle">
+                        This packet captures the story, compliance, capacity, and future vision for your business. Share where you are today and where you want to go so we can architect the growth plan around <em>your</em> dream.
+                    </p>
+                    <div class="cover-meta">
+                        <div class="cover-meta-item">
+                            <span class="cover-meta-label">Prepared For</span>
+                            <span class="cover-meta-value">Elite Contractors & Service Pros</span>
+                        </div>
+                        <div class="cover-meta-item">
+                            <span class="cover-meta-label">Partnership Model</span>
+                            <span class="cover-meta-value">Zero Upfront • 15% Performance</span>
+                        </div>
+                        <div class="cover-meta-item">
+                            <span class="cover-meta-label">Support Scope</span>
+                            <span class="cover-meta-value">Marketing • Brand • Lead Ops</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
             <div class="intro-box">
-                <p><strong>Elite Service Hub</strong> selects one elite contractor per service type in strategic markets nationwide. We provide complete marketing, lead generation, and customer management—you focus on exceptional execution.</p>
-                <p>Our contractors enjoy exclusive territory rights, pre-qualified leads, and zero marketing costs. You only pay 15% commission on closed deals. No upfront fees. Ever.</p>
+                <p><strong>Elite Service Hub</strong> selects one elite contractor or service professional per category in strategic markets nationwide. We provide complete marketing, lead generation, and customer management—so you stay focused on elite execution.</p>
+                <p>Our partners enjoy exclusive territory rights, pre-qualified leads, and zero marketing costs across remodeling, cleaning, detailing, fleet maintenance, and specialty trades. You only pay 15% commission on closed deals. No upfront fees. Ever.</p>
             </div>
 
             <form id="contractor-form" name="contractor-application" method="POST" action="/.netlify/functions/submit-form" netlify-honeypot="bot-field">
@@ -209,7 +315,7 @@
                     <div class="form-grid">
                         <div class="form-group full-width">
                             <label for="business-name">Legal Business Name <span class="required">*</span></label>
-                            <input type="text" id="business-name" name="business-name" placeholder="e.g., Coastal Elite Renovations LLC">
+                            <input type="text" id="business-name" name="business-name" placeholder="e.g., Coastal Elite Services LLC">
                         </div>
                         <div class="form-group">
                             <label for="contact-name">Primary Contact Name <span class="required">*</span></label>
@@ -217,7 +323,7 @@
                         </div>
                         <div class="form-group">
                             <label for="contact-title">Title / Role <span class="required">*</span></label>
-                            <input type="text" id="contact-title" name="contact-title" placeholder="Owner, President, etc.">
+                            <input type="text" id="contact-title" name="contact-title" placeholder="Owner, Managing Partner, Lead Technician">
                         </div>
                         <div class="form-group">
                             <label for="phone">Direct Phone <span class="required">*</span></label>
@@ -263,12 +369,12 @@
                         <span class="section-number">2</span>
                         Licensing & Insurance
                     </h2>
-                    <p class="section-description">We require verified licensing and active coverage to protect homeowners and our brand.</p>
+                    <p class="section-description">We require verified licensing and active coverage to protect homeowners, property managers, fleet clients, and our brand.</p>
                     
                     <div class="form-grid">
                         <div class="form-group">
                             <label for="license-type">Primary Trade License Type <span class="required">*</span></label>
-                            <input type="text" id="license-type" name="license-type" placeholder="e.g., Residential Contractor">
+                            <input type="text" id="license-type" name="license-type" placeholder="e.g., General Contractor, Cleaning License, ASE Certified">
                         </div>
                         <div class="form-group">
                             <label for="license-number">License Number <span class="required">*</span></label>
@@ -309,21 +415,19 @@
                     
                     <div class="form-grid">
                         <div class="form-group">
-                            <label for="ein">Federal EIN <span class="required">*</span></label>
-                            <input type="text" id="ein" name="ein" placeholder="##-#######">
-                            <p class="note">Used for tax documentation (W-9/1099) and account setup.</p>
+                            <label for="business-id">Primary Business ID (EIN, License, Registration) <span class="required">*</span></label>
+                            <input type="text" id="business-id" name="business-id" placeholder="##-####### or State License / Registration #">
+                            <p class="note">Used for compliance checks and onboarding paperwork. Share the identifier that matters most for your trade.</p>
                         </div>
                         <div class="form-group">
-                            <label for="annual-revenue">Annual Revenue Range <span class="required">*</span></label>
-                            <select id="annual-revenue" name="annual-revenue">
+                            <label for="monthly-revenue">Monthly Revenue Range <span class="required">*</span></label>
+                            <select id="monthly-revenue" name="monthly-revenue">
                                 <option value="">Select range</option>
-                                <option value="under-50k">Under $50K</option>
-                                <option value="51k-99k">$51K - $99K</option>
-                                <option value="100k-250k">$100K - $250K</option>
-                                <option value="250k-500k">$250K - $500K</option>
-                                <option value="500k-2m">$500K - $2M</option>
-                                <option value="2m-10m">$2M - $10M</option>
-                                <option value="10m-plus">Over $10M</option>
+                                <option value="under-1999">Under $1,999</option>
+                                <option value="2000-3999">$2,000 - $3,999</option>
+                                <option value="4000-9999">$4,000 - $9,999</option>
+                                <option value="10000-49999">$10,000 - $49,999</option>
+                                <option value="50000-plus">$50,000 +</option>
                             </select>
                         </div>
                         <div class="form-group">
@@ -359,6 +463,7 @@
                             <label for="primary-service">Primary Service Type <span class="required">*</span></label>
                             <select id="primary-service" name="primary-service">
                                 <option value="">Select Primary Service</option>
+                                <option value="luxury-remodeling">Luxury Remodeling & Renovations</option>
                                 <option value="kitchen-remodel">Kitchen Remodeling</option>
                                 <option value="bathroom-remodel">Bathroom Remodeling</option>
                                 <option value="general-remodel">General Remodeling</option>
@@ -366,13 +471,20 @@
                                 <option value="plumbing">Plumbing</option>
                                 <option value="electrical">Electrical</option>
                                 <option value="hvac">HVAC</option>
-                                <option value="flooring">Flooring</option>
-                                <option value="painting">Painting</option>
-                                <option value="landscaping">Landscaping</option>
-                                <option value="concrete">Concrete</option>
-                                <option value="pool">Pool Services</option>
-                                <option value="solar">Solar</option>
-                                <option value="fencing">Fencing</option>
+                                <option value="flooring-surfaces">Flooring & Surface Upgrades</option>
+                                <option value="painting-coatings">Painting & Protective Coatings</option>
+                                <option value="landscaping-outdoor">Landscaping & Outdoor Living</option>
+                                <option value="concrete-masonry">Concrete & Masonry</option>
+                                <option value="pool-spa">Pool & Spa Services</option>
+                                <option value="solar-energy">Solar & Energy Solutions</option>
+                                <option value="fencing-gates">Fencing & Gates</option>
+                                <option value="residential-cleaning">Residential / Commercial Cleaning</option>
+                                <option value="pressure-washing">Pressure Washing & Soft Washing</option>
+                                <option value="auto-detailing">Auto Detailing & Ceramic Coating</option>
+                                <option value="mobile-mechanics">Mobile Mechanics & Fleet Maintenance</option>
+                                <option value="property-turnover">Property Turnover / Make-Ready</option>
+                                <option value="handyman">Handyman & Punch List</option>
+                                <option value="other-specialty">Other Specialty Trade</option>
                             </select>
                         </div>
                     </div>
@@ -380,28 +492,32 @@
                     <div class="subsection-title">Additional Services Offered (Check all that apply)</div>
                     <div class="checkbox-group">
                         <div class="checkbox-item">
-                            <input type="checkbox" id="service-design" name="additional-services" value="design">
-                            <label for="service-design">Design Consultation</label>
+                            <input type="checkbox" id="service-design" name="additional-services[]" value="design-support">
+                            <label for="service-design">Design Consultation / Scope Support</label>
                         </div>
                         <div class="checkbox-item">
-                            <input type="checkbox" id="service-permits" name="additional-services" value="permits">
-                            <label for="service-permits">Permitting Services</label>
+                            <input type="checkbox" id="service-permits" name="additional-services[]" value="permits-compliance">
+                            <label for="service-permits">Permitting & Compliance Support</label>
                         </div>
                         <div class="checkbox-item">
-                            <input type="checkbox" id="service-3d" name="additional-services" value="3d-rendering">
-                            <label for="service-3d">3D Rendering / Visualization</label>
+                            <input type="checkbox" id="service-visuals" name="additional-services[]" value="visualizations">
+                            <label for="service-visuals">3D Rendering / Before-After Visualization</label>
                         </div>
                         <div class="checkbox-item">
-                            <input type="checkbox" id="service-warranty" name="additional-services" value="extended-warranty">
-                            <label for="service-warranty">Extended Warranties</label>
+                            <input type="checkbox" id="service-maintenance" name="additional-services[]" value="maintenance-plans">
+                            <label for="service-maintenance">Recurring Maintenance or Membership Plans</label>
                         </div>
                         <div class="checkbox-item">
-                            <input type="checkbox" id="service-financing" name="additional-services" value="financing">
-                            <label for="service-financing">Financing Options</label>
+                            <input type="checkbox" id="service-fleet" name="additional-services[]" value="fleet-contracts">
+                            <label for="service-fleet">Fleet / Commercial Contracts</label>
                         </div>
                         <div class="checkbox-item">
-                            <input type="checkbox" id="service-emergency" name="additional-services" value="emergency">
-                            <label for="service-emergency">Emergency/24-7 Services</label>
+                            <input type="checkbox" id="service-financing" name="additional-services[]" value="financing">
+                            <label for="service-financing">Financing & Payment Plans</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="service-emergency" name="additional-services[]" value="emergency">
+                            <label for="service-emergency">Emergency / 24-7 Response</label>
                         </div>
                     </div>
 
@@ -421,54 +537,73 @@
                     </div>
                 </section>
 
-                <!-- Section 5: References & Experience -->
+                <!-- Section 5: Vision & Partner Goals -->
                 <section class="section">
                     <h2 class="section-title">
                         <span class="section-number">5</span>
-                        References & Track Record
+                        Vision & Partner Goals
                     </h2>
-                    <p class="section-description">Help us verify your reputation and quality of work.</p>
+                    <p class="section-description">We exist to build <em>your</em> dream, not ours. Tell us what growth, lifestyle, and impact should look like so we can support it.</p>
                     
-                    <div class="subsection-title">Client Reference #1</div>
-                    <div class="form-grid">
-                        <div class="form-group">
-                            <label for="ref1-name">Client Name</label>
-                            <input type="text" id="ref1-name" name="ref1-name" placeholder="Full Name">
+                    <div class="subsection-title">Growth Intentions (Select all that resonate)</div>
+                    <div class="checkbox-group">
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="goal-boutique" name="growth-intentions[]" value="stay-boutique">
+                            <label for="goal-boutique">Stay boutique and premium with a tight, high-touch crew</label>
                         </div>
-                        <div class="form-group">
-                            <label for="ref1-phone">Phone Number</label>
-                            <input type="tel" id="ref1-phone" name="ref1-phone" placeholder="(555) 123-4567">
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="goal-local-leader" name="growth-intentions[]" value="local-leader">
+                            <label for="goal-local-leader">Become the go-to provider in one or two core markets</label>
                         </div>
-                        <div class="form-group full-width">
-                            <label for="ref1-project">Project Description</label>
-                            <input type="text" id="ref1-project" name="ref1-project" placeholder="e.g., Complete kitchen remodel, $45K">
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="goal-multi-market" name="growth-intentions[]" value="multi-market">
+                            <label for="goal-multi-market">Expand into multiple territories or service lines</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="goal-recurring" name="growth-intentions[]" value="recurring-revenue">
+                            <label for="goal-recurring">Build recurring revenue (maintenance, memberships, retainers)</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="goal-lifestyle" name="growth-intentions[]" value="lifestyle-balance">
+                            <label for="goal-lifestyle">Create more lifestyle freedom / reduce time in the field</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="goal-exit" name="growth-intentions[]" value="exit-plan">
+                            <label for="goal-exit">Design a sellable brand or exit plan</label>
                         </div>
                     </div>
 
-                    <div class="subsection-title">Client Reference #2</div>
-                    <div class="form-grid">
-                        <div class="form-group">
-                            <label for="ref2-name">Client Name</label>
-                            <input type="text" id="ref2-name" name="ref2-name" placeholder="Full Name">
-                        </div>
-                        <div class="form-group">
-                            <label for="ref2-phone">Phone Number</label>
-                            <input type="tel" id="ref2-phone" name="ref2-phone" placeholder="(555) 123-4567">
+                    <div class="form-grid" style="margin-top: 24px;">
+                        <div class="form-group full-width">
+                            <label for="vision-12">What does a win look like in the next 12 months?</label>
+                            <textarea id="vision-12" name="vision-12" placeholder="Share the milestones, revenue, lifestyle, or impact you want to realize within the next year..."></textarea>
                         </div>
                         <div class="form-group full-width">
-                            <label for="ref2-project">Project Description</label>
-                            <input type="text" id="ref2-project" name="ref2-project" placeholder="e.g., Master bathroom renovation, $28K">
+                            <label for="vision-36">How do you define success over the next 3 years?</label>
+                            <textarea id="vision-36" name="vision-36" placeholder="Describe the dream scenario—team size, markets served, signature offers, legacy goals..."></textarea>
+                        </div>
+                        <div class="form-group full-width">
+                            <label for="lifestyle-goals">Lifestyle & boundaries we should respect</label>
+                            <textarea id="lifestyle-goals" name="lifestyle-goals" placeholder="Preferred schedule, crew size caps, markets you never want, commitments outside the business..."></textarea>
+                        </div>
+                        <div class="form-group full-width">
+                            <label for="support-needs">How can ESH support you best?</label>
+                            <textarea id="support-needs" name="support-needs" placeholder="Sales support, hiring pipeline, financial bridge, brand expansion, systems, etc..."></textarea>
+                        </div>
+                        <div class="form-group full-width">
+                            <label for="non-negotiables">Anything you never want your business to become?</label>
+                            <textarea id="non-negotiables" name="non-negotiables" placeholder="Tell us the red lines so we scale in a way that still feels like yours..."></textarea>
                         </div>
                     </div>
 
                     <div class="form-grid" style="margin-top: 24px;">
                         <div class="form-group full-width">
                             <label for="portfolio-links">Portfolio Links / Social Media</label>
-                            <textarea id="portfolio-links" name="portfolio-links" placeholder="Instagram, Facebook, Houzz, or other portfolio links (one per line)"></textarea>
+                            <textarea id="portfolio-links" name="portfolio-links" placeholder="Instagram, Facebook, Houzz, Google Business Profile, YouTube, or other portfolio links (one per line)"></textarea>
                         </div>
                         <div class="form-group full-width">
                             <label for="additional-info">Additional Information</label>
-                            <textarea id="additional-info" name="additional-info" placeholder="Awards, certifications, manufacturer partnerships, or anything else that demonstrates your elite status..."></textarea>
+                            <textarea id="additional-info" name="additional-info" placeholder="Awards, certifications, community impact, or anything else that helps us represent your vision..."></textarea>
                         </div>
                     </div>
                 </section>
@@ -484,11 +619,11 @@
                     <div class="checkbox-group">
                         <div class="checkbox-item">
                             <input type="checkbox" id="agree-commission" name="agreements" value="commission">
-                            <label for="agree-commission">I understand ESH earns a 15% commission on closed projects, collected only after homeowner payment clears.</label>
+                            <label for="agree-commission">I understand ESH earns a 15% commission on closed projects or service tickets, collected only after client payment clears.</label>
                         </div>
                         <div class="checkbox-item">
                             <input type="checkbox" id="agree-exclusive" name="agreements" value="exclusive">
-                            <label for="agree-exclusive">I understand I will be the exclusive ESH contractor for my service type in my region.</label>
+                            <label for="agree-exclusive">I understand I will be the exclusive ESH partner for my service type in my region.</label>
                         </div>
                         <div class="checkbox-item">
                             <input type="checkbox" id="agree-no-upfront" name="agreements" value="no-upfront">
@@ -496,7 +631,7 @@
                         </div>
                         <div class="checkbox-item">
                             <input type="checkbox" id="agree-standards" name="agreements" value="standards">
-                            <label for="agree-standards">I understand I must maintain elite workmanship, communication, and service standards for all ESH homeowners.</label>
+                            <label for="agree-standards">I understand I must maintain elite workmanship, communication, and service standards for all ESH clients.</label>
                         </div>
                     </div>
 
@@ -511,17 +646,49 @@
 
     <script>
         const form = document.getElementById('contractor-form');
-        form.addEventListener('submit', function(e) {
+        const printButton = document.getElementById('btn-print');
+        if (printButton) {
+            printButton.addEventListener('click', () => window.print());
+        }
+
+        const normalizeLabel = (key) =>
+            key.replace(/\[\]$/, '').replace(/-/g, ' ').replace(/\b\w/g, (l) => l.toUpperCase());
+
+        const collectEntries = () => {
+            const formData = new FormData(form);
+            const entries = {};
+
+            formData.forEach((value, key) => {
+                if (key === 'bot-field' || key === 'form-name') return;
+                const normalizedKey = key.endsWith('[]') ? key.slice(0, -2) : key;
+                if (Object.prototype.hasOwnProperty.call(entries, normalizedKey)) {
+                    const current = entries[normalizedKey];
+                    if (Array.isArray(current)) {
+                        current.push(value);
+                    } else {
+                        entries[normalizedKey] = [current, value];
+                    }
+                } else {
+                    entries[normalizedKey] = value;
+                }
+            });
+
+            return entries;
+        };
+
+        form.addEventListener('submit', function (e) {
             const requiredFields = this.querySelectorAll('[required]');
             let isValid = true;
-            
-            requiredFields.forEach(field => {
+
+            requiredFields.forEach((field) => {
                 if (!field.value.trim() && field.type !== 'checkbox') {
                     isValid = false;
                     field.style.borderColor = '#ef4444';
                 } else if (field.type === 'checkbox' && field.dataset.wasRequired && !field.checked) {
                     isValid = false;
-                    field.parentElement && (field.parentElement.style.borderColor = '#ef4444');
+                    if (field.parentElement) {
+                        field.parentElement.style.borderColor = '#ef4444';
+                    }
                 } else {
                     field.style.borderColor = '';
                     if (field.parentElement?.classList?.contains('checkbox-item')) {
@@ -529,15 +696,15 @@
                     }
                 }
             });
-            
+
             if (!isValid) {
                 e.preventDefault();
                 alert('Please fill in all required fields marked with *');
             }
         });
 
-        document.querySelectorAll('input, select, textarea').forEach(field => {
-            field.addEventListener('input', function() {
+        document.querySelectorAll('input, select, textarea').forEach((field) => {
+            field.addEventListener('input', function () {
                 this.style.borderColor = '';
                 if (this.parentElement?.classList?.contains('checkbox-item')) {
                     this.parentElement.style.borderColor = '';
@@ -545,80 +712,76 @@
             });
         });
 
-        // Save as Text File
-        document.getElementById('btn-save-pdf').addEventListener('click', function() {
-            const formData = new FormData(form);
-            let text = 'CONTRACTOR APPLICATION - Elite Service Hub\n';
-            text += '==========================================\n\n';
-            
-            for (let [key, value] of formData.entries()) {
-                if (key !== 'bot-field' && key !== 'form-name') {
-                    const label = key.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
-                    text += `${label}: ${value}\n`;
-                }
-            }
-            
-            text += '\n\nSubmitted: ' + new Date().toLocaleString();
-            
-            // Create download link
-            const blob = new Blob([text], { type: 'text/plain' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'contractor-application-' + Date.now() + '.txt';
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-        });
+        const saveButton = document.getElementById('btn-save-pdf');
+        if (saveButton) {
+            saveButton.addEventListener('click', function () {
+                const entries = collectEntries();
+                let text = 'SERVICE PARTNER APPLICATION - Elite Service Hub\n';
+                text += '================================================\n\n';
 
-        // Form submission - send directly to your email
-        form.addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const formData = new FormData(this);
-            const object = {};
-            formData.forEach((value, key) => {
-                if (key !== 'bot-field') {
-                    object[key] = value;
-                }
+                Object.entries(entries).forEach(([key, value]) => {
+                    const label = normalizeLabel(key);
+                    const printableValue = Array.isArray(value) ? value.join(', ') : (value || '—');
+                    text += `${label}: ${printableValue}\n`;
+                });
+
+                text += '\n\nSaved: ' + new Date().toLocaleString();
+
+                const blob = new Blob([text], { type: 'text/plain' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'service-partner-application-' + Date.now() + '.txt';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
             });
-            
-            // Web3Forms configuration
-            object['access_key'] = '8e63e7e3-ab53-43a9-80c5-ebc113c25912';
-            object['subject'] = 'New Contractor Application - ' + (object['business-name'] || 'Unknown');
-            object['from_name'] = object['business-name'] || (object['first-name'] + ' ' + object['last-name']);
-            // Explicitly set recipient (Web3Forms supports `emails` to override dashboard email)
-            object['emails'] = 'chris@theeliteservicehub.com';
-            // Deliverability: use neutral from_email and set reply_to to user's email
-            const userEmail = (object['email'] || '').toString();
-            object['from_email'] = 'noreply@eliteservicehub.com';
-            if (userEmail) object['reply_to'] = userEmail;
-            
-            const json = JSON.stringify(object);
-            
+        }
+
+        form.addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            const entries = collectEntries();
+            const payload = {};
+
+            Object.entries(entries).forEach(([key, value]) => {
+                payload[key] = Array.isArray(value) ? value.join(', ') : value;
+            });
+
+            payload['access_key'] = '8e63e7e3-ab53-43a9-80c5-ebc113c25912';
+            payload['subject'] = 'New Service Partner Application - ' + (payload['business-name'] || 'Unknown');
+            payload['from_name'] = payload['business-name'] || payload['contact-name'] || 'Elite Service Hub Partner';
+            payload['emails'] = 'chris@theeliteservicehub.com';
+
+            const userEmail = (payload['email'] || '').toString();
+            payload['from_email'] = 'noreply@eliteservicehub.com';
+            if (userEmail) {
+                payload['reply_to'] = userEmail;
+            }
+
             fetch('https://api.web3forms.com/submit', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Accept': 'application/json'
+                    Accept: 'application/json',
                 },
-                body: json
+                body: JSON.stringify(payload),
             })
-            .then(res => res.json())
-            .then(data => {
-                if (data.success) {
-                    form.reset();
-                    window.location.href = '/thanks.html';
-                } else {
-                    console.error('Web3Forms error:', data);
-                    alert('Submission error: ' + (data.message || 'Unknown error. Please try again.'));
-                }
-            })
-            .catch(error => {
-                console.error('Network error:', error);
-                alert('Network error submitting your application. Please try again.');
-            });
+                .then((res) => res.json())
+                .then((data) => {
+                    if (data.success) {
+                        form.reset();
+                        window.location.href = '/thanks.html';
+                    } else {
+                        console.error('Web3Forms error:', data);
+                        alert('Submission error: ' + (data.message || 'Unknown error. Please try again.'));
+                    }
+                })
+                .catch((error) => {
+                    console.error('Network error:', error);
+                    alert('Network error submitting your application. Please try again.');
+                });
         });
     </script>
 </body>

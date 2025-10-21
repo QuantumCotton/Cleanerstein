@@ -9,6 +9,7 @@ import ApplyPage from './pages/ApplyPage';
 import MarketsPage from './pages/MarketsPage';
 import AboutPage from './pages/AboutPage';
 import BlogPage from './pages/BlogPage';
+import FormsPage from './pages/FormsPage';
 import ThanksPage from './pages/ThanksPage';
 
 // Contractor Pages
@@ -39,6 +40,7 @@ function App() {
         <Route path="/markets" element={<LayoutWithAtlas><MarketsPage /></LayoutWithAtlas>} />
         <Route path="/about" element={<LayoutWithAtlas><AboutPage /></LayoutWithAtlas>} />
         <Route path="/blog" element={<LayoutWithAtlas><BlogPage /></LayoutWithAtlas>} />
+        <Route path="/forms" element={<LayoutWithAtlas><FormsPage /></LayoutWithAtlas>} />
         <Route path="/thanks" element={<LayoutWithAtlas><ThanksPage /></LayoutWithAtlas>} />
         
         {/* Contractor Sites */}

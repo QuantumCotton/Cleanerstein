@@ -14,6 +14,7 @@ export default function Footer() {
     ],
     contractors: [
       { name: 'Become a Partner', href: '/apply' },
+      { name: 'Forms Library', href: '/forms' },
       { name: 'Partner Portal', href: '/contractor/login' },
       { name: 'Resources', href: '/blog' },
       { name: 'Success Stories', href: '#success-stories' },
@@ -55,7 +56,7 @@ export default function Footer() {
               />
             </Link>
             <p className="text-zinc-500 text-sm leading-relaxed mb-6">
-              Performance-Based Marketing for Elite Contractors. Zero upfront cost, 15% commission only.
+              Performance-Based Marketing for Elite Contractors & Service Pros. Zero upfront cost, 15% commission only.
             </p>
             <div className="flex gap-4">
               {socialLinks.map((social) => (
