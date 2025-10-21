@@ -460,9 +460,8 @@
                     
                     <div class="form-grid">
                         <div class="form-group full-width">
-                            <label for="primary-service">Primary Service Type <span class="required">*</span></label>
-                            <select id="primary-service" name="primary-service">
-                                <option value="">Select Primary Service</option>
+                            <label for="primary-service">Primary Service Type(s) <span class="required">*</span></label>
+                            <select id="primary-service" name="primary-service[]" multiple>
                                 <option value="luxury-remodeling">Luxury Remodeling & Renovations</option>
                                 <option value="kitchen-remodel">Kitchen Remodeling</option>
                                 <option value="bathroom-remodel">Bathroom Remodeling</option>
@@ -486,6 +485,7 @@
                                 <option value="handyman">Handyman & Punch List</option>
                                 <option value="other-specialty">Other Specialty Trade</option>
                             </select>
+                            <p class="note">Hold Ctrl (Windows) or Cmd (Mac) to select multiple.</p>
                         </div>
                     </div>
 
