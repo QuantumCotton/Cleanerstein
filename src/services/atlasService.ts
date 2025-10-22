@@ -317,6 +317,7 @@ Based on what you know, respond naturally and progress toward qualification.`;
       }
 
       const data = await response.json();
+      console.log('[Atlas] OpenAI response:', data);
       if (data?.text) {
         return data.text;
       }
