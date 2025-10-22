@@ -34,13 +34,15 @@ export const handler = async (event: any) => {
     const openAiMessages = [
       {
         role: 'system',
-        content: [{ type: 'text', text: systemPrompt }]
+        content: systemPrompt
+          ? [{ type: 'input_text', text: systemPrompt }]
+          : []
       },
       ...messages.map((msg) => ({
         role: msg.role === 'model' ? 'assistant' : 'user',
-        content: msg.parts.map((part) => ({ type: 'text', text: part.text }))
+        content: msg.parts.map((part) => ({ type: 'input_text', text: part.text }))
       }))
-    ];
+    ].filter(entry => entry.content.length > 0);
 
     const response = await fetch(OPENAI_URL, {
       method: 'POST',
