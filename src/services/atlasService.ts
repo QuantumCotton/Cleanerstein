@@ -61,6 +61,7 @@ export interface AtlasConversation {
     askedQuestions: IntakeQuestionKey[];
     preference?: 'quick' | 'full';
     maxQuestions?: number;
+    questionCount: number;
   };
   leadNotificationSent: boolean;
 }
@@ -93,7 +94,8 @@ class AtlasEngine {
         estimatedQuestions: 6,
         askedQuestions: [],
         preference: undefined,
-        maxQuestions: undefined
+        maxQuestions: undefined,
+        questionCount: 0
       },
       leadNotificationSent: false
     };
@@ -142,6 +144,7 @@ What brings you by today? Are you a contractor looking to grow, or just checking
     
     // Add assistant message
     this.addMessage(response);
+    this.recordIntakeQuestion(response);
 
     const lastMessage = this.conversation.messages[this.conversation.messages.length - 1];
 
@@ -257,7 +260,7 @@ What brings you by today? Are you a contractor looking to grow, or just checking
   private async generateResponse(userInput: string): Promise<Omit<AtlasMessage, 'id' | 'timestamp'>> {
     const { leadData, qualificationScore } = this.conversation;
     const { intake } = this.conversation;
-    const questionsAsked = intake.askedQuestions.length;
+    const questionsAsked = intake.questionCount;
     const maxQuestionsSetting = intake.maxQuestions;
     const fallbackEstimate = intake.estimatedQuestions ?? 0;
     const limitForCalc = typeof maxQuestionsSetting === 'number' ? maxQuestionsSetting : fallbackEstimate;
@@ -353,40 +356,59 @@ Based on what you know, respond naturally and progress toward qualification.`;
       });
       clearTimeout(timeout);
 
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`OpenAI request failed: ${response.status} ${errorText}`);
-      }
-
-      const data = await response.json();
-      console.log('[Atlas] OpenAI response:', data);
-      
-      // Check if we got an error response
-      if (data?.error) {
-        console.error('[Atlas] OpenAI error in response:', data);
-        // Return a user-friendly error message
-        return "I'm having trouble processing your request right now. Our team has been notified. Please try again in a moment.";
-      }
-      
-      if (data?.text) {
-        return data.text;
-      }
-      
-      throw new Error('OpenAI response missing text: ' + JSON.stringify(data));
-    } catch (error) {
-      console.error('[Atlas] OpenAI error:', error);
-      throw error;
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`OpenAI request failed: ${response.status} ${errorText}`);
     }
+
+    const data = await response.json();
+    console.log('[Atlas] OpenAI response:', data);
+    
+    // Check if we got an error response
+    if (data?.error) {
+      console.error('[Atlas] OpenAI error in response:', data);
+      // Return a user-friendly error message
+      return "I'm having trouble processing your request right now. Our team has been notified. Please try again in a moment.";
+    }
+    
+    if (data?.text) {
+      return data.text;
+    }
+    
+    throw new Error('OpenAI response missing text: ' + JSON.stringify(data));
+  } catch (error) {
+    console.error('[Atlas] OpenAI error:', error);
+    throw error;
   }
-  
+}
+
   private generateQuickReplies(leadData: LeadData): string[] | undefined {
     if (this.conversation.transferredToHuman) {
       return undefined;
     }
 
-  if (!response.ok) {
-    const errorText = await response.text();
-    throw new Error(`OpenAI request failed: ${response.status} ${errorText}`);
+    const intake = this.conversation.intake;
+
+    if (!intake.active) {
+      return ['Start full intake evaluation', 'Just browsing'];
+    }
+
+    const hasContactInfo = Boolean(leadData.email || leadData.phone);
+    const hasBasicInfo = Boolean(leadData.name || leadData.projectType || leadData.timeline);
+    const maxQuestions = intake.maxQuestions;
+    const askedCount = intake.questionCount;
+    const questionsRemaining = typeof maxQuestions === 'number' ? Math.max(maxQuestions - askedCount, 0) : undefined;
+
+    if (questionsRemaining === 0) {
+      if (hasContactInfo) {
+        return ['Submit what we have'];
+      }
+      return ['Here is my email', 'Here is my phone number'];
+    }
+
+    if (hasContactInfo && hasBasicInfo && askedCount > 2) {
+      if (!leadData.name) {
+        return ['Sure, my name is...', 'Prefer to stay anonymous', 'Submit what we have'];
       }
       if (!leadData.timeline) {
         return ['ASAP', '1-3 months', '3-6 months', 'Submit what we have'];
@@ -398,26 +420,43 @@ Based on what you know, respond naturally and progress toward qualification.`;
       return ['Sure, my name is...', 'Prefer to stay anonymous'];
     }
 
-    if (!leadData.email && !leadData.phone) {
+    if (!hasContactInfo) {
       return ['Here is my email', 'Here is my phone number'];
     }
 
     if (!leadData.projectType) {
-      if (!this.conversation.intake.preference) {
+      if (!intake.preference) {
         return ['3-5 quick questions', 'Full intake (10-12 questions)', 'Just browsing'];
       }
       return ['I focus on remodeling', 'I run a service business', 'Submit what we have'];
     }
-    
+
     if (!leadData.timeline) {
       return ['ASAP', '1-3 months', '3-6 months'];
     }
-    
+
     return undefined;
   }
 
+  private recordIntakeQuestion(message: Omit<AtlasMessage, 'id' | 'timestamp'>): void {
+    const intake = this.conversation.intake;
+    if (!intake.active) {
+      return;
+    }
+    if (this.conversation.mode !== 'intake') {
+      return;
+    }
+    if (this.conversation.transferredToHuman) {
+      return;
+    }
+    if (!message?.content?.trim()) {
+      return;
+    }
+
+    intake.questionCount += 1;
+  }
+
   private checkServiceArea(zip: string): boolean {
-    // Treasure Coast ZIP codes
     const serviceZips = ['34945', '34946', '34947', '34948', '34949', '34950', '34951', '34952', '34953', '34954', '34955', '34956', '34957'];
     return serviceZips.includes(zip);
   }
@@ -484,6 +523,7 @@ Based on what you know, respond naturally and progress toward qualification.`;
       this.conversation.intake.active = true;
       this.conversation.intake.preference = 'quick';
       this.conversation.intake.maxQuestions = 5;
+      this.conversation.intake.questionCount = 0;
       this.conversation.intake.estimatedQuestions = Math.min(this.conversation.intake.estimatedQuestions, 5);
       return;
     }
@@ -493,6 +533,7 @@ Based on what you know, respond naturally and progress toward qualification.`;
       this.conversation.intake.active = true;
       this.conversation.intake.preference = 'full';
       this.conversation.intake.maxQuestions = 12;
+      this.conversation.intake.questionCount = 0;
       this.conversation.intake.estimatedQuestions = Math.max(this.conversation.intake.estimatedQuestions, 12);
       return;
     }
@@ -502,6 +543,7 @@ Based on what you know, respond naturally and progress toward qualification.`;
       this.conversation.intake.active = true;
       this.conversation.intake.preference = undefined;
       this.conversation.intake.maxQuestions = undefined;
+      this.conversation.intake.questionCount = 0;
       this.conversation.intake.estimatedQuestions = Math.max(this.conversation.intake.estimatedQuestions, 10);
       return;
     }
@@ -522,6 +564,7 @@ Based on what you know, respond naturally and progress toward qualification.`;
     if (this.conversation.mode === 'intake' && (lower.includes('later') || lower.includes('not now'))) {
       this.conversation.mode = 'askAround';
       this.conversation.intake.active = false;
+      this.conversation.intake.questionCount = 0;
     }
   }
 
