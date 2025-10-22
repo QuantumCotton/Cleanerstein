@@ -1,5 +1,5 @@
 const DEFAULT_OPENAI_URL = 'https://api.openai.com/v1/chat/completions';
-const DEFAULT_MODEL = 'gpt-5-nano';
+const DEFAULT_MODEL = 'gpt-5-mini';
 
 const resolveOpenAIUrl = () => {
   const direct = (process.env.OPENAI_API_URL || '').trim();

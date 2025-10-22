@@ -3,7 +3,7 @@ import { callGeminiAPI, GeminiMessage, CONTRACTOR_ACQUISITION_PROMPT } from './g
 
 const OPENAI_ENDPOINT = '/.netlify/functions/atlas-openai';
 const LEAD_EMAIL_ENDPOINT = '/.netlify/functions/send-atlas-lead';
-const OPENAI_TIMEOUT_MS = 10000;
+const OPENAI_TIMEOUT_MS = 60000; // 60 seconds for GPT-5 reasoning models
 
 export type ConversationMode = 'askAround' | 'intake';
 export type IntakeQuestionKey =
