@@ -43,7 +43,6 @@ export default function ChatWidget({
     setInputValue('');
     setIsTyping(true);
 
-    // Add user message immediately
     const userMsg: AtlasMessage = {
       id: `msg_${Date.now()}`,
       role: 'user',
@@ -56,16 +55,24 @@ export default function ChatWidget({
       messages: [...prev.messages, userMsg]
     } : null);
 
-    // Send to Atlas and get response
-    const response = await sendMessage(conversation.id, userMessage);
-    setIsTyping(false);
-
-    setConversation(prev => prev ? {
-      ...prev,
-      messages: [...prev.messages, response],
-      leadData: response.leadData || prev.leadData,
-      qualificationScore: response.qualificationScore || prev.qualificationScore
-    } : null);
+    try {
+      const { conversation: updatedConversation } = await sendMessage(conversation.id, userMessage);
+      setConversation(updatedConversation);
+      // Ensure typing indicator hides before rendering quick replies
+      setIsTyping(false);
+    } catch (error) {
+      console.error('[Atlas] Failed to send message', error);
+      setConversation(prev => prev ? {
+        ...prev,
+        messages: [...prev.messages, {
+          id: `error_${Date.now()}`,
+          role: 'assistant',
+          content: 'I ran into a connection issue. Could we try that again in a moment?',
+          timestamp: new Date()
+        }]
+      } : null);
+      setIsTyping(false);
+    }
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {

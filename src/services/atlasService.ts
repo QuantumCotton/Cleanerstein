@@ -1,6 +1,22 @@
 // Atlas AI Service - Conversation Engine & Lead Qualification
 import { callGeminiAPI, GeminiMessage, CONTRACTOR_ACQUISITION_PROMPT } from './geminiService';
 
+const OPENAI_ENDPOINT = '/.netlify/functions/atlas-openai';
+const LEAD_EMAIL_ENDPOINT = '/.netlify/functions/send-atlas-lead';
+const OPENAI_TIMEOUT_MS = 10000;
+
+export type ConversationMode = 'askAround' | 'intake';
+export type IntakeQuestionKey =
+  | 'name'
+  | 'contact'
+  | 'projectType'
+  | 'timeline'
+  | 'budget'
+  | 'zip'
+  | 'services'
+  | 'financing'
+  | 'details';
+
 export interface AtlasMessage {
   id: string;
   role: 'user' | 'assistant' | 'system';
@@ -9,6 +25,11 @@ export interface AtlasMessage {
   quickReplies?: string[];
   leadData?: Partial<LeadData>;
   qualificationScore?: number;
+}
+
+export interface AtlasServiceResponse {
+  message: AtlasMessage;
+  conversation: AtlasConversation;
 }
 
 export interface LeadData {
@@ -33,6 +54,13 @@ export interface AtlasConversation {
   stage: ConversationStage;
   isQualified: boolean;
   transferredToHuman: boolean;
+  mode: ConversationMode;
+  intake: {
+    active: boolean;
+    estimatedQuestions: number;
+    askedQuestions: IntakeQuestionKey[];
+  };
+  leadNotificationSent: boolean;
 }
 
 export type ConversationStage = 
@@ -56,7 +84,14 @@ class AtlasEngine {
       qualificationScore: 0,
       stage: 'greeting',
       isQualified: false,
-      transferredToHuman: false
+      transferredToHuman: false,
+      mode: 'askAround',
+      intake: {
+        active: false,
+        estimatedQuestions: 6,
+        askedQuestions: []
+      },
+      leadNotificationSent: false
     };
     
     // Add initial greeting
@@ -64,10 +99,8 @@ class AtlasEngine {
       role: 'assistant',
       content: `Hi! I'm Atlas from Elite Service Hub. 👋
 
-Are you a contractor looking to grow your business? We build professional websites and generate qualified leads for kitchen and bathroom remodeling contractors.
-
-What brings you here today?`,
-      quickReplies: ['I am a Contractor', 'Looking for a Contractor', 'Tell Me More']
+What brings you here today? Are you a contractor looking for growth support, or are you just exploring?`,
+      quickReplies: ['I am a Contractor', 'Just exploring', 'Tell me about Elite Service Hub']
     });
   }
 
@@ -81,8 +114,21 @@ What brings you here today?`,
   }
 
   async processUserMessage(userInput: string): Promise<AtlasMessage> {
+    // Record user message for transcript and context
+    const userMessage: AtlasMessage = {
+      id: `msg_user_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
+      role: 'user',
+      content: userInput,
+      timestamp: new Date()
+    };
+    this.conversation.messages.push(userMessage);
+
     // Analyze user input and extract data
     await this.analyzeInput(userInput);
+
+    // Update intake state based on user intent
+    this.detectModeSwitch(userInput);
+    this.updateIntakeProgress();
     
     // Update qualification score
     this.updateQualificationScore();
@@ -92,13 +138,23 @@ What brings you here today?`,
     
     // Add assistant message
     this.addMessage(response);
-    
-    return this.conversation.messages[this.conversation.messages.length - 1];
+
+    const lastMessage = this.conversation.messages[this.conversation.messages.length - 1];
+
+    if (this.shouldTriggerLeadNotification()) {
+      await this.notifyNewLead();
+    }
+
+    return {
+      ...lastMessage,
+      leadData: { ...this.conversation.leadData },
+      qualificationScore: this.conversation.qualificationScore
+    };
   }
 
   private async analyzeInput(input: string): Promise<void> {
     const lowerInput = input.toLowerCase();
-    
+
     // Extract project type
     if (!this.conversation.leadData.projectType) {
       if (lowerInput.includes('kitchen')) {
@@ -107,7 +163,18 @@ What brings you here today?`,
         this.conversation.leadData.projectType = 'bathroom';
       }
     }
-    
+
+    // Extract name cues
+    if (!this.conversation.leadData.name) {
+      const nameMatch = input.match(/(?:my name is|this is|i'm|i am)\s+([A-Za-z][A-Za-z\s'.-]{1,40})/i);
+      if (nameMatch) {
+        const name = nameMatch[1].trim();
+        if (name.split(' ').length <= 4) {
+          this.conversation.leadData.name = name;
+        }
+      }
+    }
+
     // Extract timeline
     if (!this.conversation.leadData.timeline) {
       if (lowerInput.includes('asap') || lowerInput.includes('immediately') || lowerInput.includes('soon')) {
@@ -116,7 +183,7 @@ What brings you here today?`,
         this.conversation.leadData.timeline = input;
       }
     }
-    
+
     // Extract budget signals
     if (!this.conversation.leadData.budget) {
       const budgetMatch = lowerInput.match(/\$?\d+[k,]?\d*k?/);
@@ -126,18 +193,18 @@ What brings you here today?`,
         this.conversation.leadData.budget = 'Flexible';
       }
     }
-    
+
     // Extract contact info
     const emailMatch = input.match(/[\w.-]+@[\w.-]+\.\w+/);
     if (emailMatch && !this.conversation.leadData.email) {
       this.conversation.leadData.email = emailMatch[0];
     }
-    
+
     const phoneMatch = input.match(/\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}/);
     if (phoneMatch && !this.conversation.leadData.phone) {
       this.conversation.leadData.phone = phoneMatch[0];
     }
-    
+
     const zipMatch = input.match(/\b\d{5}\b/);
     if (zipMatch && !this.conversation.leadData.zip) {
       this.conversation.leadData.zip = zipMatch[0];
@@ -147,7 +214,8 @@ What brings you here today?`,
   private updateQualificationScore(): void {
     let score = 0;
     const data = this.conversation.leadData;
-    
+    const inServiceArea = data.zip ? this.checkServiceArea(data.zip) : true;
+
     // Scoring criteria
     if (data.projectType) score += 15;
     if (data.timeline) score += 10;
@@ -155,23 +223,26 @@ What brings you here today?`,
     if (data.zip) score += 15;
     if (data.email) score += 20;
     if (data.phone) score += 20;
-    
+    if (!inServiceArea) {
+      score -= 10;
+    }
+
     // Bonus for high-value indicators
     if (data.budget && (data.budget.includes('50') || data.budget.includes('75') || data.budget.includes('100'))) {
       score += 10;
     }
-    
+
     if (data.timeline === 'ASAP') {
       score += 5;
     }
-    
-    this.conversation.qualificationScore = Math.min(score, 100);
-    this.conversation.isQualified = score >= 60;
+
+    this.conversation.qualificationScore = Math.min(Math.max(score, 0), 100);
+    this.conversation.isQualified = this.conversation.qualificationScore >= 60 && inServiceArea;
   }
 
   private async generateResponse(userInput: string): Promise<Omit<AtlasMessage, 'id' | 'timestamp'>> {
     const { leadData, qualificationScore } = this.conversation;
-    
+
     // Build conversation history for Gemini
     const geminiMessages: GeminiMessage[] = this.conversation.messages
       .filter(msg => msg.role !== 'system')
@@ -184,27 +255,75 @@ What brings you here today?`,
     const contextPrompt = `${CONTRACTOR_ACQUISITION_PROMPT}
 
 CURRENT CONVERSATION CONTEXT:
+- Mode: ${this.conversation.mode}
+- Intake Active: ${this.conversation.intake.active}
+- Intake Progress: ${this.conversation.intake.askedQuestions.join(', ') || 'none'}
 - Collected Data: ${JSON.stringify(leadData)}
 - Qualification Score: ${qualificationScore}/100
 - User just said: "${userInput}"
 
-Based on what you know, ask the NEXT most relevant question to qualify this contractor. Keep it conversational and natural.`;
-    
-    // Call Gemini API
-    const aiResponse = await callGeminiAPI(geminiMessages, contextPrompt);
-    
+You must always respect the current mode:
+- If mode is "askAround", keep things light, ask one question at a time, learn how much time the visitor wants to spend chatting, and offer to start a full intake when appropriate.
+- If mode is "intake", focus on filling in missing intake fields (${this.getPendingIntakeKeys().join(', ') || 'none'}). Mention roughly how many questions remain (${Math.max(0, this.conversation.intake.estimatedQuestions - this.conversation.intake.askedQuestions.length)}).
+- When the user asks about financing, clarify we do not directly provide financing but offer free consultation on how to get approved.
+- Connect intake questions to the contractor forms: brand identity, growth goals, launch readiness, and neighborhood coverage, but only ask what feels relevant to their trade.
+- Always keep responses concise (2-3 sentences) and end with a question.
+
+Based on what you know, respond naturally and progress toward qualification.`;
+
+    const aiResponse = await this.requestOpenAI(geminiMessages, contextPrompt);
+
     // Determine if we should provide quick replies based on context
     const quickReplies = this.generateQuickReplies(leadData);
-    
+
     return {
       role: 'assistant',
       content: aiResponse,
       quickReplies
     };
   }
+
+  private async requestOpenAI(messages: GeminiMessage[], prompt: string): Promise<string> {
+    try {
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), OPENAI_TIMEOUT_MS);
+      const response = await fetch(OPENAI_ENDPOINT, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messages, systemPrompt: prompt }),
+        signal: controller.signal
+      });
+      clearTimeout(timeout);
+
+      if (!response.ok) {
+        throw new Error(`OpenAI request failed: ${response.status}`);
+      }
+
+      const data = await response.json();
+      if (data?.text) {
+        return data.text;
+      }
+      throw new Error('OpenAI response missing text');
+    } catch (error) {
+      console.warn('[Atlas] OpenAI fallback to Gemini:', error);
+      return callGeminiAPI(messages, prompt);
+    }
+  }
   
   private generateQuickReplies(leadData: LeadData): string[] | undefined {
     // Provide quick replies based on missing data
+    if (!this.conversation.intake.active) {
+      return ['Start full intake evaluation', 'Just browsing'];
+    }
+
+    if (!leadData.name) {
+      return ['Sure, my name is...', 'Prefer to stay anonymous'];
+    }
+
+    if (!leadData.email && !leadData.phone) {
+      return ['Here is my email', 'Here is my phone number'];
+    }
+
     if (!leadData.projectType) {
       return ['Kitchen Remodeling', 'Bathroom Remodeling', 'Both'];
     }
@@ -214,134 +333,144 @@ Based on what you know, ask the NEXT most relevant question to qualify this cont
     return undefined;
   }
 
-  private getDiscoveryResponse(): Omit<AtlasMessage, 'id' | 'timestamp'> {
-    const { projectType, timeline } = this.conversation.leadData;
-    
-    if (!projectType) {
-      return {
-        role: 'assistant',
-        content: 'What type of project are you planning?',
-        quickReplies: ['Kitchen Remodeling', 'Bathroom Remodeling', 'Both', 'Other']
-      };
-    }
-    
-    if (!timeline) {
-      return {
-        role: 'assistant',
-        content: `Great! ${projectType === 'kitchen' ? 'Kitchen' : 'Bathroom'} remodeling is one of our specialties. 
-
-When are you looking to start this project?`,
-        quickReplies: ['ASAP', '1-3 months', '3-6 months', '6+ months']
-      };
-    }
-    
-    return this.getQualificationResponse();
-  }
-
-  private getQualificationResponse(): Omit<AtlasMessage, 'id' | 'timestamp'> {
-    const { budget, zip } = this.conversation.leadData;
-    
-    if (!budget) {
-      return {
-        role: 'assistant',
-        content: 'Do you have a budget range in mind for this project?',
-        quickReplies: ['$15k-$25k', '$25k-$50k', '$50k-$75k', '$75k+', 'Not sure yet']
-      };
-    }
-    
-    if (!zip) {
-      return {
-        role: 'assistant',
-        content: 'What\'s your ZIP code? This helps us connect you with the best contractors in your area.',
-        quickReplies: []
-      };
-    }
-    
-    return this.getSchedulingResponse();
-  }
-
-  private getSchedulingResponse(): Omit<AtlasMessage, 'id' | 'timestamp'> {
-    const { email, phone, zip } = this.conversation.leadData;
-    
-    // Check if ZIP is in service area
-    const isInServiceArea = this.checkServiceArea(zip || '');
-    
-    if (!isInServiceArea) {
-      return {
-        role: 'assistant',
-        content: `Thank you for your interest! Unfortunately, we don't currently serve the ${zip} area yet. 
-
-Would you like to join our waitlist? We're expanding rapidly!`,
-        quickReplies: ['Yes, join waitlist', 'No thanks']
-      };
-    }
-    
-    if (!email) {
-      return {
-        role: 'assistant',
-        content: 'Perfect! We have elite contractors available in your area. What\'s the best email to send you contractor matches?',
-        quickReplies: []
-      };
-    }
-    
-    if (!phone) {
-      return {
-        role: 'assistant',
-        content: 'And what\'s the best phone number to reach you? Our contractors typically respond within 24 hours.',
-        quickReplies: []
-      };
-    }
-    
-    return this.getCompletedResponse();
-  }
-
-  private getCompletedResponse(): Omit<AtlasMessage, 'id' | 'timestamp'> {
-    const { projectType, name } = this.conversation.leadData;
-    
-    // Trigger lead notification
-    this.notifyNewLead();
-    
-    return {
-      role: 'assistant',
-      content: `Excellent${name ? `, ${name}` : ''}! 🎉
-
-I've matched you with our top ${projectType || ''} contractors in your area. 
-
-Here's what happens next:
-✅ You'll receive an email within 5 minutes with contractor profiles
-✅ A contractor will reach out within 24 hours
-✅ Free consultation to discuss your project
-
-Your qualification score: ${this.conversation.qualificationScore}/100 (High Priority!)
-
-Is there anything else you'd like to know?`,
-      quickReplies: ['What makes ESH different?', 'How much does this cost?', 'Talk to a human']
-    };
-  }
-
   private checkServiceArea(zip: string): boolean {
     // Treasure Coast ZIP codes
     const serviceZips = ['34945', '34946', '34947', '34948', '34949', '34950', '34951', '34952', '34953', '34954', '34955', '34956', '34957'];
     return serviceZips.includes(zip);
   }
 
+  private shouldTriggerLeadNotification(): boolean {
+    const { intake, leadData } = this.conversation;
+    if (!intake.active) {
+      return false;
+    }
+    const hasContact = Boolean(leadData.email || leadData.phone);
+    return (
+      hasContact &&
+      intake.askedQuestions.includes('name') &&
+      !this.conversation.transferredToHuman &&
+      !this.conversation.leadNotificationSent
+    );
+  }
+
   private async notifyNewLead(): Promise<void> {
-    // TODO: Send to Supabase and trigger email notifications
-    console.log('[Atlas] New qualified lead:', this.conversation.leadData);
-    
-    // Store in localStorage for now
-    const leads = JSON.parse(localStorage.getItem('esh_atlas_leads') || '[]');
-    leads.push({
-      conversationId: this.conversation.id,
-      leadData: this.conversation.leadData,
-      qualificationScore: this.conversation.qualificationScore,
-      timestamp: new Date().toISOString()
+    try {
+      const payload = {
+        conversationId: this.conversation.id,
+        leadData: this.conversation.leadData,
+        qualificationScore: this.conversation.qualificationScore,
+        startedAt: this.conversation.startedAt,
+        mode: this.conversation.mode,
+        intake: this.conversation.intake,
+        transcript: this.conversation.messages.map(msg => ({
+          role: msg.role,
+          content: msg.content,
+          timestamp: msg.timestamp
+        }))
+      };
+
+      await fetch(LEAD_EMAIL_ENDPOINT, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      this.conversation.leadNotificationSent = true;
+    } catch (error) {
+      console.error('[Atlas] Failed to send lead email', error);
+    }
+  }
+
+  private detectModeSwitch(input: string) {
+    const lower = input.toLowerCase();
+    if (lower.includes('full intake') || lower.includes('intake evaluation')) {
+      this.conversation.mode = 'intake';
+      this.conversation.intake.active = true;
+      return;
+    }
+
+    if (this.conversation.mode === 'askAround') {
+      const contractorSignals = ['contractor', 'builder', 'remodel'];
+      if (contractorSignals.some(signal => lower.includes(signal))) {
+        this.conversation.mode = 'askAround';
+      }
+
+      const readinessSignals = ['sign me up', 'get started', 'apply', 'yes let\'s do intake'];
+      if (readinessSignals.some(signal => lower.includes(signal))) {
+        this.conversation.mode = 'intake';
+        this.conversation.intake.active = true;
+      }
+    }
+
+    if (this.conversation.mode === 'intake' && (lower.includes('later') || lower.includes('not now'))) {
+      this.conversation.mode = 'askAround';
+      this.conversation.intake.active = false;
+    }
+  }
+
+  private updateIntakeProgress() {
+    if (!this.conversation.intake.active) {
+      return;
+    }
+
+    const dataMap: Array<[IntakeQuestionKey, unknown]> = [
+      ['name', this.conversation.leadData.name],
+      ['contact', this.conversation.leadData.email || this.conversation.leadData.phone],
+      ['projectType', this.conversation.leadData.projectType],
+      ['timeline', this.conversation.leadData.timeline],
+      ['budget', this.conversation.leadData.budget],
+      ['zip', this.conversation.leadData.zip],
+      ['services', this.conversation.leadData.propertyType],
+      ['financing', this.conversation.leadData.currentStatus],
+      ['details', this.conversation.leadData.details]
+    ];
+
+    const asked: IntakeQuestionKey[] = [];
+    dataMap.forEach(([key, value]) => {
+      if (value) {
+        asked.push(key);
+      }
     });
-    localStorage.setItem('esh_atlas_leads', JSON.stringify(leads));
+    this.conversation.intake.askedQuestions = asked;
+
+    // Adjust estimated question count based on missing fields
+    const pending = this.getPendingIntakeKeys();
+    const estimated = Math.max(asked.length + pending.length, asked.length + 1);
+    this.conversation.intake.estimatedQuestions = estimated;
+  }
+
+  private getPendingIntakeKeys(): IntakeQuestionKey[] {
+    const required: IntakeQuestionKey[] = ['name', 'contact'];
+    const optional: IntakeQuestionKey[] = ['projectType', 'timeline', 'budget', 'zip', 'services', 'financing', 'details'];
+    const missing: IntakeQuestionKey[] = [];
+
+    required.forEach(key => {
+      if (!this.conversation.intake.askedQuestions.includes(key)) {
+        missing.push(key);
+      }
+    });
+
+    optional.forEach(key => {
+      if (!this.conversation.intake.askedQuestions.includes(key)) {
+        missing.push(key);
+      }
+    });
+
+    return missing;
+  }
+  private snapshotConversation(): AtlasConversation {
+    return {
+      ...this.conversation,
+      messages: this.conversation.messages.map(msg => ({ ...msg })),
+      leadData: { ...this.conversation.leadData },
+      intake: {
+        ...this.conversation.intake,
+        askedQuestions: [...this.conversation.intake.askedQuestions]
+      }
+    };
   }
 
   getConversation(): AtlasConversation {
-    return this.conversation;
+    return this.snapshotConversation();
   }
 }
 
@@ -360,7 +489,7 @@ export const startConversation = async (): Promise<AtlasConversation> => {
 export const sendMessage = async (
   conversationId: string,
   userInput: string
-): Promise<AtlasMessage> => {
+): Promise<AtlasServiceResponse> => {
   let engine = conversations.get(conversationId);
   
   if (!engine) {
@@ -372,8 +501,11 @@ export const sendMessage = async (
   // Simulate AI processing delay
   await new Promise(resolve => setTimeout(resolve, 800 + Math.random() * 400));
   
-  const response = await engine.processUserMessage(userInput);
-  return response;
+  const message = await engine.processUserMessage(userInput);
+  return {
+    message,
+    conversation: engine.getConversation()
+  };
 };
 
 // Get conversation status
@@ -382,7 +514,7 @@ export const getConversation = (conversationId: string): AtlasConversation | nul
   return engine ? engine.getConversation() : null;
 };
 
-// Export all leads for admin dashboard
+// Temporary stub for admin page until Supabase integration is complete
 export const getAllLeads = (): any[] => {
-  return JSON.parse(localStorage.getItem('esh_atlas_leads') || '[]');
+  return [];
 };
