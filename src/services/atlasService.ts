@@ -299,12 +299,15 @@ Based on what you know, respond naturally and progress toward qualification.`;
     prompt: string
   ): Promise<string> {
     try {
+      const payload = { messages: chatMessages, systemPrompt: prompt };
+      console.log('[Atlas] Sending to OpenAI:', JSON.stringify(payload, null, 2));
+      
       const controller = new AbortController();
       const timeout = setTimeout(() => controller.abort(), OPENAI_TIMEOUT_MS);
       const response = await fetch(OPENAI_ENDPOINT, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ messages: chatMessages, systemPrompt: prompt }),
+        body: JSON.stringify(payload),
         signal: controller.signal
       });
       clearTimeout(timeout);
