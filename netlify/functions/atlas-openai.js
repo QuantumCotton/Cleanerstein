@@ -1,5 +1,5 @@
 const DEFAULT_OPENAI_URL = 'https://api.openai.com/v1/chat/completions';
-const DEFAULT_MODEL = 'gpt-5-mini';
+const DEFAULT_MODEL = 'gpt-5-nano';
 
 const resolveOpenAIUrl = () => {
   const direct = (process.env.OPENAI_API_URL || '').trim();
@@ -74,7 +74,8 @@ exports.handler = async (event) => {
           model,
           messages: openaiMessages,
           ...(useDefaultTemperature ? {} : { temperature }),
-          max_completion_tokens: finalMaxTokens
+          max_completion_tokens: finalMaxTokens,
+          verbosity: 'low'  // GPT-5 specific: keeps responses concise
         })
       });
       return res;
@@ -104,8 +105,18 @@ exports.handler = async (event) => {
 
     const data = await response.json();
     const text = data?.choices?.[0]?.message?.content?.trim() || '';
+    
+    // Log the full response for debugging
+    console.log('GPT-5 full response:', JSON.stringify(data, null, 2));
+    
     if (!text) {
-      return { statusCode: 200, body: JSON.stringify({ text: 'Hi there! Tell me about your project.', model: usedModel }) };
+      console.error('GPT-5 returned empty response. Full data:', data);
+      // Return an error instead of a fallback message
+      return { statusCode: 500, body: JSON.stringify({ 
+        error: 'Model returned empty response', 
+        model: usedModel,
+        debug: data 
+      }) };
     }
 
     return { statusCode: 200, body: JSON.stringify({ text, model: usedModel }) };

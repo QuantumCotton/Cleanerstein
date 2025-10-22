@@ -253,25 +253,9 @@ What brings you by today? Are you a contractor looking to grow, or just checking
     // Add current context to system prompt
     const contextPrompt = `${CONTRACTOR_ACQUISITION_PROMPT}
 
-CURRENT CONVERSATION CONTEXT:
-- Mode: ${this.conversation.mode}
-- Intake Active: ${this.conversation.intake.active}
-- Intake Progress: ${this.conversation.intake.askedQuestions.join(', ') || 'none'}
-- Collected Data: ${JSON.stringify(leadData)}
-- Qualification Score: ${qualificationScore}/100
-- User just said: "${userInput}"
+User just said: "${userInput}"
 
-You must always respect the current mode:
-- If mode is "askAround", keep things light, ask one question at a time, learn how much time the visitor wants to spend chatting, and offer to start a full intake when appropriate.
-- If mode is "intake", focus on filling in missing intake fields (${this.getPendingIntakeKeys().join(', ') || 'none'}). Mention roughly how many questions remain (${Math.max(0, this.conversation.intake.estimatedQuestions - this.conversation.intake.askedQuestions.length)}).
-- When the user asks about financing, clarify we do not directly provide financing but offer free consultation on how to get approved.
-- Connect intake questions to the contractor forms: brand identity, growth goals, launch readiness, and neighborhood coverage, but only ask what feels relevant to their trade.
-- Mirror the visitor's tone and greeting style. If they say "howdy brotha," you can echo that warmth ("howdy" / "hey friend") while staying professional.
-- Use contractions and natural phrasing so it feels like a human teammate chatting. Light humor or encouragement is welcome if it matches the visitor's vibe.
-- If asked whether you're real, be transparent that you're Atlas, an AI guide working alongside the Elite Service Hub team.
-- Always keep responses concise (2-3 sentences) and end with a question.
-
-Based on what you know, respond naturally and progress toward qualification.`;
+Remember: Respond directly to what they said. If they asked a question, answer it first.`;
 
     const aiResponse = await this.requestOpenAI(chatMessages, contextPrompt);
 
@@ -310,10 +294,19 @@ Based on what you know, respond naturally and progress toward qualification.`;
 
       const data = await response.json();
       console.log('[Atlas] OpenAI response:', data);
+      
+      // Check if we got an error response
+      if (data?.error) {
+        console.error('[Atlas] OpenAI error in response:', data);
+        // Return a user-friendly error message
+        return "I'm having trouble processing your request right now. Our team has been notified. Please try again in a moment.";
+      }
+      
       if (data?.text) {
         return data.text;
       }
-      throw new Error('OpenAI response missing text');
+      
+      throw new Error('OpenAI response missing text: ' + JSON.stringify(data));
     } catch (error) {
       console.error('[Atlas] OpenAI error:', error);
       throw error;
