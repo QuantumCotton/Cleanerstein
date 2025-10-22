@@ -1,5 +1,5 @@
 // Atlas AI Service - Conversation Engine & Lead Qualification
-import { callGeminiAPI, GeminiMessage, CONTRACTOR_ACQUISITION_PROMPT } from './geminiService';
+import { CONTRACTOR_ACQUISITION_PROMPT } from './geminiService';
 
 const OPENAI_ENDPOINT = '/.netlify/functions/atlas-openai';
 const LEAD_EMAIL_ENDPOINT = '/.netlify/functions/send-atlas-lead';
@@ -243,7 +243,6 @@ What brings you by today? Are you a contractor looking to grow, or just checking
   private async generateResponse(userInput: string): Promise<Omit<AtlasMessage, 'id' | 'timestamp'>> {
     const { leadData, qualificationScore } = this.conversation;
 
-    // Build conversation history for Gemini
     const chatMessages: { role: 'user' | 'assistant'; content: string }[] = this.conversation.messages
       .filter(msg => msg.role !== 'system' && msg.content?.trim())
       .map(msg => ({
@@ -251,13 +250,6 @@ What brings you by today? Are you a contractor looking to grow, or just checking
         content: msg.content
       }));
 
-    const geminiMessages: GeminiMessage[] = this.conversation.messages
-      .filter(msg => msg.role !== 'system')
-      .map(msg => ({
-        role: msg.role === 'assistant' ? 'model' : 'user',
-        parts: [{ text: msg.content }]
-      }));
-    
     // Add current context to system prompt
     const contextPrompt = `${CONTRACTOR_ACQUISITION_PROMPT}
 
@@ -281,7 +273,7 @@ You must always respect the current mode:
 
 Based on what you know, respond naturally and progress toward qualification.`;
 
-    const aiResponse = await this.requestOpenAI(chatMessages, geminiMessages, contextPrompt);
+    const aiResponse = await this.requestOpenAI(chatMessages, contextPrompt);
 
     // Determine if we should provide quick replies based on context
     const quickReplies = this.generateQuickReplies(leadData);
@@ -295,7 +287,6 @@ Based on what you know, respond naturally and progress toward qualification.`;
 
   private async requestOpenAI(
     chatMessages: { role: 'user' | 'assistant'; content: string }[],
-    geminiMessages: GeminiMessage[],
     prompt: string
   ): Promise<string> {
     try {
@@ -313,7 +304,8 @@ Based on what you know, respond naturally and progress toward qualification.`;
       clearTimeout(timeout);
 
       if (!response.ok) {
-        throw new Error(`OpenAI request failed: ${response.status}`);
+        const errorText = await response.text();
+        throw new Error(`OpenAI request failed: ${response.status} ${errorText}`);
       }
 
       const data = await response.json();
@@ -323,8 +315,8 @@ Based on what you know, respond naturally and progress toward qualification.`;
       }
       throw new Error('OpenAI response missing text');
     } catch (error) {
-      console.warn('[Atlas] OpenAI fallback to Gemini:', error);
-      return callGeminiAPI(geminiMessages, prompt);
+      console.error('[Atlas] OpenAI error:', error);
+      throw error;
     }
   }
   
