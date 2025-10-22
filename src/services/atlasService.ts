@@ -244,6 +244,13 @@ What brings you by today? Are you a contractor looking to grow, or just checking
     const { leadData, qualificationScore } = this.conversation;
 
     // Build conversation history for Gemini
+    const chatMessages: { role: 'user' | 'assistant'; content: string }[] = this.conversation.messages
+      .filter(msg => msg.role !== 'system' && msg.content?.trim())
+      .map(msg => ({
+        role: msg.role === 'assistant' ? 'assistant' : 'user',
+        content: msg.content
+      }));
+
     const geminiMessages: GeminiMessage[] = this.conversation.messages
       .filter(msg => msg.role !== 'system')
       .map(msg => ({
@@ -274,7 +281,7 @@ You must always respect the current mode:
 
 Based on what you know, respond naturally and progress toward qualification.`;
 
-    const aiResponse = await this.requestOpenAI(geminiMessages, contextPrompt);
+    const aiResponse = await this.requestOpenAI(chatMessages, geminiMessages, contextPrompt);
 
     // Determine if we should provide quick replies based on context
     const quickReplies = this.generateQuickReplies(leadData);
@@ -286,14 +293,18 @@ Based on what you know, respond naturally and progress toward qualification.`;
     };
   }
 
-  private async requestOpenAI(messages: GeminiMessage[], prompt: string): Promise<string> {
+  private async requestOpenAI(
+    chatMessages: { role: 'user' | 'assistant'; content: string }[],
+    geminiMessages: GeminiMessage[],
+    prompt: string
+  ): Promise<string> {
     try {
       const controller = new AbortController();
       const timeout = setTimeout(() => controller.abort(), OPENAI_TIMEOUT_MS);
       const response = await fetch(OPENAI_ENDPOINT, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ messages, systemPrompt: prompt }),
+        body: JSON.stringify({ messages: chatMessages, systemPrompt: prompt }),
         signal: controller.signal
       });
       clearTimeout(timeout);
@@ -309,7 +320,7 @@ Based on what you know, respond naturally and progress toward qualification.`;
       throw new Error('OpenAI response missing text');
     } catch (error) {
       console.warn('[Atlas] OpenAI fallback to Gemini:', error);
-      return callGeminiAPI(messages, prompt);
+      return callGeminiAPI(geminiMessages, prompt);
     }
   }
   
