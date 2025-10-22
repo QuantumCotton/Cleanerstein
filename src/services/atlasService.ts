@@ -105,8 +105,15 @@ class AtlasEngine {
       role: 'assistant',
       content: `Hey there! I'm Atlas, your friendly concierge at Elite Service Hub. 🤖✨
 
-What brings you by today? Are you a contractor looking to grow, or just checking things out?`,
-      quickReplies: ["I'm a contractor", 'Just browsing today', 'What is Elite Service Hub?']
+Before we dive in, what name should I use for you, and what's the best contact to follow up (email or phone)? Are you a contractor looking to grow, or just checking things out?`,
+      quickReplies: [
+        "I'm a contractor",
+        'Just browsing today',
+        'What is Elite Service Hub?',
+        'Sure, my name is...',
+        'Here is my email',
+        'Here is my phone number'
+      ]
     });
   }
 
@@ -267,6 +274,7 @@ What brings you by today? Are you a contractor looking to grow, or just checking
     const questionsRemaining = Math.max(limitForCalc - questionsAsked, 0);
     const limitLabel = typeof maxQuestionsSetting === 'number' ? maxQuestionsSetting : 'not set';
     const quickLimitReached = intake.preference === 'quick' && typeof maxQuestionsSetting === 'number' && questionsAsked >= maxQuestionsSetting;
+    const ambitionCue = this.detectAmbitiousNumbers(userInput, leadData);
 
     if (this.conversation.transferredToHuman) {
       return {
@@ -308,6 +316,7 @@ CURRENT CONVERSATION CONTEXT:
 - Questions Remaining: ${questionsRemaining}
 - Submission Requested: ${this.conversation.transferredToHuman}
 - User just said: "${userInput}"
+- Ambition Cue: ${ambitionCue || 'none'}
 
 You must always respect the current mode:
 - If mode is "askAround", keep things light, ask one question at a time, learn how much time the visitor wants to spend chatting, and offer to start a full intake when appropriate.
@@ -320,6 +329,7 @@ You must always respect the current mode:
 - When they mention ANY service type, enthusiastically confirm: "Perfect! We work with [their service] businesses and have great success helping them grow."
 - Mirror the visitor's tone and greeting style. If they say "howdy brotha," you can echo that warmth ("howdy" / "hey friend") while staying professional.
 - Use contractions and natural phrasing so it feels like a human teammate chatting. Light humor or encouragement is welcome if it matches the visitor's vibe.
+- When someone quotes unusually large numbers (multi-million targets or five-figure average tickets), acknowledge with a playful human touch—celebrate the ambition, gently sanity-check, and keep it fun.
 - If asked whether you're real, be transparent that you're Atlas, an AI guide working alongside the Elite Service Hub team.
 - Always keep responses concise (2-3 sentences) and end with a question.
 - If Submission Requested is true, stop asking new questions. Thank them, confirm a human teammate will reach out, and invite any final notes if they wish.
@@ -452,8 +462,51 @@ Based on what you know, respond naturally and progress toward qualification.`;
     if (!message?.content?.trim()) {
       return;
     }
+    if (!message.content.includes('?')) {
+      return;
+    }
 
     intake.questionCount += 1;
+  }
+
+  private detectAmbitiousNumbers(userInput: string, leadData: LeadData): string | null {
+    const sources = [
+      userInput,
+      leadData.budget,
+      leadData.timeline,
+      leadData.details,
+      leadData.currentStatus
+    ].filter(Boolean) as string[];
+
+    if (!sources.length) {
+      return null;
+    }
+
+    let biggest = 0;
+    let rawMatch: string | null = null;
+
+    for (const source of sources) {
+      const matches = source.match(/\d[\d,]*(?:\.\d+)?/g);
+      if (!matches) continue;
+      for (const match of matches) {
+        const value = Number(match.replace(/,/g, ''));
+        if (!Number.isFinite(value)) continue;
+        if (value > biggest) {
+          biggest = value;
+          rawMatch = match;
+        }
+      }
+    }
+
+    if (biggest >= 1_000_000) {
+      return `visitor mentioned a huge number (${rawMatch})`;    
+    }
+
+    if (biggest >= 50_000) {
+      return `visitor mentioned a very high ticket (${rawMatch})`;
+    }
+
+    return null;
   }
 
   private checkServiceArea(zip: string): boolean {
@@ -470,18 +523,28 @@ Based on what you know, respond naturally and progress toward qualification.`;
     }
 
     if (transferredToHuman) {
-      return hasContact;
+      return true;
     }
 
     if (!intake.active) {
       return false;
     }
 
-    return hasContact && intake.askedQuestions.includes('name');
+    if (hasContact && intake.askedQuestions.includes('name')) {
+      return true;
+    }
+
+    if (intake.preference === 'quick' && typeof intake.maxQuestions === 'number' && intake.questionCount >= intake.maxQuestions) {
+      return true;
+    }
+
+    return false;
   }
 
   private async notifyNewLead(): Promise<void> {
     try {
+      const hasContactInfo = Boolean(this.conversation.leadData.email || this.conversation.leadData.phone);
+
       const payload = {
         conversationId: this.conversation.id,
         leadData: this.conversation.leadData,
@@ -489,6 +552,7 @@ Based on what you know, respond naturally and progress toward qualification.`;
         startedAt: this.conversation.startedAt,
         mode: this.conversation.mode,
         intake: this.conversation.intake,
+        missingContactInfo: !hasContactInfo,
         transcript: this.conversation.messages.map(msg => ({
           role: msg.role,
           content: msg.content,
@@ -511,7 +575,7 @@ Based on what you know, respond naturally and progress toward qualification.`;
     const lower = input.toLowerCase();
 
     // Handle early submission
-    if (lower.includes('submit what we have') || lower.includes('submit now')) {
+    if (lower.includes('submit what we have') || lower.includes('submit now') || lower.includes('lets submit') || (lower.includes('submit') && !lower.includes('submit a'))) {
       this.conversation.transferredToHuman = true; // Mark as ready to submit
       this.conversation.intake.active = false;
       return;
@@ -522,7 +586,7 @@ Based on what you know, respond naturally and progress toward qualification.`;
       this.conversation.mode = 'intake';
       this.conversation.intake.active = true;
       this.conversation.intake.preference = 'quick';
-      this.conversation.intake.maxQuestions = 5;
+      this.conversation.intake.maxQuestions = 3;
       this.conversation.intake.questionCount = 0;
       this.conversation.intake.estimatedQuestions = Math.min(this.conversation.intake.estimatedQuestions, 5);
       return;
