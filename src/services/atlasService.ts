@@ -59,6 +59,8 @@ export interface AtlasConversation {
     active: boolean;
     estimatedQuestions: number;
     askedQuestions: IntakeQuestionKey[];
+    preference?: 'quick' | 'full';
+    maxQuestions?: number;
   };
   leadNotificationSent: boolean;
 }
@@ -89,7 +91,9 @@ class AtlasEngine {
       intake: {
         active: false,
         estimatedQuestions: 6,
-        askedQuestions: []
+        askedQuestions: [],
+        preference: undefined,
+        maxQuestions: undefined
       },
       leadNotificationSent: false
     };
@@ -252,6 +256,32 @@ What brings you by today? Are you a contractor looking to grow, or just checking
 
   private async generateResponse(userInput: string): Promise<Omit<AtlasMessage, 'id' | 'timestamp'>> {
     const { leadData, qualificationScore } = this.conversation;
+    const { intake } = this.conversation;
+    const questionsAsked = intake.askedQuestions.length;
+    const maxQuestionsSetting = intake.maxQuestions;
+    const fallbackEstimate = intake.estimatedQuestions ?? 0;
+    const limitForCalc = typeof maxQuestionsSetting === 'number' ? maxQuestionsSetting : fallbackEstimate;
+    const questionsRemaining = Math.max(limitForCalc - questionsAsked, 0);
+    const limitLabel = typeof maxQuestionsSetting === 'number' ? maxQuestionsSetting : 'not set';
+    const quickLimitReached = intake.preference === 'quick' && typeof maxQuestionsSetting === 'number' && questionsAsked >= maxQuestionsSetting;
+
+    if (this.conversation.transferredToHuman) {
+      return {
+        role: 'assistant',
+        content: "Perfect. I'll package this up for our growth team and they'll reach out shortly. If there's anything else you'd like us to know, just drop it here and I'll add it to your file.",
+        quickReplies: undefined
+      };
+    }
+
+    if (quickLimitReached) {
+      this.conversation.transferredToHuman = true;
+      this.conversation.intake.active = false;
+      return {
+        role: 'assistant',
+        content: "Awesome—that gives me everything I need from the quick intake. I'll pass this to our concierge team and they'll follow up with next steps. If you want to add any final notes, you can drop them here.",
+        quickReplies: undefined
+      };
+    }
 
     const chatMessages: { role: 'user' | 'assistant'; content: string }[] = this.conversation.messages
       .filter(msg => msg.role !== 'system' && msg.content?.trim())
@@ -269,11 +299,18 @@ CURRENT CONVERSATION CONTEXT:
 - Intake Progress: ${this.conversation.intake.askedQuestions.join(', ') || 'none'}
 - Collected Data: ${JSON.stringify(leadData)}
 - Qualification Score: ${qualificationScore}/100
+- Intake Preference: ${this.conversation.intake.preference || 'unset'}
+- Max Questions Allowed: ${limitLabel}
+- Questions Captured: ${questionsAsked}
+- Questions Remaining: ${questionsRemaining}
+- Submission Requested: ${this.conversation.transferredToHuman}
 - User just said: "${userInput}"
 
 You must always respect the current mode:
 - If mode is "askAround", keep things light, ask one question at a time, learn how much time the visitor wants to spend chatting, and offer to start a full intake when appropriate.
 - If mode is "intake" and they haven't set preferences, first ask: "How many questions are you comfortable answering? We can do 3-5 quick ones, or go through the full Growth Canvas intake (about 10-12 questions)."
+- If intake preference is "quick", you may ask at most ${this.conversation.intake.maxQuestions ?? 5} questions in total. You've already captured ${questionsAsked}. If questionsRemaining is 0, stop asking new questions, thank them, and confirm we'll follow up.
+- If intake preference is "full", pace the conversation but stay focused on Growth Canvas fields. If they seem overwhelmed, remind them they can submit what you have.
 - Adapt your questions to their specific service type (e.g., for car detailing ask about fleet/mobile setup; for cleaning ask about commercial vs residential focus)
 - If conversation seems long, offer: "Would you like to submit what we have so far? I can pass this to our team and they'll reach out with the rest."
 - Focus on Growth Canvas fields: revenue goals, service area, team size, current marketing, average ticket, volume, expansion plans
@@ -282,6 +319,7 @@ You must always respect the current mode:
 - Use contractions and natural phrasing so it feels like a human teammate chatting. Light humor or encouragement is welcome if it matches the visitor's vibe.
 - If asked whether you're real, be transparent that you're Atlas, an AI guide working alongside the Elite Service Hub team.
 - Always keep responses concise (2-3 sentences) and end with a question.
+- If Submission Requested is true, stop asking new questions. Thank them, confirm a human teammate will reach out, and invite any final notes if they wish.
 
 Based on what you know, respond naturally and progress toward qualification.`;
 
@@ -342,19 +380,13 @@ Based on what you know, respond naturally and progress toward qualification.`;
   }
   
   private generateQuickReplies(leadData: LeadData): string[] | undefined {
-    // Provide quick replies based on missing data
-    if (!this.conversation.intake.active) {
-      return ['Start full intake evaluation', 'Just browsing'];
+    if (this.conversation.transferredToHuman) {
+      return undefined;
     }
 
-    // Add "Submit Now" option if we have some data
-    const hasContactInfo = leadData.email || leadData.phone;
-    const hasBasicInfo = leadData.name || leadData.projectType || leadData.timeline;
-    
-    if (hasContactInfo && hasBasicInfo && this.conversation.intake.askedQuestions.length > 2) {
-      // Offer to submit if we have enough info
-      if (!leadData.name) {
-        return ['Sure, my name is...', 'Prefer to stay anonymous', 'Submit what we have'];
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`OpenAI request failed: ${response.status} ${errorText}`);
       }
       if (!leadData.timeline) {
         return ['ASAP', '1-3 months', '3-6 months', 'Submit what we have'];
@@ -371,7 +403,10 @@ Based on what you know, respond naturally and progress toward qualification.`;
     }
 
     if (!leadData.projectType) {
-      return ['3-5 quick questions', 'Full intake (10-12 questions)', 'Just browsing'];
+      if (!this.conversation.intake.preference) {
+        return ['3-5 quick questions', 'Full intake (10-12 questions)', 'Just browsing'];
+      }
+      return ['I focus on remodeling', 'I run a service business', 'Submit what we have'];
     }
     
     if (!leadData.timeline) {
@@ -388,17 +423,22 @@ Based on what you know, respond naturally and progress toward qualification.`;
   }
 
   private shouldTriggerLeadNotification(): boolean {
-    const { intake, leadData } = this.conversation;
+    const { intake, leadData, transferredToHuman, leadNotificationSent } = this.conversation;
+    const hasContact = Boolean(leadData.email || leadData.phone);
+
+    if (leadNotificationSent) {
+      return false;
+    }
+
+    if (transferredToHuman) {
+      return hasContact;
+    }
+
     if (!intake.active) {
       return false;
     }
-    const hasContact = Boolean(leadData.email || leadData.phone);
-    return (
-      hasContact &&
-      intake.askedQuestions.includes('name') &&
-      !this.conversation.transferredToHuman &&
-      !this.conversation.leadNotificationSent
-    );
+
+    return hasContact && intake.askedQuestions.includes('name');
   }
 
   private async notifyNewLead(): Promise<void> {
@@ -430,25 +470,39 @@ Based on what you know, respond naturally and progress toward qualification.`;
 
   private detectModeSwitch(input: string) {
     const lower = input.toLowerCase();
-    
+
     // Handle early submission
     if (lower.includes('submit what we have') || lower.includes('submit now')) {
       this.conversation.transferredToHuman = true; // Mark as ready to submit
+      this.conversation.intake.active = false;
       return;
     }
-    
+
     // Handle intake preferences
     if (lower.includes('3-5 quick') || lower.includes('quick questions')) {
       this.conversation.mode = 'intake';
       this.conversation.intake.active = true;
-      this.conversation.intake.estimatedQuestions = 5;
+      this.conversation.intake.preference = 'quick';
+      this.conversation.intake.maxQuestions = 5;
+      this.conversation.intake.estimatedQuestions = Math.min(this.conversation.intake.estimatedQuestions, 5);
       return;
     }
-    
+
     if (lower.includes('full intake') || lower.includes('10-12 questions')) {
       this.conversation.mode = 'intake';
       this.conversation.intake.active = true;
-      this.conversation.intake.estimatedQuestions = 12;
+      this.conversation.intake.preference = 'full';
+      this.conversation.intake.maxQuestions = 12;
+      this.conversation.intake.estimatedQuestions = Math.max(this.conversation.intake.estimatedQuestions, 12);
+      return;
+    }
+
+    if (lower.includes('start full intake evaluation')) {
+      this.conversation.mode = 'intake';
+      this.conversation.intake.active = true;
+      this.conversation.intake.preference = undefined;
+      this.conversation.intake.maxQuestions = undefined;
+      this.conversation.intake.estimatedQuestions = Math.max(this.conversation.intake.estimatedQuestions, 10);
       return;
     }
 
@@ -498,7 +552,11 @@ Based on what you know, respond naturally and progress toward qualification.`;
 
     // Adjust estimated question count based on missing fields
     const pending = this.getPendingIntakeKeys();
-    const estimated = Math.max(asked.length + pending.length, asked.length + 1);
+    let estimated = Math.max(asked.length + pending.length, asked.length + 1);
+    const maxQuestions = this.conversation.intake.maxQuestions;
+    if (typeof maxQuestions === 'number') {
+      estimated = Math.min(estimated, maxQuestions);
+    }
     this.conversation.intake.estimatedQuestions = estimated;
   }
 
