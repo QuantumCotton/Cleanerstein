@@ -23,71 +23,43 @@ const getAuthHeader = (apiKey) => {
   return { name: headerName, value: `${effectivePrefix || ''}${apiKey}` };
 };
 
-const buildOpenAIMessages = (messages = [], systemPrompt = '') => {
-  const openaiMessages = [];
-  if (systemPrompt && systemPrompt.trim()) {
-    openaiMessages.push({ role: 'system', content: systemPrompt.trim() });
-  }
-
-  messages.forEach((msg) => {
-    if (!msg || !msg.content || !msg.content.trim()) return;
-    const role = msg.role === 'assistant' ? 'assistant' : 'user';
-    openaiMessages.push({ role, content: msg.content });
-  });
-
-  return openaiMessages;
-};
-
 exports.handler = async (event) => {
   if (event.httpMethod !== 'POST') {
-    return { statusCode: 405, body: JSON.stringify({ error: 'Method not allowed' }) };
+    return { statusCode: 405, body: 'Method Not Allowed' };
   }
 
   try {
     const apiKey = process.env.OPENAI_API_KEY;
     if (!apiKey) {
-      console.error('[Atlas] Missing OPENAI_API_KEY');
       return { statusCode: 500, body: JSON.stringify({ error: 'Missing OPENAI_API_KEY' }) };
-    }
-
-    let parsedBody;
-    try {
-      parsedBody = JSON.parse(event.body || '{}');
-    } catch (parseErr) {
-      console.error('[Atlas] JSON parse error:', parseErr.message, 'Body:', event.body);
-      return { statusCode: 400, body: JSON.stringify({ error: 'Invalid JSON in request body' }) };
-    }
-
-    const {
-      systemPrompt = '',
-      messages = [],
-      temperature = 0.6,
-      maxTokens = 400
-    } = parsedBody;
-
-    if (!Array.isArray(messages)) {
-      console.error('[Atlas] messages is not an array:', typeof messages, messages);
-      return { statusCode: 400, body: JSON.stringify({ error: 'messages must be an array', received: typeof messages }) };
-    }
-
-    const openaiMessages = buildOpenAIMessages(messages, systemPrompt);
-    if (openaiMessages.length === 0) {
-      return {
-        statusCode: 200,
-        body: JSON.stringify({ text: 'Hi there! Tell me a bit about your project so we can dive in.' })
-      };
     }
 
     const OPENAI_API_URL = resolveOpenAIUrl();
     const authHeader = getAuthHeader(apiKey);
-    const preferredModel = (process.env.OPENAI_MODEL || DEFAULT_MODEL).trim() || DEFAULT_MODEL;
-    const fallbackModels = (process.env.OPENAI_FALLBACK_MODELS || '')
-      .split(',')
-      .map((m) => m.trim())
-      .filter(Boolean);
 
-    const callModel = async (model) => {
-      return fetch(OPENAI_API_URL, {
+    const {
+      systemPrompt = '',
+      messages = [],
+      temperature = 0.7,
+      max_tokens = 350
+    } = JSON.parse(event.body || '{}');
+
+    if (!Array.isArray(messages)) {
+      return { statusCode: 400, body: JSON.stringify({ error: 'messages must be an array' }) };
+    }
+
+    const preferredModel = process.env.OPENAI_MODEL || DEFAULT_MODEL;
+
+    const openaiMessages = [
+      { role: 'system', content: systemPrompt || 'You are a helpful assistant.' },
+      ...messages.map((m) => ({
+        role: m.role === 'assistant' ? 'assistant' : 'user',
+        content: String(m.content || '')
+      }))
+    ];
+
+    async function callModel(model) {
+      const res = await fetch(OPENAI_API_URL, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -97,53 +69,45 @@ exports.handler = async (event) => {
           model,
           messages: openaiMessages,
           temperature,
-          max_tokens: maxTokens,
+          max_tokens,
           presence_penalty: 0.3,
           frequency_penalty: 0.1
         })
       });
-    };
-
-    let modelUsed = preferredModel;
-    let response = await callModel(modelUsed);
-    let errorText = '';
-
-    if (!response.ok) {
-      errorText = await response.text();
-      const retriable = /model|does not exist|not found|invalid model/i.test(errorText) || [400, 404].includes(response.status);
-      if (retriable) {
-        for (const fallback of fallbackModels) {
-          if (!fallback || fallback === modelUsed) continue;
-          modelUsed = fallback;
-          response = await callModel(modelUsed);
-          if (response.ok) break;
-          errorText = await response.text();
-        }
-      }
+      return res;
     }
 
+    let usedModel = preferredModel;
+    let response = await callModel(usedModel);
     if (!response.ok) {
-      console.error('[Atlas OpenAI] Upstream error:', response.status, errorText);
-      return {
-        statusCode: response.status,
-        body: JSON.stringify({
-          error: 'OpenAI request failed',
-          details: errorText,
-          modelTried: modelUsed,
-          fallbackTried: fallbackModels
-        })
-      };
+      let errText = await response.text();
+      const retriable = /model|does not exist|not found|invalid model/i.test(errText) || [400, 404].includes(response.status);
+      if (retriable) {
+        const fallbacks = (process.env.OPENAI_FALLBACK_MODELS || '').split(',').map(m => m.trim()).filter(Boolean);
+        for (const fb of fallbacks) {
+          if (!fb || fb === usedModel) continue;
+          usedModel = fb;
+          response = await callModel(usedModel);
+          if (response.ok) break;
+          errText = await response.text();
+        }
+      }
+
+      if (!response.ok) {
+        console.error('OpenAI error:', response.status, errText);
+        return { statusCode: 502, body: JSON.stringify({ error: 'Upstream OpenAI error', detail: errText }) };
+      }
     }
 
     const data = await response.json();
     const text = data?.choices?.[0]?.message?.content?.trim() || '';
+    if (!text) {
+      return { statusCode: 200, body: JSON.stringify({ text: 'Hi there! Tell me about your project.', model: usedModel }) };
+    }
 
-    return {
-      statusCode: 200,
-      body: JSON.stringify({ text, model: modelUsed })
-    };
-  } catch (error) {
-    console.error('[Atlas OpenAI] Error handling request:', error);
-    return { statusCode: 500, body: JSON.stringify({ error: 'Failed to generate response' }) };
+    return { statusCode: 200, body: JSON.stringify({ text, model: usedModel }) };
+  } catch (err) {
+    console.error('atlas-openai function error:', err);
+    return { statusCode: 500, body: JSON.stringify({ error: 'Function error' }) };
   }
 };
