@@ -46,7 +46,16 @@ exports.handler = async (event) => {
   try {
     const apiKey = process.env.OPENAI_API_KEY;
     if (!apiKey) {
+      console.error('[Atlas] Missing OPENAI_API_KEY');
       return { statusCode: 500, body: JSON.stringify({ error: 'Missing OPENAI_API_KEY' }) };
+    }
+
+    let parsedBody;
+    try {
+      parsedBody = JSON.parse(event.body || '{}');
+    } catch (parseErr) {
+      console.error('[Atlas] JSON parse error:', parseErr.message, 'Body:', event.body);
+      return { statusCode: 400, body: JSON.stringify({ error: 'Invalid JSON in request body' }) };
     }
 
     const {
@@ -54,10 +63,11 @@ exports.handler = async (event) => {
       messages = [],
       temperature = 0.6,
       maxTokens = 400
-    } = JSON.parse(event.body || '{}');
+    } = parsedBody;
 
     if (!Array.isArray(messages)) {
-      return { statusCode: 400, body: JSON.stringify({ error: 'messages must be an array' }) };
+      console.error('[Atlas] messages is not an array:', typeof messages, messages);
+      return { statusCode: 400, body: JSON.stringify({ error: 'messages must be an array', received: typeof messages }) };
     }
 
     const openaiMessages = buildOpenAIMessages(messages, systemPrompt);
