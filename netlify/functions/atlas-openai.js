@@ -1,4 +1,4 @@
-const DEFAULT_OPENAI_URL = 'https://api.openai.com/v1/chat/completions';
+const DEFAULT_OPENAI_URL = 'https://api.openai.com/v1/responses';
 const DEFAULT_MODEL = 'gpt-5.0-nano';
 
 const resolveOpenAIUrl = () => {
@@ -9,11 +9,11 @@ const resolveOpenAIUrl = () => {
   if (!base) return DEFAULT_OPENAI_URL;
 
   const normalized = base.replace(/\/+$/, '');
-  if (/\/(v\d+|chat|responses)/i.test(normalized)) {
+  if (/\/(v\d+|responses)/i.test(normalized)) {
     return normalized;
   }
 
-  return `${normalized}/v1/chat/completions`;
+  return `${normalized}/v1/responses`;
 };
 
 const getAuthHeader = (apiKey) => {
@@ -23,20 +23,26 @@ const getAuthHeader = (apiKey) => {
   return { name: headerName, value: `${effectivePrefix || ''}${apiKey}` };
 };
 
-const buildOpenAIMessages = (messages = [], systemPrompt = '') => {
-  const openaiMessages = [];
+const buildResponseInput = (messages = [], systemPrompt = '') => {
+  const input = [];
 
   if (systemPrompt && systemPrompt.trim()) {
-    openaiMessages.push({ role: 'system', content: systemPrompt.trim() });
+    input.push({
+      role: 'system',
+      content: [{ type: 'text', text: systemPrompt.trim() }]
+    });
   }
 
   messages.forEach((msg) => {
     if (!msg || !msg.content || !msg.content.trim()) return;
     const role = msg.role === 'assistant' ? 'assistant' : 'user';
-    openaiMessages.push({ role, content: msg.content });
+    input.push({
+      role,
+      content: [{ type: 'text', text: msg.content }]
+    });
   });
 
-  return openaiMessages;
+  return input;
 };
 
 exports.handler = async (event) => {
@@ -61,8 +67,8 @@ exports.handler = async (event) => {
       return { statusCode: 400, body: JSON.stringify({ error: 'messages must be an array' }) };
     }
 
-    const openaiMessages = buildOpenAIMessages(messages, systemPrompt);
-    if (openaiMessages.length === 0) {
+    const responseInput = buildResponseInput(messages, systemPrompt);
+    if (responseInput.length === 0) {
       return {
         statusCode: 200,
         body: JSON.stringify({ text: 'Hi there! Tell me a bit about your project so we can dive in.' })
@@ -86,11 +92,11 @@ exports.handler = async (event) => {
         },
         body: JSON.stringify({
           model,
-          messages: openaiMessages,
+          input: responseInput,
           temperature,
-          max_tokens: maxTokens,
-          presence_penalty: 0.3,
-          frequency_penalty: 0.1
+          reasoning: { effort: process.env.OPENAI_REASONING_EFFORT || 'medium' },
+          max_output_tokens: maxTokens,
+          response_format: { type: 'text' }
         })
       });
     };
@@ -122,7 +128,20 @@ exports.handler = async (event) => {
     }
 
     const data = await response.json();
-    const text = (data && data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content || '').trim();
+    let text = '';
+    if (typeof data.output_text === 'string') {
+      text = data.output_text.trim();
+    } else if (Array.isArray(data.output)) {
+      for (const item of data.output) {
+        if (Array.isArray(item.content)) {
+          const part = item.content.find((entry) => typeof entry.text === 'string');
+          if (part) {
+            text = part.text.trim();
+            break;
+          }
+        }
+      }
+    }
 
     return {
       statusCode: 200,
