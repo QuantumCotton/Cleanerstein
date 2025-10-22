@@ -41,8 +41,11 @@ exports.handler = async (event) => {
       systemPrompt = '',
       messages = [],
       temperature = 0.7,
+      maxTokens = 350,
       max_tokens = 350
     } = JSON.parse(event.body || '{}');
+    
+    const finalMaxTokens = max_tokens || maxTokens;
 
     if (!Array.isArray(messages)) {
       return { statusCode: 400, body: JSON.stringify({ error: 'messages must be an array' }) };
@@ -69,7 +72,7 @@ exports.handler = async (event) => {
           model,
           messages: openaiMessages,
           temperature,
-          max_tokens,
+          max_tokens: finalMaxTokens,
           presence_penalty: 0.3,
           frequency_penalty: 0.1
         })
