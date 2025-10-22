@@ -1,5 +1,5 @@
-const DEFAULT_OPENAI_URL = 'https://api.openai.com/v1/responses';
-const DEFAULT_MODEL = 'gpt-5.0-nano';
+const DEFAULT_OPENAI_URL = 'https://api.openai.com/v1/chat/completions';
+const DEFAULT_MODEL = 'gpt-5-nano';
 
 const resolveOpenAIUrl = () => {
   const direct = (process.env.OPENAI_API_URL || '').trim();
@@ -9,11 +9,11 @@ const resolveOpenAIUrl = () => {
   if (!base) return DEFAULT_OPENAI_URL;
 
   const normalized = base.replace(/\/+$/, '');
-  if (/\/(v\d+|responses)/i.test(normalized)) {
+  if (/\/(v\d+|chat|responses)/i.test(normalized)) {
     return normalized;
   }
 
-  return `${normalized}/v1/responses`;
+  return `${normalized}/v1/chat/completions`;
 };
 
 const getAuthHeader = (apiKey) => {
@@ -23,26 +23,19 @@ const getAuthHeader = (apiKey) => {
   return { name: headerName, value: `${effectivePrefix || ''}${apiKey}` };
 };
 
-const buildResponseInput = (messages = [], systemPrompt = '') => {
-  const input = [];
-
+const buildOpenAIMessages = (messages = [], systemPrompt = '') => {
+  const openaiMessages = [];
   if (systemPrompt && systemPrompt.trim()) {
-    input.push({
-      role: 'system',
-      content: [{ type: 'text', text: systemPrompt.trim() }]
-    });
+    openaiMessages.push({ role: 'system', content: systemPrompt.trim() });
   }
 
   messages.forEach((msg) => {
     if (!msg || !msg.content || !msg.content.trim()) return;
     const role = msg.role === 'assistant' ? 'assistant' : 'user';
-    input.push({
-      role,
-      content: [{ type: 'text', text: msg.content }]
-    });
+    openaiMessages.push({ role, content: msg.content });
   });
 
-  return input;
+  return openaiMessages;
 };
 
 exports.handler = async (event) => {
@@ -67,24 +60,24 @@ exports.handler = async (event) => {
       return { statusCode: 400, body: JSON.stringify({ error: 'messages must be an array' }) };
     }
 
-    const responseInput = buildResponseInput(messages, systemPrompt);
-    if (responseInput.length === 0) {
+    const openaiMessages = buildOpenAIMessages(messages, systemPrompt);
+    if (openaiMessages.length === 0) {
       return {
         statusCode: 200,
         body: JSON.stringify({ text: 'Hi there! Tell me a bit about your project so we can dive in.' })
       };
     }
 
-    const url = resolveOpenAIUrl();
-    const modelPreference = (process.env.OPENAI_MODEL || DEFAULT_MODEL).trim() || DEFAULT_MODEL;
+    const OPENAI_API_URL = resolveOpenAIUrl();
+    const authHeader = getAuthHeader(apiKey);
+    const preferredModel = (process.env.OPENAI_MODEL || DEFAULT_MODEL).trim() || DEFAULT_MODEL;
     const fallbackModels = (process.env.OPENAI_FALLBACK_MODELS || '')
       .split(',')
       .map((m) => m.trim())
       .filter(Boolean);
-    const authHeader = getAuthHeader(apiKey);
 
     const callModel = async (model) => {
-      return fetch(url, {
+      return fetch(OPENAI_API_URL, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -92,16 +85,16 @@ exports.handler = async (event) => {
         },
         body: JSON.stringify({
           model,
-          input: responseInput,
+          messages: openaiMessages,
           temperature,
-          reasoning: { effort: process.env.OPENAI_REASONING_EFFORT || 'medium' },
-          max_output_tokens: maxTokens,
-          response_format: { type: 'text' }
+          max_tokens: maxTokens,
+          presence_penalty: 0.3,
+          frequency_penalty: 0.1
         })
       });
     };
 
-    let modelUsed = modelPreference;
+    let modelUsed = preferredModel;
     let response = await callModel(modelUsed);
     let errorText = '';
 
@@ -123,25 +116,17 @@ exports.handler = async (event) => {
       console.error('[Atlas OpenAI] Upstream error:', response.status, errorText);
       return {
         statusCode: response.status,
-        body: JSON.stringify({ error: 'OpenAI request failed', details: errorText })
+        body: JSON.stringify({
+          error: 'OpenAI request failed',
+          details: errorText,
+          modelTried: modelUsed,
+          fallbackTried: fallbackModels
+        })
       };
     }
 
     const data = await response.json();
-    let text = '';
-    if (typeof data.output_text === 'string') {
-      text = data.output_text.trim();
-    } else if (Array.isArray(data.output)) {
-      for (const item of data.output) {
-        if (Array.isArray(item.content)) {
-          const part = item.content.find((entry) => typeof entry.text === 'string');
-          if (part) {
-            text = part.text.trim();
-            break;
-          }
-        }
-      }
-    }
+    const text = data?.choices?.[0]?.message?.content?.trim() || '';
 
     return {
       statusCode: 200,
