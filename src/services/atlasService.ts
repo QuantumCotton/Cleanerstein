@@ -321,6 +321,7 @@ CURRENT CONVERSATION CONTEXT:
 You must always respect the current mode:
 - If mode is "askAround", keep things light, ask one question at a time, learn how much time the visitor wants to spend chatting, and offer to start a full intake when appropriate.
 - If mode is "intake" and they haven't set preferences, first ask: "How many questions are you comfortable answering? We can do 3-5 quick ones, or go through the full Growth Canvas intake (about 10-12 questions)."
+- CRITICAL: Before starting intake, ALWAYS ensure you have their name and at least one contact method (email or phone). If missing, say something natural like "Sorry, I didn't catch your name—what should I call you?" or "What's the best way to reach you—email or phone number?" Do NOT just show buttons; ask conversationally.
 - If intake preference is "quick", you may ask at most ${this.conversation.intake.maxQuestions ?? 5} questions in total. You've already captured ${questionsAsked}. If questionsRemaining is 0, stop asking new questions, thank them, and confirm we'll follow up.
 - If intake preference is "full", pace the conversation but stay focused on Growth Canvas fields. If they seem overwhelmed, remind them they can submit what you have.
 - Adapt your questions to their specific service type (e.g., for car detailing ask about fleet/mobile setup; for cleaning ask about commercial vs residential focus)
@@ -408,6 +409,10 @@ Based on what you know, respond naturally and progress toward qualification.`;
     const maxQuestions = intake.maxQuestions;
     const askedCount = intake.questionCount;
     const questionsRemaining = typeof maxQuestions === 'number' ? Math.max(maxQuestions - askedCount, 0) : undefined;
+
+    if (!leadData.name || !hasContactInfo) {
+      return undefined;
+    }
 
     if (questionsRemaining === 0) {
       if (hasContactInfo) {
