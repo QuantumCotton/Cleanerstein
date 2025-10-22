@@ -41,7 +41,7 @@ exports.handler = async (event) => {
       systemPrompt = '',
       messages = [],
       temperature,
-      maxTokens = 350,
+      maxTokens = 2000,  // Increased for GPT-5 reasoning models (need tokens for thinking + output)
       max_tokens = 0,
       max_completion_tokens = 0
     } = JSON.parse(event.body || '{}');
