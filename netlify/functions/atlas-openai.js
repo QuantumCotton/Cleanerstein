@@ -74,9 +74,7 @@ exports.handler = async (event) => {
           model,
           messages: openaiMessages,
           ...(useDefaultTemperature ? {} : { temperature }),
-          max_completion_tokens: finalMaxTokens,
-          presence_penalty: 0.3,
-          frequency_penalty: 0.1
+          max_completion_tokens: finalMaxTokens
         })
       });
       return res;
