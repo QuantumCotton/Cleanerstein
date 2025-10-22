@@ -155,12 +155,22 @@ What brings you by today? Are you a contractor looking to grow, or just checking
   private async analyzeInput(input: string): Promise<void> {
     const lowerInput = input.toLowerCase();
 
-    // Extract project type
+    // Extract service/project type - capture ANY service mentioned
     if (!this.conversation.leadData.projectType) {
-      if (lowerInput.includes('kitchen')) {
-        this.conversation.leadData.projectType = 'kitchen';
-      } else if (lowerInput.includes('bathroom') || lowerInput.includes('bath')) {
-        this.conversation.leadData.projectType = 'bathroom';
+      // Check for any service type mentioned
+      const serviceTypes = [
+        'kitchen', 'bathroom', 'remodeling', 'plumbing', 'electrical', 'roofing', 
+        'hvac', 'solar', 'flooring', 'painting', 'fencing', 'concrete', 'landscaping',
+        'pool', 'detailing', 'cleaning', 'mechanic', 'snow', 'handyman', 'pressure',
+        'window', 'gutter', 'deck', 'drywall', 'tile', 'carpet'
+      ];
+      
+      for (const service of serviceTypes) {
+        if (lowerInput.includes(service)) {
+          this.conversation.leadData.projectType = 'other'; // Use 'other' for non-kitchen/bath
+          this.conversation.leadData.details = input; // Store the actual service type in details
+          break;
+        }
       }
     }
 
@@ -263,9 +273,11 @@ CURRENT CONVERSATION CONTEXT:
 
 You must always respect the current mode:
 - If mode is "askAround", keep things light, ask one question at a time, learn how much time the visitor wants to spend chatting, and offer to start a full intake when appropriate.
-- If mode is "intake", focus on filling in missing intake fields (${this.getPendingIntakeKeys().join(', ') || 'none'}). Mention roughly how many questions remain (${Math.max(0, this.conversation.intake.estimatedQuestions - this.conversation.intake.askedQuestions.length)}).
-- When the user asks about financing, clarify we do not directly provide financing but offer free consultation on how to get approved.
-- Connect intake questions to the contractor forms: brand identity, growth goals, launch readiness, and neighborhood coverage, but only ask what feels relevant to their trade.
+- If mode is "intake" and they haven't set preferences, first ask: "How many questions are you comfortable answering? We can do 3-5 quick ones, or go through the full Growth Canvas intake (about 10-12 questions)."
+- Adapt your questions to their specific service type (e.g., for car detailing ask about fleet/mobile setup; for cleaning ask about commercial vs residential focus)
+- If conversation seems long, offer: "Would you like to submit what we have so far? I can pass this to our team and they'll reach out with the rest."
+- Focus on Growth Canvas fields: revenue goals, service area, team size, current marketing, average ticket, volume, expansion plans
+- When they mention ANY service type, enthusiastically confirm: "Perfect! We work with [their service] businesses and have great success helping them grow."
 - Mirror the visitor's tone and greeting style. If they say "howdy brotha," you can echo that warmth ("howdy" / "hey friend") while staying professional.
 - Use contractions and natural phrasing so it feels like a human teammate chatting. Light humor or encouragement is welcome if it matches the visitor's vibe.
 - If asked whether you're real, be transparent that you're Atlas, an AI guide working alongside the Elite Service Hub team.
@@ -335,6 +347,21 @@ Based on what you know, respond naturally and progress toward qualification.`;
       return ['Start full intake evaluation', 'Just browsing'];
     }
 
+    // Add "Submit Now" option if we have some data
+    const hasContactInfo = leadData.email || leadData.phone;
+    const hasBasicInfo = leadData.name || leadData.projectType || leadData.timeline;
+    
+    if (hasContactInfo && hasBasicInfo && this.conversation.intake.askedQuestions.length > 2) {
+      // Offer to submit if we have enough info
+      if (!leadData.name) {
+        return ['Sure, my name is...', 'Prefer to stay anonymous', 'Submit what we have'];
+      }
+      if (!leadData.timeline) {
+        return ['ASAP', '1-3 months', '3-6 months', 'Submit what we have'];
+      }
+      return ['Continue with questions', 'Submit what we have'];
+    }
+
     if (!leadData.name) {
       return ['Sure, my name is...', 'Prefer to stay anonymous'];
     }
@@ -344,11 +371,13 @@ Based on what you know, respond naturally and progress toward qualification.`;
     }
 
     if (!leadData.projectType) {
-      return ['Kitchen Remodeling', 'Bathroom Remodeling', 'Both'];
+      return ['3-5 quick questions', 'Full intake (10-12 questions)', 'Just browsing'];
     }
+    
     if (!leadData.timeline) {
       return ['ASAP', '1-3 months', '3-6 months'];
     }
+    
     return undefined;
   }
 
@@ -401,14 +430,30 @@ Based on what you know, respond naturally and progress toward qualification.`;
 
   private detectModeSwitch(input: string) {
     const lower = input.toLowerCase();
-    if (lower.includes('full intake') || lower.includes('intake evaluation')) {
+    
+    // Handle early submission
+    if (lower.includes('submit what we have') || lower.includes('submit now')) {
+      this.conversation.transferredToHuman = true; // Mark as ready to submit
+      return;
+    }
+    
+    // Handle intake preferences
+    if (lower.includes('3-5 quick') || lower.includes('quick questions')) {
       this.conversation.mode = 'intake';
       this.conversation.intake.active = true;
+      this.conversation.intake.estimatedQuestions = 5;
+      return;
+    }
+    
+    if (lower.includes('full intake') || lower.includes('10-12 questions')) {
+      this.conversation.mode = 'intake';
+      this.conversation.intake.active = true;
+      this.conversation.intake.estimatedQuestions = 12;
       return;
     }
 
     if (this.conversation.mode === 'askAround') {
-      const contractorSignals = ['contractor', 'builder', 'remodel'];
+      const contractorSignals = ['contractor', 'builder', 'service', 'business'];
       if (contractorSignals.some(signal => lower.includes(signal))) {
         this.conversation.mode = 'askAround';
       }
