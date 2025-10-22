@@ -97,10 +97,10 @@ class AtlasEngine {
     // Add initial greeting
     this.addMessage({
       role: 'assistant',
-      content: `Hi! I'm Atlas from Elite Service Hub. 👋
+      content: `Hey there! I'm Atlas, your friendly concierge at Elite Service Hub. 🤖✨
 
-What brings you here today? Are you a contractor looking for growth support, or are you just exploring?`,
-      quickReplies: ['I am a Contractor', 'Just exploring', 'Tell me about Elite Service Hub']
+What brings you by today? Are you a contractor looking to grow, or just checking things out?`,
+      quickReplies: ["I'm a contractor", 'Just browsing today', 'What is Elite Service Hub?']
     });
   }
 
@@ -267,6 +267,9 @@ You must always respect the current mode:
 - If mode is "intake", focus on filling in missing intake fields (${this.getPendingIntakeKeys().join(', ') || 'none'}). Mention roughly how many questions remain (${Math.max(0, this.conversation.intake.estimatedQuestions - this.conversation.intake.askedQuestions.length)}).
 - When the user asks about financing, clarify we do not directly provide financing but offer free consultation on how to get approved.
 - Connect intake questions to the contractor forms: brand identity, growth goals, launch readiness, and neighborhood coverage, but only ask what feels relevant to their trade.
+- Mirror the visitor's tone and greeting style. If they say "howdy brotha," you can echo that warmth ("howdy" / "hey friend") while staying professional.
+- Use contractions and natural phrasing so it feels like a human teammate chatting. Light humor or encouragement is welcome if it matches the visitor's vibe.
+- If asked whether you're real, be transparent that you're Atlas, an AI guide working alongside the Elite Service Hub team.
 - Always keep responses concise (2-3 sentences) and end with a question.
 
 Based on what you know, respond naturally and progress toward qualification.`;
