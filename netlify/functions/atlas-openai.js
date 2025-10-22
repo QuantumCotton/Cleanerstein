@@ -40,13 +40,14 @@ exports.handler = async (event) => {
     const {
       systemPrompt = '',
       messages = [],
-      temperature = 0.7,
+      temperature,
       maxTokens = 350,
       max_tokens = 0,
       max_completion_tokens = 0
     } = JSON.parse(event.body || '{}');
 
     const finalMaxTokens = max_completion_tokens || max_tokens || maxTokens;
+    const useDefaultTemperature = typeof temperature !== 'number' || Number.isNaN(temperature) || temperature === 1;
 
     if (!Array.isArray(messages)) {
       return { statusCode: 400, body: JSON.stringify({ error: 'messages must be an array' }) };
@@ -72,7 +73,7 @@ exports.handler = async (event) => {
         body: JSON.stringify({
           model,
           messages: openaiMessages,
-          temperature,
+          ...(useDefaultTemperature ? {} : { temperature }),
           max_completion_tokens: finalMaxTokens,
           presence_penalty: 0.3,
           frequency_penalty: 0.1
