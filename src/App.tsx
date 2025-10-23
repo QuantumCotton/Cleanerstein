@@ -16,6 +16,7 @@ import ThanksPage from './pages/ThanksPage';
 import KMJKPage from './pages/contractor/KMJKPage';
 import ContractorDashboard from './pages/contractor/ContractorDashboard';
 import LeadInbox from './pages/contractor/LeadInbox';
+import AtlasDashboard from './pages/AtlasDashboard';
 
 // Admin Pages
 import AdminDashboard from './pages/admin/AdminDashboard';
@@ -49,6 +50,9 @@ function App() {
         {/* Contractor Dashboard */}
         <Route path="/contractor/dashboard" element={<ContractorDashboard />} />
         <Route path="/contractor/leads" element={<LeadInbox />} />
+        
+        {/* Private Atlas dashboard */}
+        <Route path="/atlas-control" element={<LayoutWithAtlas><AtlasDashboard /></LayoutWithAtlas>} />
         
         {/* Admin Dashboard */}
         <Route path="/admin" element={<AdminLayout><AdminDashboard /></AdminLayout>} />
