@@ -155,6 +155,17 @@
             background: linear-gradient(180deg, #ffffff 0%, #fff9ec 50%, #ffffff 100%);
         }
 
+        .seal-mark {
+            margin: 36px auto 48px;
+            width: min(320px, 82%);
+        }
+
+        .seal-mark img {
+            display: block;
+            width: 100%;
+            height: auto;
+        }
+
         .doc-title {
             font-size: 2.25rem;
             font-weight: 600;
@@ -222,14 +233,15 @@
         input[type="email"],
         textarea {
             width: 100%;
-            padding: 12px 14px;
+            padding: 14px 16px;
             border: 1px solid rgba(44, 44, 44, 0.18);
             border-radius: 12px;
             font-family: inherit;
-            font-size: 0.96rem;
+            font-size: 1rem;
             background: #ffffff;
             color: var(--text-primary);
             transition: border 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+            line-height: 1.6;
         }
 
         input[type="text"]:focus,
@@ -243,7 +255,7 @@
         }
 
         textarea {
-            min-height: 128px;
+            min-height: 170px;
             resize: vertical;
         }
 
@@ -268,8 +280,13 @@
             display: flex;
             align-items: flex-start;
             gap: 12px;
-            font-size: 0.95rem;
+            font-size: 1rem;
             color: var(--text-primary);
+            line-height: 1.4;
+        }
+
+        .checkbox-item + .checkbox-item {
+            margin-top: 10px;
         }
 
         .checkbox-item input {
@@ -300,8 +317,8 @@
 
         table td {
             border-top: 1px solid rgba(184, 134, 11, 0.18);
-            padding: 12px 14px;
-            min-height: 46px;
+            padding: 16px 16px;
+            min-height: 56px;
         }
 
         .notes-area {
@@ -316,12 +333,14 @@
             border: none;
             background: transparent;
             padding: 0;
-            min-height: 130px;
+            min-height: 180px;
+            line-height: 1.65;
         }
 
         .notes-area textarea:focus {
             box-shadow: none;
         }
+
 
         .footer-note {
             text-align: center;
@@ -351,6 +370,45 @@
             .section {
                 padding: 24px 22px 30px;
             }
+            .seal-mark {
+                margin: 28px auto 32px;
+                width: min(260px, 78%);
+            }
+        }
+
+        @media print {
+            .seal-mark {
+                margin: 26px auto 30px;
+                width: 260px;
+                page-break-after: always;
+            }
+            .section {
+                position: relative;
+            }
+            body::after {
+                content: '';
+                position: fixed;
+                right: 0.75in;
+                bottom: 0.75in;
+                width: 1.4in;
+                height: 1.4in;
+                background: url('../eshsealnobg.png') center/contain no-repeat;
+                opacity: 0.22;
+                pointer-events: none;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+                z-index: 1;
+            }
+            header.letterhead::after {
+                content: '';
+                position: fixed;
+                right: 0.75in;
+                bottom: 0.75in;
+                width: 1.5in;
+                height: 1.5in;
+                background: #ffffff;
+                z-index: 2;
+            }
         }
     </style>
 </head>
@@ -364,6 +422,10 @@
             <div class="gold-underline"></div>
             <div class="tagline">Elite Contractor Growth Partners</div>
         </header>
+
+        <div class="seal-mark">
+            <img src="../eshsealnobg.png" alt="Elite Service Hub seal">
+        </div>
 
         <main class="content">
             <h1 class="doc-title">Brand Assets & Media Intake</h1>
@@ -406,6 +468,8 @@
                     <label class="checkbox-item"><input type="checkbox"> Brand icon / mark provided</label>
                     <label class="checkbox-item"><input type="checkbox"> Requests logo refresh</label>
                     <label class="checkbox-item"><input type="checkbox"> Needs full brand kit build-out</label>
+                    <label class="checkbox-item"><input type="checkbox"> Email or upload all job photos to the shared ESH drive</label>
+                    <label class="checkbox-item"><input type="checkbox"> Check when complete</label>
                 </div>
                 <div class="notes-area">
                     <label>Logo Notes & Upload Links</label>
