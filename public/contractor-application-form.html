@@ -46,7 +46,8 @@
         .header p { font-size: 1.125rem; color: var(--esh-zinc-400); max-width: 700px; margin: 0 auto; font-weight: 300; letter-spacing: 0.02em; }
         
         .seal-mark, .print-seal { display: none; }
-        
+        .seal-mark img, .print-seal { width: 100%; height: auto; }
+
         .content { padding: 48px 40px; }
         
         .cover-page { padding: 72px 40px 64px; margin-bottom: 48px; border: 1px solid var(--esh-zinc-800); border-radius: 16px; background: linear-gradient(135deg, rgba(212, 175, 55, 0.16) 0%, rgba(212, 175, 55, 0.05) 100%); text-align: center; position: relative; overflow: hidden; }
@@ -182,28 +183,31 @@
                 color: rgba(255, 255, 255, 0.82) !important;
             }
             .content {
-                padding: 56px 62px 64px !important;
+                padding: 36px 56px 50px !important;
                 background: linear-gradient(180deg, #ffffff 0%, #fff9ec 50%, #ffffff 100%) !important;
             }
             .seal-mark {
                 display: block !important;
-                width: 2.9in;
-                height: 2.9in;
-                margin: 0 auto 44px;
+                width: 2.25in;
+                margin: 0 auto 32px;
                 background: var(--esh-seal) center/contain no-repeat;
-                opacity: 0.9;
                 -webkit-print-color-adjust: exact;
                 print-color-adjust: exact;
+            }
+            .seal-mark img {
+                display: block;
+                width: 100%;
+                height: auto;
+                opacity: 0.92;
             }
             .print-seal {
                 display: block !important;
                 position: fixed;
-                right: 0.8in;
-                bottom: 0.8in;
-                width: 1.45in;
-                height: 1.45in;
+                right: 0.85in;
+                bottom: 0.85in;
+                width: 1.6in;
+                opacity: 0.28;
                 background: var(--esh-seal) center/contain no-repeat;
-                opacity: 0.24;
                 -webkit-print-color-adjust: exact;
                 print-color-adjust: exact;
             }
@@ -214,6 +218,7 @@
                 padding: 48px 40px 44px !important;
                 text-align: center !important;
                 box-shadow: 0 24px 48px rgba(0, 0, 0, 0.08) !important;
+                page-break-after: always !important;
             }
             .cover-tagline {
                 font-size: 0.78rem !important;
@@ -333,8 +338,8 @@
                     to bottom,
                     transparent,
                     transparent calc(1.8rem - 1px),
-                    rgba(184, 134, 11, 0.35) calc(1.8rem - 1px),
-                    rgba(184, 134, 11, 0.35) 1.8rem
+                    rgba(184, 134, 11, 0.75) calc(1.8rem - 1px),
+                    rgba(184, 134, 11, 0.75) 1.8rem
                 ) !important;
                 background-size: 100% 1.8rem !important;
             }
