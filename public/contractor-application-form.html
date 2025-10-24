@@ -183,13 +183,14 @@
                 color: rgba(255, 255, 255, 0.82) !important;
             }
             .content {
-                padding: 36px 56px 50px !important;
+                padding: 32px 52px 48px !important;
                 background: linear-gradient(180deg, #ffffff 0%, #fff9ec 50%, #ffffff 100%) !important;
             }
             .seal-mark {
                 display: block !important;
                 width: 2.25in;
-                margin: 0 auto 32px;
+                height: 2.25in;
+                margin: 24px auto 28px;
                 background: var(--esh-seal) center/contain no-repeat;
                 -webkit-print-color-adjust: exact;
                 print-color-adjust: exact;
@@ -197,7 +198,8 @@
             .seal-mark img {
                 display: block;
                 width: 100%;
-                height: auto;
+                height: 100%;
+                object-fit: contain;
                 opacity: 0.92;
             }
             .print-seal {
@@ -206,7 +208,7 @@
                 right: 0.85in;
                 bottom: 0.85in;
                 width: 1.6in;
-                opacity: 0.28;
+                opacity: 0.26;
                 background: var(--esh-seal) center/contain no-repeat;
                 -webkit-print-color-adjust: exact;
                 print-color-adjust: exact;
@@ -215,10 +217,10 @@
                 background: rgba(255, 255, 255, 0.96) !important;
                 border: 1px solid rgba(184, 134, 11, 0.35) !important;
                 border-radius: 20px !important;
-                padding: 48px 40px 44px !important;
+                padding: 42px 38px 40px !important;
                 text-align: center !important;
                 box-shadow: 0 24px 48px rgba(0, 0, 0, 0.08) !important;
-                page-break-after: always !important;
+                page-break-inside: avoid !important;
             }
             .cover-tagline {
                 font-size: 0.78rem !important;
@@ -338,8 +340,8 @@
                     to bottom,
                     transparent,
                     transparent calc(1.8rem - 1px),
-                    rgba(184, 134, 11, 0.75) calc(1.8rem - 1px),
-                    rgba(184, 134, 11, 0.75) 1.8rem
+                    rgba(184, 134, 11, 0.9) calc(1.8rem - 1px),
+                    rgba(184, 134, 11, 0.9) 1.8rem
                 ) !important;
                 background-size: 100% 1.8rem !important;
             }
