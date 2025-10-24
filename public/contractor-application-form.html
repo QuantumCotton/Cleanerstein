@@ -109,6 +109,8 @@
         select { cursor: pointer; appearance: none; background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L6 6L11 1' stroke='%23d4af37' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 16px center; padding-right: 48px; }
         
         .checkbox-group { display: flex; flex-direction: column; gap: 16px; margin-top: 16px; }
+        .checkbox-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-top: 16px; }
+        .checkbox-grid .checkbox-item { height: 100%; }
         
         .checkbox-item { display: flex; align-items: flex-start; gap: 12px; padding: 14px; background: var(--esh-zinc-900); border: 1px solid var(--esh-zinc-800); border-radius: 8px; transition: all 0.3s ease; cursor: pointer; }
         
@@ -361,6 +363,12 @@
             .radio-group {
                 gap: 10px !important;
             }
+            .checkbox-grid {
+                display: grid !important;
+                grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+                gap: 12px !important;
+                margin-top: 12px !important;
+            }
             .checkbox-item,
             .radio-item {
                 padding: 10px 12px !important;
@@ -598,34 +606,97 @@
                     </h2>
                     <p class="section-description">Tell us what you do best and what makes you elite.</p>
                     
-                    <div class="form-grid">
-                        <div class="form-group full-width">
-                            <label for="primary-service">Primary Service Type(s) <span class="required">*</span></label>
-                            <select id="primary-service" name="primary-service[]" multiple>
-                                <option value="luxury-remodeling">Luxury Remodeling & Renovations</option>
-                                <option value="kitchen-remodel">Kitchen Remodeling</option>
-                                <option value="bathroom-remodel">Bathroom Remodeling</option>
-                                <option value="general-remodel">General Remodeling</option>
-                                <option value="roofing">Roofing</option>
-                                <option value="plumbing">Plumbing</option>
-                                <option value="electrical">Electrical</option>
-                                <option value="hvac">HVAC</option>
-                                <option value="flooring-surfaces">Flooring & Surface Upgrades</option>
-                                <option value="painting-coatings">Painting & Protective Coatings</option>
-                                <option value="landscaping-outdoor">Landscaping & Outdoor Living</option>
-                                <option value="concrete-masonry">Concrete & Masonry</option>
-                                <option value="pool-spa">Pool & Spa Services</option>
-                                <option value="solar-energy">Solar & Energy Solutions</option>
-                                <option value="fencing-gates">Fencing & Gates</option>
-                                <option value="residential-cleaning">Residential / Commercial Cleaning</option>
-                                <option value="pressure-washing">Pressure Washing & Soft Washing</option>
-                                <option value="auto-detailing">Auto Detailing & Ceramic Coating</option>
-                                <option value="mobile-mechanics">Mobile Mechanics & Fleet Maintenance</option>
-                                <option value="property-turnover">Property Turnover / Make-Ready</option>
-                                <option value="handyman">Handyman & Punch List</option>
-                                <option value="other-specialty">Other Specialty Trade</option>
-                            </select>
-                            <p class="note">Hold Ctrl (Windows) or Cmd (Mac) to select multiple.</p>
+                    <div class="form-group full-width">
+                        <label>Primary Service Type(s) <span class="required">*</span></label>
+                        <div class="checkbox-grid primary-service-grid">
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="primary-service-luxury-remodeling" name="primary-service[]" value="luxury-remodeling">
+                                <label for="primary-service-luxury-remodeling">Luxury Remodeling &amp; Renovations</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="primary-service-kitchen-remodel" name="primary-service[]" value="kitchen-remodel">
+                                <label for="primary-service-kitchen-remodel">Kitchen Remodeling</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="primary-service-bathroom-remodel" name="primary-service[]" value="bathroom-remodel">
+                                <label for="primary-service-bathroom-remodel">Bathroom Remodeling</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="primary-service-general-remodel" name="primary-service[]" value="general-remodel">
+                                <label for="primary-service-general-remodel">General Remodeling</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="primary-service-roofing" name="primary-service[]" value="roofing">
+                                <label for="primary-service-roofing">Roofing</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="primary-service-plumbing" name="primary-service[]" value="plumbing">
+                                <label for="primary-service-plumbing">Plumbing</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="primary-service-electrical" name="primary-service[]" value="electrical">
+                                <label for="primary-service-electrical">Electrical</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="primary-service-hvac" name="primary-service[]" value="hvac">
+                                <label for="primary-service-hvac">HVAC</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="primary-service-flooring" name="primary-service[]" value="flooring-surfaces">
+                                <label for="primary-service-flooring">Flooring &amp; Surface Upgrades</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="primary-service-painting" name="primary-service[]" value="painting-coatings">
+                                <label for="primary-service-painting">Painting &amp; Protective Coatings</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="primary-service-landscaping" name="primary-service[]" value="landscaping-outdoor">
+                                <label for="primary-service-landscaping">Landscaping &amp; Outdoor Living</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="primary-service-concrete" name="primary-service[]" value="concrete-masonry">
+                                <label for="primary-service-concrete">Concrete &amp; Masonry</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="primary-service-pool" name="primary-service[]" value="pool-spa">
+                                <label for="primary-service-pool">Pool &amp; Spa Services</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="primary-service-solar" name="primary-service[]" value="solar-energy">
+                                <label for="primary-service-solar">Solar &amp; Energy Solutions</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="primary-service-fencing" name="primary-service[]" value="fencing-gates">
+                                <label for="primary-service-fencing">Fencing &amp; Gates</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="primary-service-cleaning" name="primary-service[]" value="residential-cleaning">
+                                <label for="primary-service-cleaning">Residential / Commercial Cleaning</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="primary-service-pressure" name="primary-service[]" value="pressure-washing">
+                                <label for="primary-service-pressure">Pressure Washing &amp; Soft Washing</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="primary-service-auto" name="primary-service[]" value="auto-detailing">
+                                <label for="primary-service-auto">Auto Detailing &amp; Ceramic Coating</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="primary-service-mobile" name="primary-service[]" value="mobile-mechanics">
+                                <label for="primary-service-mobile">Mobile Mechanics &amp; Fleet Maintenance</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="primary-service-property" name="primary-service[]" value="property-turnover">
+                                <label for="primary-service-property">Property Turnover / Make-Ready</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="primary-service-handyman" name="primary-service[]" value="handyman">
+                                <label for="primary-service-handyman">Handyman &amp; Punch List</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="primary-service-other" name="primary-service[]" value="other-specialty">
+                                <label for="primary-service-other">Other Specialty Trade</label>
+                            </div>
                         </div>
                     </div>
 
