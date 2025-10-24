@@ -18,35 +18,23 @@ interface TaskItem {
   due?: string;
 }
 
-const filesBase = '/A%20Dump/cbdump';
-
 const assetSections: DashboardSection[] = [
   {
-    title: 'Elite Service Hub Templates',
-    description: 'Latest printable assets and intake forms shared during our build sessions.',
+    title: 'Core Onboarding Forms',
+    description: 'Live partner intake packets that already exist on chriscotton.me.',
     items: [
-      { label: 'Brand Assets & Media Intake', href: `${filesBase}/esh_contractor_brand_assets.html` },
-      { label: 'Growth & Financing Canvas', href: `${filesBase}/esh_contractor_growth_canvas.html` },
-      { label: 'Digital Launch Checklist', href: `${filesBase}/esh_digital_launch_checklist.html` },
-      { label: 'Neighborhood & Keyword Mapping', href: `${filesBase}/esh_neighborhood_mapping_sheet.html` }
+      { label: 'Service Partner Application', href: '/contractor-application-form.html' },
+      { label: 'Customer Acquisition Worksheet', href: '/customer-acquisition-form.html' },
+      { label: 'Brand Assets & Media Intake', href: '/forms/brand-assets-intake.html', meta: 'Updated handwriting lines' }
     ]
   },
   {
-    title: 'KMJK Collateral & References',
-    description: 'Working files for KMJK marketing and operations.',
+    title: 'Launch & Growth Tools',
+    description: 'Campaign worksheets and rollout trackers hosted on the public site.',
     items: [
-      { label: 'KMJK Contractor Intake Form', href: '/A%20Dump/kmjk_contractor_intake_form.html' },
-      { label: 'Market Expansion Notes', href: '/A%20Dump/market%20expansion.md' },
-      { label: 'Paper Seal Preview', href: '/A%20Dump/paper_seal_preview.html' }
-    ]
-  },
-  {
-    title: 'Internal Operations',
-    description: 'Reference docs, prompts, and integrations for the Atlas system.',
-    items: [
-      { label: 'Atlas Prompt & Service (atlasService.ts)', href: '/src/services/atlasService.ts' },
-      { label: 'Gemini Prompt Config (geminiService.ts)', href: '/src/services/geminiService.ts' },
-      { label: 'Chat Widget (ChatWidget.tsx)', href: '/src/components/atlas/ChatWidget.tsx' }
+      { label: 'Growth & Financing Canvas', href: '/forms/growth-and-financing-canvas.html' },
+      { label: 'Digital Launch Checklist', href: '/forms/digital-launch-checklist.html' },
+      { label: 'Neighborhood & Keyword Mapping', href: '/forms/neighborhood-and-keyword-mapping.html' }
     ]
   }
 ];
