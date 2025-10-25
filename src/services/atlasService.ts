@@ -1,21 +1,190 @@
 // Atlas AI Service - Conversation Engine & Lead Qualification
 import { CONTRACTOR_ACQUISITION_PROMPT } from './geminiService';
 
+type ServiceVertical =
+  | 'remodeling'
+  | 'cleaning'
+  | 'detailing'
+  | 'mechanic'
+  | 'landscaping'
+  | 'hvac'
+  | 'plumbing'
+  | 'electrical'
+  | 'roofing'
+  | 'solar'
+  | 'painting'
+  | 'concrete'
+  | 'fencing'
+  | 'flooring'
+  | 'pool'
+  | 'handyman'
+  | 'pressure_washing'
+  | 'other';
+
+type WrapUpReason = 'user_exit' | 'inactivity' | 'submit' | 'quick_limit';
+
 const OPENAI_ENDPOINT = '/.netlify/functions/atlas-openai';
 const LEAD_EMAIL_ENDPOINT = '/.netlify/functions/send-atlas-lead';
 const OPENAI_TIMEOUT_MS = 60000; // 60 seconds for GPT-5 reasoning models
+const INACTIVITY_TIMEOUT_MS = 5 * 60 * 1000;
+
+const AFFIRMATIVE_KEYWORDS = ['yes', 'yep', 'yeah', 'looks good', 'sounds good', 'all good', 'go ahead', 'submit it', 'send it', 'that works'];
+const EDIT_KEYWORDS = ['change', 'edit', 'adjust', 'tweak', 'update', 'add', 'fix', 'modify'];
+const SUMMARY_KEYWORDS = ['summary', 'recap', 'show summary', 'share summary', 'send summary'];
+
+const inactivityTimers = new Map<string, ReturnType<typeof setTimeout>>();
 
 export type ConversationMode = 'askAround' | 'intake';
-export type IntakeQuestionKey =
-  | 'name'
-  | 'contact'
-  | 'projectType'
-  | 'timeline'
-  | 'budget'
-  | 'zip'
-  | 'services'
-  | 'financing'
-  | 'details';
+
+const INTAKE_FIELD_KEYS = [
+  'name',
+  'contact',
+  'company',
+  'serviceVertical',
+  'serviceArea',
+  'city',
+  'state',
+  'zip',
+  'timeline',
+  'budget',
+  'teamSize',
+  'yearsInBusiness',
+  'revenueCurrent',
+  'revenueGoal12',
+  'revenueGoal36',
+  'averageTicket',
+  'monthlyVolume',
+  'marketingChannels',
+  'salesProcess',
+  'financingOffers',
+  'capitalNeeds',
+  'dreamVision',
+  'painPoints',
+  'services',
+  'details'
+] as const;
+
+export type IntakeQuestionKey = typeof INTAKE_FIELD_KEYS[number];
+
+const CORE_FIELDS: IntakeQuestionKey[] = [
+  'name',
+  'contact',
+  'company',
+  'serviceVertical',
+  'serviceArea',
+  'city',
+  'state',
+  'zip'
+];
+
+const GROWTH_FIELDS: IntakeQuestionKey[] = [
+  'timeline',
+  'budget',
+  'teamSize',
+  'yearsInBusiness',
+  'revenueCurrent',
+  'revenueGoal12',
+  'revenueGoal36',
+  'averageTicket',
+  'monthlyVolume'
+];
+
+const MARKETING_FIELDS: IntakeQuestionKey[] = [
+  'marketingChannels',
+  'services',
+  'salesProcess',
+  'financingOffers',
+  'details'
+];
+
+const VISION_FIELDS: IntakeQuestionKey[] = ['capitalNeeds', 'dreamVision', 'painPoints'];
+
+const FIELD_PRIORITY: IntakeQuestionKey[] = [
+  ...CORE_FIELDS,
+  ...GROWTH_FIELDS,
+  ...MARKETING_FIELDS,
+  ...VISION_FIELDS
+];
+
+const FIELD_LABELS: Record<IntakeQuestionKey, string> = {
+  name: 'Primary Contact',
+  contact: 'Contact Info',
+  company: 'Company',
+  serviceVertical: 'Service Vertical',
+  serviceArea: 'Service Area',
+  city: 'City',
+  state: 'State',
+  zip: 'ZIP',
+  timeline: 'Timeline',
+  budget: 'Budget',
+  teamSize: 'Team Size',
+  yearsInBusiness: 'Years in Business',
+  revenueCurrent: 'Current Revenue',
+  revenueGoal12: '12-Month Goal',
+  revenueGoal36: '36-Month Goal',
+  averageTicket: 'Average Ticket',
+  monthlyVolume: 'Monthly Volume',
+  marketingChannels: 'Marketing Channels',
+  salesProcess: 'Sales Process',
+  financingOffers: 'Financing Offers',
+  capitalNeeds: 'Capital Needs',
+  dreamVision: 'Dream Vision',
+  painPoints: 'Pain Points',
+  services: 'Service Mix',
+  details: 'Additional Details'
+};
+
+const SERVICE_KEYWORDS: Record<ServiceVertical, string[]> = {
+  remodeling: ['remodel', 'renovation', 'kitchen', 'bathroom', 'basement'],
+  cleaning: ['cleaning', 'maid', 'janitorial', 'housekeeping'],
+  detailing: ['detail', 'detailing', 'auto detail', 'car wash', 'ceramic coat'],
+  mechanic: ['mechanic', 'auto repair', 'garage', 'fleet service'],
+  landscaping: ['landscape', 'lawn', 'yard', 'garden', 'tree service'],
+  hvac: ['hvac', 'heating', 'cooling', 'air conditioning'],
+  plumbing: ['plumb', 'pipe', 'sewer', 'drain'],
+  electrical: ['electric', 'wiring', 'panel', 'lighting'],
+  roofing: ['roof', 'shingle', 'gutters'],
+  solar: ['solar', 'photovoltaic', 'pv'],
+  painting: ['paint', 'coating', 'stain'],
+  concrete: ['concrete', 'cement', 'flatwork'],
+  fencing: ['fence', 'gate'],
+  flooring: ['floor', 'tile', 'hardwood', 'carpet install'],
+  pool: ['pool', 'spa', 'hot tub'],
+  handyman: ['handyman', 'repair', 'odd jobs'],
+  pressure_washing: ['pressure wash', 'power wash', 'soft wash'],
+  other: []
+};
+
+const SERVICE_VERTICAL_LABELS: Record<ServiceVertical, string> = {
+  remodeling: 'Remodeling',
+  cleaning: 'Cleaning Services',
+  detailing: 'Auto Detailing',
+  mechanic: 'Mobile/Auto Mechanic',
+  landscaping: 'Landscaping',
+  hvac: 'HVAC',
+  plumbing: 'Plumbing',
+  electrical: 'Electrical',
+  roofing: 'Roofing',
+  solar: 'Solar',
+  painting: 'Painting',
+  concrete: 'Concrete',
+  fencing: 'Fencing',
+  flooring: 'Flooring',
+  pool: 'Pool & Spa',
+  handyman: 'Handyman',
+  pressure_washing: 'Pressure Washing',
+  other: 'Service Business'
+};
+
+const EXIT_KEYWORDS = ['bye', 'goodbye', 'see ya', 'thats all', "that's all", 'done for now', 'talk later', 'thank you bye'];
+
+const normalizeForKeywordSearch = (value: string) => ` ${value.replace(/[^a-z0-9]+/g, ' ')} `;
+
+const matchesAnyKeyword = (input: string, keywords: string[]) => {
+  if (!keywords.length) return false;
+  const normalizedInput = normalizeForKeywordSearch(input.toLowerCase());
+  return keywords.some(keyword => normalizedInput.includes(normalizeForKeywordSearch(keyword.toLowerCase())));
+};
 
 export interface AtlasMessage {
   id: string;
@@ -25,6 +194,9 @@ export interface AtlasMessage {
   quickReplies?: string[];
   leadData?: Partial<LeadData>;
   qualificationScore?: number;
+  metadata?: {
+    finalizeReason?: WrapUpReason;
+  };
 }
 
 export interface AtlasServiceResponse {
@@ -43,6 +215,25 @@ export interface LeadData {
   propertyType?: string;
   currentStatus?: string;
   details?: string;
+  companyName?: string;
+  city?: string;
+  state?: string;
+  yearsInBusiness?: string;
+  teamSize?: string;
+  serviceArea?: string;
+  serviceVertical?: ServiceVertical;
+  services?: string;
+  revenueCurrent?: string;
+  revenueGoal12?: string;
+  revenueGoal36?: string;
+  averageTicket?: string;
+  monthlyVolume?: string;
+  marketingChannels?: string;
+  salesProcess?: string;
+  financingOffers?: string;
+  capitalNeeds?: string;
+  dreamVision?: string;
+  painPoints?: string;
 }
 
 export interface AtlasConversation {
@@ -64,6 +255,15 @@ export interface AtlasConversation {
     questionCount: number;
   };
   leadNotificationSent: boolean;
+  lastUserMessageAt: Date | null;
+  lastAssistantMessageAt: Date | null;
+  wrapUpRequested: boolean;
+  summaryOffered: boolean;
+  summaryAccepted: boolean;
+  summaryConfirmed: boolean;
+  wrapUpState: 'idle' | 'offer' | 'awaitingDecision' | 'showingSummary' | 'awaitingApproval' | 'complete';
+  wrapUpReason?: WrapUpReason;
+  summarySnapshot?: string;
 }
 
 export type ConversationStage = 
@@ -97,7 +297,16 @@ class AtlasEngine {
         maxQuestions: undefined,
         questionCount: 0
       },
-      leadNotificationSent: false
+      leadNotificationSent: false,
+      lastUserMessageAt: null,
+      lastAssistantMessageAt: null,
+      wrapUpRequested: false,
+      summaryOffered: false,
+      summaryAccepted: false,
+      summaryConfirmed: false,
+      wrapUpState: 'idle',
+      wrapUpReason: undefined,
+      summarySnapshot: undefined
     };
     
     // Add initial greeting
@@ -117,17 +326,20 @@ Before we dive in, what name should I use for you, and what's the best contact t
     });
   }
 
-  private addMessage(msg: Omit<AtlasMessage, 'id' | 'timestamp'>) {
+  private addMessage(msg: Omit<AtlasMessage, 'id' | 'timestamp'>): AtlasMessage {
     const message: AtlasMessage = {
       ...msg,
       id: `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
       timestamp: new Date()
     };
     this.conversation.messages.push(message);
+    if (message.role === 'assistant') {
+      this.conversation.lastAssistantMessageAt = message.timestamp;
+    }
+    return message;
   }
 
   async processUserMessage(userInput: string): Promise<AtlasMessage> {
-    // Record user message for transcript and context
     const userMessage: AtlasMessage = {
       id: `msg_user_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
       role: 'user',
@@ -135,55 +347,262 @@ Before we dive in, what name should I use for you, and what's the best contact t
       timestamp: new Date()
     };
     this.conversation.messages.push(userMessage);
+    this.conversation.lastUserMessageAt = userMessage.timestamp;
+    this.clearInactivityTimer();
 
-    // Analyze user input and extract data
     await this.analyzeInput(userInput);
-
-    // Update intake state based on user intent
     this.detectModeSwitch(userInput);
     this.updateIntakeProgress();
-    
-    // Update qualification score
     this.updateQualificationScore();
-    
-    // Generate appropriate response based on stage
+
+    const summaryResponse = await this.handleSummaryRequest(userInput);
+    if (summaryResponse) {
+      if (this.shouldTriggerLeadNotification()) {
+        await this.notifyNewLead();
+      }
+      return {
+        ...summaryResponse,
+        leadData: { ...this.conversation.leadData },
+        qualificationScore: this.conversation.qualificationScore
+      };
+    }
+
+    const exitResponse = await this.handleExitSignals(userInput);
+    if (exitResponse) {
+      return {
+        ...exitResponse,
+        leadData: { ...this.conversation.leadData },
+        qualificationScore: this.conversation.qualificationScore
+      };
+    }
+
+    if (this.conversation.transferredToHuman && this.conversation.wrapUpState === 'idle') {
+      const finalMessage =
+        (await this.finalizeConversation(
+          'submit',
+          "Awesome—that gives me everything I need. I'll pass this along to our concierge team and they'll follow up with next steps. If you'd like to add anything else, just drop it here and I'll include it."
+        )) ?? this.conversation.messages[this.conversation.messages.length - 1];
+      return {
+        ...finalMessage,
+        leadData: { ...this.conversation.leadData },
+        qualificationScore: this.conversation.qualificationScore
+      };
+    }
+
     const response = await this.generateResponse(userInput);
     
     // Add assistant message
-    this.addMessage(response);
-    this.recordIntakeQuestion(response);
+    const assistantMessage = this.addMessage(response);
+    this.recordIntakeQuestion(assistantMessage);
 
-    const lastMessage = this.conversation.messages[this.conversation.messages.length - 1];
+    this.scheduleInactivityTimer();
 
     if (this.shouldTriggerLeadNotification()) {
       await this.notifyNewLead();
     }
 
     return {
-      ...lastMessage,
+      ...assistantMessage,
       leadData: { ...this.conversation.leadData },
       qualificationScore: this.conversation.qualificationScore
     };
   }
 
+  private clearInactivityTimer() {
+    const timer = inactivityTimers.get(this.conversation.id);
+    if (timer) {
+      clearTimeout(timer);
+      inactivityTimers.delete(this.conversation.id);
+    }
+  }
+
+  private scheduleInactivityTimer() {
+    if (this.conversation.wrapUpState === 'complete') {
+      return;
+    }
+    this.clearInactivityTimer();
+    const timer = setTimeout(async () => {
+      try {
+        if (this.conversation.wrapUpState === 'complete') {
+          return;
+        }
+        await this.finalizeConversation(
+          'inactivity',
+          "I'll go ahead and package what you shared so our concierge team can follow up. If you come back later, we can pick up right where we left off."
+        );
+        if (this.shouldTriggerLeadNotification()) {
+          await this.notifyNewLead();
+        }
+      } catch (error) {
+        console.error('[Atlas] Failed to handle inactivity wrap-up', error);
+      }
+    }, INACTIVITY_TIMEOUT_MS);
+    inactivityTimers.set(this.conversation.id, timer);
+  }
+
+  private buildSummarySnapshot(): string {
+    const lines: string[] = [];
+    const data = this.conversation.leadData;
+
+    const addLine = (key: IntakeQuestionKey, value: unknown) => {
+      if (!value) return;
+      const label = FIELD_LABELS[key] ?? key;
+      lines.push(`${label}: ${typeof value === 'string' ? value : JSON.stringify(value)}`);
+    };
+
+    FIELD_PRIORITY.forEach(key => {
+      if (key === 'serviceVertical' && data.serviceVertical) {
+        addLine(key, SERVICE_VERTICAL_LABELS[data.serviceVertical] ?? data.serviceVertical);
+        return;
+      }
+      addLine(key, (data as Record<string, unknown>)[key]);
+    });
+
+    if (!lines.length) {
+      lines.push('Visitor shared their contact details and general interest in growth.');
+    }
+
+    return lines.join('\n');
+  }
+
+  private async finalizeConversation(reason: WrapUpReason, closingLine?: string): Promise<AtlasMessage | null> {
+    if (this.conversation.wrapUpState === 'complete') {
+      return null;
+    }
+
+    this.conversation.wrapUpReason = reason;
+    this.conversation.wrapUpState = 'complete';
+    this.conversation.transferredToHuman = true;
+    this.conversation.intake.active = false;
+    this.conversation.wrapUpRequested = true;
+    this.conversation.summaryAccepted = reason !== 'quick_limit';
+    this.conversation.summaryConfirmed = reason !== 'quick_limit';
+    this.conversation.summarySnapshot = this.buildSummarySnapshot();
+
+    this.clearInactivityTimer();
+
+    const content = closingLine ??
+      "Perfect. I'll hand this off to our concierge team and they'll reach out shortly with next steps.";
+
+    const message: Omit<AtlasMessage, 'id' | 'timestamp'> = {
+      role: 'assistant',
+      content,
+      quickReplies: undefined,
+      metadata: { finalizeReason: reason }
+    };
+    this.addMessage(message);
+    return this.conversation.messages[this.conversation.messages.length - 1];
+  }
+
+  private async handleSummaryRequest(userInput: string): Promise<AtlasMessage | null> {
+    const lower = userInput.toLowerCase();
+    const askedForSummary = matchesAnyKeyword(lower, SUMMARY_KEYWORDS);
+    const approvedSummary = matchesAnyKeyword(lower, AFFIRMATIVE_KEYWORDS);
+    const wantsEdit = matchesAnyKeyword(lower, EDIT_KEYWORDS);
+
+    if (this.conversation.wrapUpState === 'showingSummary') {
+      if (approvedSummary) {
+        return await this.finalizeConversation(
+          'submit',
+          "Amazing. I'll send this over to our concierge team and they'll connect with you shortly."
+        );
+      }
+      if (wantsEdit) {
+        this.conversation.wrapUpState = 'awaitingDecision';
+        const message = this.addMessage({
+          role: 'assistant',
+          content:
+            "No problem—tell me what you'd like me to tweak or add, and I'll refresh the summary before we submit it.",
+          quickReplies: ['Update the budget', 'Adjust the service area', 'Add a note about financing']
+        });
+        this.scheduleInactivityTimer();
+        return message;
+      }
+      if (!askedForSummary) {
+        return null;
+      }
+    }
+
+    if (this.conversation.wrapUpState === 'awaitingDecision') {
+      if (askedForSummary || approvedSummary) {
+        this.conversation.wrapUpState = 'showingSummary';
+      } else {
+        const message = this.addMessage({
+          role: 'assistant',
+          content: "Got it! Want me to show an updated summary before we wrap things up?",
+          quickReplies: ['Yes, show summary', 'Looks good now']
+        });
+        this.scheduleInactivityTimer();
+        return message;
+      }
+    }
+
+    if (!askedForSummary && !(this.conversation.summaryOffered && approvedSummary)) {
+      return null;
+    }
+
+    const summary = this.buildSummarySnapshot();
+    this.conversation.summarySnapshot = summary;
+    this.conversation.summaryOffered = true;
+    this.conversation.wrapUpState = 'showingSummary';
+
+    const message = this.addMessage({
+      role: 'assistant',
+      content: `Here’s the recap I’ll send to our concierge team:\n\n${summary}\n\nDoes that capture everything correctly?`,
+      quickReplies: ['Looks good', 'Make a change', 'Add one more detail']
+    });
+    this.scheduleInactivityTimer();
+    return message;
+  }
+
+  private async handleExitSignals(userInput: string): Promise<AtlasMessage | null> {
+    const lower = userInput.toLowerCase();
+    const isExit = matchesAnyKeyword(lower, EXIT_KEYWORDS) || lower.includes('done') || lower.includes("that's it") || lower.includes('no thanks') || lower.includes('talk soon');
+
+    if (!isExit) {
+      return null;
+    }
+
+    return (await this.finalizeConversation(
+      'user_exit',
+      "Sounds great. I'll bundle this up for our concierge team and they'll get in touch with next steps."
+    ));
+  }
+
+  private detectServiceVertical(input: string): ServiceVertical | null {
+    const normalized = normalizeForKeywordSearch(input);
+    let bestMatch: ServiceVertical | null = null;
+    let bestScore = 0;
+
+    (Object.keys(SERVICE_KEYWORDS) as ServiceVertical[]).forEach(vertical => {
+      const keywords = SERVICE_KEYWORDS[vertical];
+      if (!keywords.length) {
+        return;
+      }
+      const matches = keywords.filter(keyword =>
+        normalized.includes(normalizeForKeywordSearch(keyword))
+      );
+      if (matches.length > bestScore) {
+        bestScore = matches.length;
+        bestMatch = vertical;
+      }
+    });
+
+    return bestMatch;
+  }
+
   private async analyzeInput(input: string): Promise<void> {
     const lowerInput = input.toLowerCase();
 
-    // Extract service/project type - capture ANY service mentioned
-    if (!this.conversation.leadData.projectType) {
-      // Check for any service type mentioned
-      const serviceTypes = [
-        'kitchen', 'bathroom', 'remodeling', 'plumbing', 'electrical', 'roofing', 
-        'hvac', 'solar', 'flooring', 'painting', 'fencing', 'concrete', 'landscaping',
-        'pool', 'detailing', 'cleaning', 'mechanic', 'snow', 'handyman', 'pressure',
-        'window', 'gutter', 'deck', 'drywall', 'tile', 'carpet'
-      ];
-      
-      for (const service of serviceTypes) {
-        if (lowerInput.includes(service)) {
-          this.conversation.leadData.projectType = 'other'; // Use 'other' for non-kitchen/bath
-          this.conversation.leadData.details = input; // Store the actual service type in details
-          break;
+    if (!this.conversation.leadData.serviceVertical) {
+      const detectedVertical = this.detectServiceVertical(lowerInput);
+      if (detectedVertical) {
+        this.conversation.leadData.serviceVertical = detectedVertical;
+        if (!this.conversation.leadData.services) {
+          this.conversation.leadData.services = SERVICE_VERTICAL_LABELS[detectedVertical] ?? detectedVertical;
+        }
+        if (!this.conversation.leadData.details) {
+          this.conversation.leadData.details = input;
         }
       }
     }
@@ -241,7 +660,7 @@ Before we dive in, what name should I use for you, and what's the best contact t
     const inServiceArea = data.zip ? this.checkServiceArea(data.zip) : true;
 
     // Scoring criteria
-    if (data.projectType) score += 15;
+    if (data.serviceVertical || data.services || data.projectType) score += 15;
     if (data.timeline) score += 10;
     if (data.budget) score += 20;
     if (data.zip) score += 15;
@@ -405,7 +824,7 @@ Based on what you know, respond naturally and progress toward qualification.`;
     }
 
     const hasContactInfo = Boolean(leadData.email || leadData.phone);
-    const hasBasicInfo = Boolean(leadData.name || leadData.projectType || leadData.timeline);
+    const hasBasicInfo = Boolean(leadData.name || leadData.serviceVertical || leadData.timeline);
     const maxQuestions = intake.maxQuestions;
     const askedCount = intake.questionCount;
     const questionsRemaining = typeof maxQuestions === 'number' ? Math.max(maxQuestions - askedCount, 0) : undefined;
@@ -439,7 +858,7 @@ Based on what you know, respond naturally and progress toward qualification.`;
       return ['Here is my email', 'Here is my phone number'];
     }
 
-    if (!leadData.projectType) {
+    if (!leadData.serviceVertical) {
       if (!intake.preference) {
         return ['3-5 quick questions', 'Full intake (10-12 questions)', 'Just browsing'];
       }
@@ -453,7 +872,7 @@ Based on what you know, respond naturally and progress toward qualification.`;
     return undefined;
   }
 
-  private recordIntakeQuestion(message: Omit<AtlasMessage, 'id' | 'timestamp'>): void {
+  private recordIntakeQuestion(message: AtlasMessage): void {
     const intake = this.conversation.intake;
     if (!intake.active) {
       return;
@@ -642,24 +1061,35 @@ Based on what you know, respond naturally and progress toward qualification.`;
       return;
     }
 
-    const dataMap: Array<[IntakeQuestionKey, unknown]> = [
-      ['name', this.conversation.leadData.name],
-      ['contact', this.conversation.leadData.email || this.conversation.leadData.phone],
-      ['projectType', this.conversation.leadData.projectType],
-      ['timeline', this.conversation.leadData.timeline],
-      ['budget', this.conversation.leadData.budget],
-      ['zip', this.conversation.leadData.zip],
-      ['services', this.conversation.leadData.propertyType],
-      ['financing', this.conversation.leadData.currentStatus],
-      ['details', this.conversation.leadData.details]
-    ];
+    const dataMap: Partial<Record<IntakeQuestionKey, unknown>> = {
+      name: this.conversation.leadData.name,
+      contact: this.conversation.leadData.email || this.conversation.leadData.phone,
+      company: this.conversation.leadData.companyName,
+      serviceVertical: this.conversation.leadData.serviceVertical,
+      serviceArea: this.conversation.leadData.serviceArea,
+      city: this.conversation.leadData.city,
+      state: this.conversation.leadData.state,
+      zip: this.conversation.leadData.zip,
+      timeline: this.conversation.leadData.timeline,
+      budget: this.conversation.leadData.budget,
+      teamSize: this.conversation.leadData.teamSize,
+      yearsInBusiness: this.conversation.leadData.yearsInBusiness,
+      revenueCurrent: this.conversation.leadData.revenueCurrent,
+      revenueGoal12: this.conversation.leadData.revenueGoal12,
+      revenueGoal36: this.conversation.leadData.revenueGoal36,
+      averageTicket: this.conversation.leadData.averageTicket,
+      monthlyVolume: this.conversation.leadData.monthlyVolume,
+      marketingChannels: this.conversation.leadData.marketingChannels,
+      salesProcess: this.conversation.leadData.salesProcess,
+      financingOffers: this.conversation.leadData.financingOffers,
+      capitalNeeds: this.conversation.leadData.capitalNeeds,
+      dreamVision: this.conversation.leadData.dreamVision,
+      painPoints: this.conversation.leadData.painPoints,
+      services: this.conversation.leadData.services,
+      details: this.conversation.leadData.details
+    };
 
-    const asked: IntakeQuestionKey[] = [];
-    dataMap.forEach(([key, value]) => {
-      if (value) {
-        asked.push(key);
-      }
-    });
+    const asked: IntakeQuestionKey[] = INTAKE_FIELD_KEYS.filter(key => Boolean(dataMap[key]));
     this.conversation.intake.askedQuestions = asked;
 
     // Adjust estimated question count based on missing fields
@@ -673,23 +1103,7 @@ Based on what you know, respond naturally and progress toward qualification.`;
   }
 
   private getPendingIntakeKeys(): IntakeQuestionKey[] {
-    const required: IntakeQuestionKey[] = ['name', 'contact'];
-    const optional: IntakeQuestionKey[] = ['projectType', 'timeline', 'budget', 'zip', 'services', 'financing', 'details'];
-    const missing: IntakeQuestionKey[] = [];
-
-    required.forEach(key => {
-      if (!this.conversation.intake.askedQuestions.includes(key)) {
-        missing.push(key);
-      }
-    });
-
-    optional.forEach(key => {
-      if (!this.conversation.intake.askedQuestions.includes(key)) {
-        missing.push(key);
-      }
-    });
-
-    return missing;
+    return FIELD_PRIORITY.filter(key => !this.conversation.intake.askedQuestions.includes(key));
   }
   private snapshotConversation(): AtlasConversation {
     return {
