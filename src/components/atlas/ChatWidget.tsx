@@ -8,6 +8,12 @@ interface ChatWidgetProps {
   primaryColor?: string;
 }
 
+interface StreamingMessageState {
+  id: string;
+  fullContent: string;
+  visibleContent: string;
+}
+
 export default function ChatWidget({ 
   position = 'bottom-right',
   primaryColor = '#D4AF37'
@@ -16,8 +22,9 @@ export default function ChatWidget({
   const [isMinimized, setIsMinimized] = useState(false);
   const [conversation, setConversation] = useState<AtlasConversation | null>(null);
   const [inputValue, setInputValue] = useState('');
-  const [isTyping, setIsTyping] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const lastAssistantMessageIdRef = useRef<string | null>(null);
+  const [streamingMessage, setStreamingMessage] = useState<StreamingMessageState | null>(null);
 
   // Initialize conversation when widget opens
   useEffect(() => {
@@ -31,17 +38,76 @@ export default function ChatWidget({
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [conversation?.messages]);
 
+  useEffect(() => {
+    if (!conversation?.messages?.length) {
+      return;
+    }
+    const lastAssistant = [...conversation.messages].reverse().find(msg => msg.role === 'assistant');
+    if (!lastAssistant) {
+      return;
+    }
+    if (streamingMessage && streamingMessage.id === lastAssistant.id) {
+      return;
+    }
+    if (lastAssistantMessageIdRef.current === lastAssistant.id) {
+      return;
+    }
+    setStreamingMessage({
+      id: lastAssistant.id,
+      fullContent: lastAssistant.content,
+      visibleContent: ''
+    });
+  }, [conversation?.messages, streamingMessage]);
+
+  useEffect(() => {
+    if (!streamingMessage) {
+      return;
+    }
+    if (streamingMessage.visibleContent.length >= streamingMessage.fullContent.length) {
+      lastAssistantMessageIdRef.current = streamingMessage.id;
+      setStreamingMessage(null);
+      return;
+    }
+    const timeout = setTimeout(() => {
+      setStreamingMessage(prev => {
+        if (!prev) {
+          return null;
+        }
+        const nextLength = Math.min(prev.visibleContent.length + 2, prev.fullContent.length);
+        return {
+          ...prev,
+          visibleContent: prev.fullContent.slice(0, nextLength)
+        };
+      });
+    }, 20);
+    return () => clearTimeout(timeout);
+  }, [streamingMessage]);
+
+  useEffect(() => {
+    if (streamingMessage) {
+      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [streamingMessage?.visibleContent]);
+
   const initConversation = async () => {
     const newConversation = await startConversation();
     setConversation(newConversation);
+    const lastAssistant = [...newConversation.messages].reverse().find(msg => msg.role === 'assistant');
+    if (lastAssistant) {
+      lastAssistantMessageIdRef.current = lastAssistant.id;
+    }
   };
 
   const handleSend = async () => {
     if (!inputValue.trim() || !conversation) return;
 
+    if (streamingMessage) {
+      lastAssistantMessageIdRef.current = streamingMessage.id;
+      setStreamingMessage(null);
+    }
+
     const userMessage = inputValue.trim();
     setInputValue('');
-    setIsTyping(true);
 
     const userMsg: AtlasMessage = {
       id: `msg_${Date.now()}`,
@@ -58,8 +124,6 @@ export default function ChatWidget({
     try {
       const { conversation: updatedConversation } = await sendMessage(conversation.id, userMessage);
       setConversation(updatedConversation);
-      // Ensure typing indicator hides before rendering quick replies
-      setIsTyping(false);
     } catch (error) {
       console.error('[Atlas] Failed to send message', error);
       setConversation(prev => prev ? {
@@ -71,7 +135,6 @@ export default function ChatWidget({
           timestamp: new Date()
         }]
       } : null);
-      setIsTyping(false);
     }
   };
 
@@ -134,51 +197,53 @@ export default function ChatWidget({
         <>
           {/* Messages */}
           <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-zinc-50">
-            {conversation?.messages.map((msg) => (
-              <div
-                key={msg.id}
-                className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
-              >
+            {conversation?.messages.map(msg => {
+              const isStreamingCurrent = streamingMessage?.id === msg.id;
+              const displayContent = isStreamingCurrent
+                ? streamingMessage.visibleContent || ' '
+                : msg.content;
+              const quickReplies = msg.quickReplies ?? [];
+              const showQuickReplies = quickReplies.length > 0 && !isStreamingCurrent;
+
+              return (
                 <div
-                  className={`max-w-[80%] p-3 rounded-lg ${
-                    msg.role === 'user'
-                      ? 'bg-black text-white'
-                      : 'bg-white text-black border border-zinc-200'
-                  }`}
+                  key={msg.id}
+                  className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
                 >
-                  <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
-                  {msg.quickReplies && msg.quickReplies.length > 0 && (
-                    <div className="flex flex-wrap gap-2 mt-3">
-                      {msg.quickReplies.map((reply, idx) => (
-                        <button
-                          key={idx}
-                          onClick={() => {
-                            setInputValue(reply);
-                            setTimeout(() => handleSend(), 100);
-                          }}
-                          className="px-3 py-1 text-xs border border-zinc-300 rounded-full hover:bg-zinc-100"
-                        >
-                          {reply}
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </div>
-            ))}
-            
-            {isTyping && (
-              <div className="flex justify-start">
-                <div className="bg-white text-black border border-zinc-200 p-3 rounded-lg">
-                  <div className="flex gap-1">
-                    <div className="w-2 h-2 bg-zinc-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-                    <div className="w-2 h-2 bg-zinc-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-                    <div className="w-2 h-2 bg-zinc-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                  <div
+                    className={`max-w-[80%] p-3 rounded-lg ${
+                      msg.role === 'user'
+                        ? 'bg-black text-white'
+                        : 'bg-white text-black border border-zinc-200'
+                    }`}
+                  >
+                    <p className="text-sm whitespace-pre-wrap">
+                      {displayContent}
+                      {isStreamingCurrent && (
+                        <span className="inline-block w-2 h-4 bg-zinc-300 align-baseline animate-pulse ml-1" />
+                      )}
+                    </p>
+                    {showQuickReplies && (
+                      <div className="flex flex-wrap gap-2 mt-3">
+                        {quickReplies.map((reply, idx) => (
+                          <button
+                            key={idx}
+                            onClick={() => {
+                              setInputValue(reply);
+                              setTimeout(() => handleSend(), 100);
+                            }}
+                            className="px-3 py-1 text-xs border border-zinc-300 rounded-full hover:bg-zinc-100"
+                          >
+                            {reply}
+                          </button>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 </div>
-              </div>
-            )}
-            
+              );
+            })}
+
             <div ref={messagesEndRef} />
           </div>
 
