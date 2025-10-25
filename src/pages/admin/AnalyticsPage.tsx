@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Calendar, Download, TrendingUp, TrendingDown } from 'lucide-react';
+import { Download, TrendingUp, TrendingDown } from 'lucide-react';
 import Button from '../../components/shared/Button';
 
 export default function AnalyticsPage() {

@@ -34,6 +34,174 @@ const SUMMARY_KEYWORDS = ['summary', 'recap', 'show summary', 'share summary', '
 
 const inactivityTimers = new Map<string, ReturnType<typeof setTimeout>>();
 
+type KeywordDescriptor = {
+  label: string;
+  keywords: string[];
+};
+
+const MARKETING_CHANNEL_CLUES: KeywordDescriptor[] = [
+  { label: 'Paid social ads (Facebook/Instagram)', keywords: ['facebook', 'instagram', 'meta ads', 'paid social'] },
+  { label: 'Google Ads / PPC', keywords: ['google ads', 'ppc', 'adwords', 'search ads'] },
+  { label: 'Door hangers / print', keywords: ['door hanger', 'flyer', 'print ads', 'mailers'] },
+  { label: 'HomeAdvisor / Angi / Thumbtack', keywords: ['homeadvisor', 'angi', 'thumbtack', 'leads service'] },
+  { label: 'Referrals / word of mouth', keywords: ['referral', 'word of mouth', 'repeat clients'] }
+];
+
+const SALES_PROCESS_CLUES: KeywordDescriptor[] = [
+  { label: 'Dedicated sales reps', keywords: ['sales rep', 'sales team', 'closer'] },
+  { label: 'Owner-led sales', keywords: ['i handle sales', 'i close', 'owner sells'] },
+  { label: 'Inbound consults / appointments', keywords: ['appointments', 'consultation', 'booked calls', 'calendar'] }
+];
+
+const FINANCING_CLUES: KeywordDescriptor[] = [
+  { label: 'Offers financing', keywords: ['financing', 'payment plan', 'same-as-cash'] },
+  { label: 'No financing yet', keywords: ['no financing', 'don’t finance', "don't offer financing"] }
+];
+
+const CAPITAL_NEEDS_KEYWORDS = ['funding', 'capital', 'loan', 'credit line', 'cash flow', 'working capital'];
+const DREAM_VISION_KEYWORDS = ['goal', 'vision', 'dream', 'plan', 'next level', 'scale to'];
+const PAIN_POINT_KEYWORDS = ['struggling', 'hard', 'challenge', 'problem', 'bottleneck', 'stuck'];
+
+const STATE_ABBREVIATIONS = [
+  'AL','AK','AZ','AR','CA','CO','CT','DE','FL','GA','HI','ID','IL','IN','IA','KS','KY','LA','ME','MD','MA','MI','MN','MS','MO','MT','NE','NV','NH','NJ','NM','NY','NC','ND','OH','OK','OR','PA','RI','SC','SD','TN','TX','UT','VT','VA','WA','WV','WI','WY'
+];
+
+type SpecialtyDescriptor = {
+  vertical: ServiceVertical | 'any';
+  label: string;
+  keywords: string[];
+};
+
+const SERVICE_SPECIALTIES: SpecialtyDescriptor[] = [
+  { vertical: 'detailing', label: 'Mobile/Fleet Detailing', keywords: ['mobile', 'fleet', 'on-site', 'on site'] },
+  { vertical: 'detailing', label: 'Ceramic Coating', keywords: ['ceramic', 'coating', 'graphene'] },
+  { vertical: 'cleaning', label: 'Commercial Cleaning', keywords: ['commercial', 'office', 'janitorial'] },
+  { vertical: 'cleaning', label: 'Residential Cleaning', keywords: ['residential', 'homes', 'houses'] },
+  { vertical: 'mechanic', label: 'Mobile Mechanic', keywords: ['mobile mechanic', 'roadside', 'fleet service'] },
+  { vertical: 'mechanic', label: 'Fleet Contracts', keywords: ['fleet', 'fleet contract', 'fleet clients'] },
+  { vertical: 'landscaping', label: 'Commercial Grounds', keywords: ['commercial grounds', 'commercial properties'] },
+  { vertical: 'landscaping', label: 'Residential Lawn Care', keywords: ['residential lawns', 'homeowners'] },
+  { vertical: 'hvac', label: 'Residential HVAC', keywords: ['residential', 'homes', 'homeowners'] },
+  { vertical: 'hvac', label: 'Commercial HVAC', keywords: ['commercial', 'buildings'] },
+  { vertical: 'roofing', label: 'Insurance Restoration', keywords: ['insurance', 'restoration', 'storm damage'] },
+  { vertical: 'solar', label: 'Residential Solar', keywords: ['residential solar', 'roof mount'] },
+  { vertical: 'solar', label: 'Commercial Solar', keywords: ['commercial solar', 'solar farm'] },
+  { vertical: 'pressure_washing', label: 'Soft Wash Specialist', keywords: ['soft wash', 'softwash'] },
+  { vertical: 'other', label: 'Commercial Services', keywords: ['commercial'] },
+  { vertical: 'other', label: 'Residential Services', keywords: ['residential'] }
+];
+
+const collectDescriptorLabels = (input: string, descriptors: KeywordDescriptor[]): string[] => {
+  const normalized = normalizeForKeywordSearch(input.toLowerCase());
+  const labels = new Set<string>();
+  descriptors.forEach(descriptor => {
+    descriptor.keywords.forEach(keyword => {
+      if (normalized.includes(normalizeForKeywordSearch(keyword.toLowerCase()))) {
+        labels.add(descriptor.label);
+      }
+    });
+  });
+  return Array.from(labels);
+};
+
+const findFirstDescriptorLabel = (input: string, descriptors: KeywordDescriptor[]): string | undefined => {
+  return collectDescriptorLabels(input, descriptors)[0];
+};
+
+const collectSpecialties = (input: string, vertical: ServiceVertical | undefined): string[] => {
+  const normalized = normalizeForKeywordSearch(input.toLowerCase());
+  const labels = new Set<string>();
+  SERVICE_SPECIALTIES.forEach(descriptor => {
+    if (descriptor.vertical !== 'any' && vertical && descriptor.vertical !== vertical) {
+      return;
+    }
+    descriptor.keywords.forEach(keyword => {
+      if (normalized.includes(normalizeForKeywordSearch(keyword.toLowerCase()))) {
+        labels.add(descriptor.label);
+      }
+    });
+  });
+  return Array.from(labels);
+};
+
+const mergeListIntoString = (existing: string | undefined, additions: string[]): string => {
+  const existingParts = existing ? existing.split(/\s*[|,]\s*/).filter(Boolean) : [];
+  const combined = new Set<string>(existingParts);
+  additions.forEach(addition => {
+    if (addition.trim()) {
+      combined.add(addition.trim());
+    }
+  });
+  return Array.from(combined).join(', ');
+};
+
+const findStateMention = (input: string): string | undefined => {
+  const upper = input.toUpperCase();
+  for (const state of STATE_ABBREVIATIONS) {
+    if (upper.includes(` ${state} `) || upper.endsWith(` ${state}`)) {
+      return state;
+    }
+  }
+  return undefined;
+};
+
+const extractNumericDetail = (input: string, pattern: RegExp): string | undefined => {
+  const match = input.match(pattern);
+  return match ? match[1]?.trim() || match[0] : undefined;
+};
+
+const extractServiceArea = (input: string): string | undefined => {
+  const match = input.match(/(?:serving|service area(?: includes)?|we cover|operate in)\s+([^.,]+)/i);
+  return match ? match[1].trim() : undefined;
+};
+
+const extractCity = (input: string): string | undefined => {
+  const match = input.match(/(?:in|around|based in|out of)\s+([A-Z][A-Za-z\s]+?)(?:,|\b)/);
+  if (match) {
+    return match[1].trim();
+  }
+  return undefined;
+};
+
+const VERTICAL_FIELD_OVERRIDES: Partial<Record<ServiceVertical, IntakeQuestionKey[]>> = {
+  detailing: ['services', 'serviceArea', 'teamSize', 'marketingChannels', 'financingOffers'],
+  cleaning: ['services', 'serviceArea', 'teamSize', 'marketingChannels', 'monthlyVolume'],
+  mechanic: ['services', 'teamSize', 'serviceArea', 'marketingChannels', 'financingOffers'],
+  landscaping: ['services', 'teamSize', 'serviceArea', 'marketingChannels'],
+  hvac: ['services', 'teamSize', 'serviceArea', 'financingOffers'],
+  roofing: ['services', 'serviceArea', 'teamSize', 'financingOffers'],
+  solar: ['services', 'serviceArea', 'financingOffers', 'teamSize'],
+  pressure_washing: ['services', 'teamSize', 'marketingChannels']
+};
+
+const FIELD_QUESTION_HINTS: Partial<Record<IntakeQuestionKey, string>> = {
+  name: "What's your name so I can address you properly?",
+  contact: "What's the best email or phone for follow-up?",
+  company: "What's your company called?",
+  serviceVertical: "Which service do you specialize in?",
+  serviceArea: "What areas do you primarily serve?",
+  city: "Which city are you based out of?",
+  state: "Which state do you operate in?",
+  zip: "What's your primary business ZIP code?",
+  timeline: "When are you hoping to tackle this growth push?",
+  budget: "Do you have a budget range earmarked for growth or marketing?",
+  teamSize: "How big is your crew or team right now?",
+  yearsInBusiness: "How long have you been in business?",
+  revenueCurrent: "About how much revenue are you doing annually today?",
+  revenueGoal12: "What's the 12-month revenue target you're chasing?",
+  revenueGoal36: "Where would you love to be in 3 years?",
+  averageTicket: "What's the average ticket size for your jobs?",
+  monthlyVolume: "Roughly how many jobs or installs do you handle per month?",
+  marketingChannels: "What marketing channels are working for you right now?",
+  salesProcess: "How do leads move through your sales process today?",
+  financingOffers: "Do you currently offer financing or payment plans?",
+  capitalNeeds: "Are you looking for any capital or funding support?",
+  dreamVision: "Paint the dream—what does success look like when we nail this?",
+  painPoints: "What's the biggest bottleneck slowing you down right now?",
+  services: "What specific services or packages are you leading with?",
+  details: "Anything else you'd like us to know about the business?"
+};
+
 export type ConversationMode = 'askAround' | 'intake';
 
 const INTAKE_FIELD_KEYS = [
@@ -355,6 +523,18 @@ Before we dive in, what name should I use for you, and what's the best contact t
     this.updateIntakeProgress();
     this.updateQualificationScore();
 
+    const autoSummaryResponse = this.maybeAutoOfferSummary();
+    if (autoSummaryResponse) {
+      if (this.shouldTriggerLeadNotification()) {
+        await this.notifyNewLead();
+      }
+      return {
+        ...autoSummaryResponse,
+        leadData: { ...this.conversation.leadData },
+        qualificationScore: this.conversation.qualificationScore
+      };
+    }
+
     const summaryResponse = await this.handleSummaryRequest(userInput);
     if (summaryResponse) {
       if (this.shouldTriggerLeadNotification()) {
@@ -465,6 +645,50 @@ Before we dive in, what name should I use for you, and what's the best contact t
     return lines.join('\n');
   }
 
+  private showSummaryMessage(): AtlasMessage {
+    const summary = this.buildSummarySnapshot();
+    this.conversation.summarySnapshot = summary;
+    this.conversation.summaryOffered = true;
+    this.conversation.wrapUpState = 'showingSummary';
+    this.conversation.intake.active = false;
+
+    return this.addMessage({
+      role: 'assistant',
+      content: `Here’s the recap I’ll send to our concierge team:\n\n${summary}\n\nDoes that capture everything correctly?`,
+      quickReplies: ['Looks good', 'Make a change', 'Add one more detail']
+    });
+  }
+
+  private maybeAutoOfferSummary(): AtlasMessage | null {
+    if (this.conversation.wrapUpState !== 'idle') {
+      return null;
+    }
+    if (this.conversation.summaryOffered) {
+      return null;
+    }
+    if (!this.hasCoreSubmissionData()) {
+      return null;
+    }
+
+    const { intake } = this.conversation;
+    const quickAlmostDone =
+      intake.preference === 'quick' &&
+      typeof intake.maxQuestions === 'number' &&
+      intake.questionCount >= Math.max(intake.maxQuestions - 1, 1);
+    const fullProgress =
+      intake.preference !== 'quick' &&
+      intake.questionCount >= 6;
+    const idleIntake = !intake.active && this.conversation.mode !== 'intake' && this.hasContactInfo();
+
+    if (!quickAlmostDone && !fullProgress && !idleIntake) {
+      return null;
+    }
+
+    const message = this.showSummaryMessage();
+    this.scheduleInactivityTimer();
+    return message;
+  }
+
   private async finalizeConversation(reason: WrapUpReason, closingLine?: string): Promise<AtlasMessage | null> {
     if (this.conversation.wrapUpState === 'complete') {
       return null;
@@ -509,6 +733,7 @@ Before we dive in, what name should I use for you, and what's the best contact t
       }
       if (wantsEdit) {
         this.conversation.wrapUpState = 'awaitingDecision';
+        this.conversation.intake.active = true;
         const message = this.addMessage({
           role: 'assistant',
           content:
@@ -546,11 +771,7 @@ Before we dive in, what name should I use for you, and what's the best contact t
     this.conversation.summaryOffered = true;
     this.conversation.wrapUpState = 'showingSummary';
 
-    const message = this.addMessage({
-      role: 'assistant',
-      content: `Here’s the recap I’ll send to our concierge team:\n\n${summary}\n\nDoes that capture everything correctly?`,
-      quickReplies: ['Looks good', 'Make a change', 'Add one more detail']
-    });
+    const message = this.showSummaryMessage();
     this.scheduleInactivityTimer();
     return message;
   }
@@ -598,12 +819,102 @@ Before we dive in, what name should I use for you, and what's the best contact t
       const detectedVertical = this.detectServiceVertical(lowerInput);
       if (detectedVertical) {
         this.conversation.leadData.serviceVertical = detectedVertical;
-        if (!this.conversation.leadData.services) {
-          this.conversation.leadData.services = SERVICE_VERTICAL_LABELS[detectedVertical] ?? detectedVertical;
-        }
+        const specialties = collectSpecialties(input, detectedVertical);
+        const baseLabel = SERVICE_VERTICAL_LABELS[detectedVertical] ?? detectedVertical;
+        this.conversation.leadData.services = mergeListIntoString(this.conversation.leadData.services ?? baseLabel, specialties);
         if (!this.conversation.leadData.details) {
           this.conversation.leadData.details = input;
         }
+      }
+    }
+
+    if (this.conversation.leadData.serviceVertical) {
+      const specialties = collectSpecialties(input, this.conversation.leadData.serviceVertical);
+      if (specialties.length) {
+        this.conversation.leadData.services = mergeListIntoString(this.conversation.leadData.services, specialties);
+      }
+    }
+
+    const marketingMentions = collectDescriptorLabels(input, MARKETING_CHANNEL_CLUES);
+    if (marketingMentions.length) {
+      this.conversation.leadData.marketingChannels = mergeListIntoString(this.conversation.leadData.marketingChannels, marketingMentions);
+    }
+
+    const salesProcessMentions = collectDescriptorLabels(input, SALES_PROCESS_CLUES);
+    if (salesProcessMentions.length) {
+      this.conversation.leadData.salesProcess = mergeListIntoString(this.conversation.leadData.salesProcess, salesProcessMentions);
+    }
+
+    const financingMention = findFirstDescriptorLabel(input, FINANCING_CLUES);
+    if (financingMention && !this.conversation.leadData.financingOffers) {
+      this.conversation.leadData.financingOffers = financingMention;
+    }
+
+    if (!this.conversation.leadData.capitalNeeds && CAPITAL_NEEDS_KEYWORDS.some(keyword => lowerInput.includes(keyword))) {
+      this.conversation.leadData.capitalNeeds = 'Interested in capital or funding support';
+    }
+
+    if (!this.conversation.leadData.dreamVision && DREAM_VISION_KEYWORDS.some(keyword => lowerInput.includes(keyword))) {
+      this.conversation.leadData.dreamVision = input;
+    }
+
+    if (!this.conversation.leadData.painPoints && PAIN_POINT_KEYWORDS.some(keyword => lowerInput.includes(keyword))) {
+      this.conversation.leadData.painPoints = input;
+    }
+
+    if (!this.conversation.leadData.serviceArea) {
+      const area = extractServiceArea(input);
+      if (area) {
+        this.conversation.leadData.serviceArea = area;
+      }
+    }
+
+    if (!this.conversation.leadData.city) {
+      const city = extractCity(input);
+      if (city) {
+        this.conversation.leadData.city = city;
+      }
+    }
+
+    if (!this.conversation.leadData.state) {
+      const state = findStateMention(` ${input} `);
+      if (state) {
+        this.conversation.leadData.state = state;
+      }
+    }
+
+    if (!this.conversation.leadData.teamSize) {
+      const teamMatch = extractNumericDetail(input, /(\d+\s+(?:person|people|employee|employees|crew|crews|techs|installers|team(?: members)?))/i);
+      if (teamMatch) {
+        this.conversation.leadData.teamSize = teamMatch;
+      }
+    }
+
+    if (!this.conversation.leadData.yearsInBusiness) {
+      const yearsMatch = extractNumericDetail(input, /(\d+\s+(?:years|yrs)(?:\s+in\s+business)?)/i);
+      if (yearsMatch) {
+        this.conversation.leadData.yearsInBusiness = yearsMatch;
+      }
+    }
+
+    if (!this.conversation.leadData.revenueCurrent) {
+      const revenueMatch = extractNumericDetail(input, /(?:revenue|bring in|doing about|pull in|at around)\s+([$\d,\.]+(?:\s*(?:k|m|million|thousand))?)/i);
+      if (revenueMatch) {
+        this.conversation.leadData.revenueCurrent = revenueMatch;
+      }
+    }
+
+    if (!this.conversation.leadData.averageTicket) {
+      const avgTicketMatch = extractNumericDetail(input, /(?:average (?:ticket|job|deal|project)(?: is)?\s*)?([$\d,\.]+(?:\s*(?:k|m|million))?)/i);
+      if (avgTicketMatch && lowerInput.includes('average')) {
+        this.conversation.leadData.averageTicket = avgTicketMatch;
+      }
+    }
+
+    if (!this.conversation.leadData.monthlyVolume) {
+      const monthlyMatch = extractNumericDetail(input, /(\d+\s+(?:jobs|projects|installs|deals)\s+(?:per|a)\s+(?:month|mo))/i);
+      if (monthlyMatch) {
+        this.conversation.leadData.monthlyVolume = monthlyMatch;
       }
     }
 
@@ -683,6 +994,19 @@ Before we dive in, what name should I use for you, and what's the best contact t
     this.conversation.isQualified = this.conversation.qualificationScore >= 60 && inServiceArea;
   }
 
+  private hasContactInfo(): boolean {
+    return Boolean(this.conversation.leadData.email || this.conversation.leadData.phone);
+  }
+
+  private hasCoreSubmissionData(): boolean {
+    const lead = this.conversation.leadData;
+    return Boolean(
+      lead.name &&
+      this.hasContactInfo() &&
+      (lead.serviceVertical || lead.services || lead.details)
+    );
+  }
+
   private async generateResponse(userInput: string): Promise<Omit<AtlasMessage, 'id' | 'timestamp'>> {
     const { leadData, qualificationScore } = this.conversation;
     const { intake } = this.conversation;
@@ -713,6 +1037,11 @@ Before we dive in, what name should I use for you, and what's the best contact t
       };
     }
 
+    const prioritizedPendingFields = this.getPrioritizedPendingFields();
+    const nextField = prioritizedPendingFields[0];
+    const nextFieldLabel = nextField ? FIELD_LABELS[nextField] : 'none';
+    const nextFieldHint = nextField ? FIELD_QUESTION_HINTS[nextField] ?? '' : '';
+
     const chatMessages: { role: 'user' | 'assistant'; content: string }[] = this.conversation.messages
       .filter(msg => msg.role !== 'system' && msg.content?.trim())
       .map(msg => ({
@@ -733,6 +1062,9 @@ CURRENT CONVERSATION CONTEXT:
 - Max Questions Allowed: ${limitLabel}
 - Questions Captured: ${questionsAsked}
 - Questions Remaining: ${questionsRemaining}
+- Pending Fields (in priority order): ${prioritizedPendingFields.join(', ') || 'none'}
+- Suggested Next Field: ${nextFieldLabel}
+- Suggested Question Prompt: ${nextFieldHint || 'ask anything relevant to progress intake'}
 - Submission Requested: ${this.conversation.transferredToHuman}
 - User just said: "${userInput}"
 - Ambition Cue: ${ambitionCue || 'none'}
@@ -1104,6 +1436,34 @@ Based on what you know, respond naturally and progress toward qualification.`;
 
   private getPendingIntakeKeys(): IntakeQuestionKey[] {
     return FIELD_PRIORITY.filter(key => !this.conversation.intake.askedQuestions.includes(key));
+  }
+
+  private getPrioritizedPendingFields(): IntakeQuestionKey[] {
+    const pending = this.getPendingIntakeKeys();
+    if (!pending.length) {
+      return pending;
+    }
+    const vertical = this.conversation.leadData.serviceVertical;
+    if (!vertical) {
+      return pending;
+    }
+    const override = VERTICAL_FIELD_OVERRIDES[vertical];
+    if (!override || !override.length) {
+      return pending;
+    }
+    const overrideSet = new Set<IntakeQuestionKey>(override as IntakeQuestionKey[]);
+    const prioritized: IntakeQuestionKey[] = [];
+    override.forEach(key => {
+      if (pending.includes(key)) {
+        prioritized.push(key);
+      }
+    });
+    pending.forEach(key => {
+      if (!overrideSet.has(key)) {
+        prioritized.push(key);
+      }
+    });
+    return prioritized;
   }
   private snapshotConversation(): AtlasConversation {
     return {
