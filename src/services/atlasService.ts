@@ -61,6 +61,7 @@ const FINANCING_CLUES: KeywordDescriptor[] = [
 const CAPITAL_NEEDS_KEYWORDS = ['funding', 'capital', 'loan', 'credit line', 'cash flow', 'working capital'];
 const DREAM_VISION_KEYWORDS = ['goal', 'vision', 'dream', 'plan', 'next level', 'scale to'];
 const PAIN_POINT_KEYWORDS = ['struggling', 'hard', 'challenge', 'problem', 'bottleneck', 'stuck'];
+const URGENCY_KEYWORDS = ['busy', 'quick', 'few minutes', 'minute', 'in a rush', 'just checking', 'little time'];
 
 const STATE_ABBREVIATIONS = [
   'AL','AK','AZ','AR','CA','CO','CT','DE','FL','GA','HI','ID','IL','IN','IA','KS','KY','LA','ME','MD','MA','MI','MN','MS','MO','MT','NE','NV','NH','NJ','NM','NY','NC','ND','OH','OK','OR','PA','RI','SC','SD','TN','TX','UT','VT','VA','WA','WV','WI','WY'
@@ -161,6 +162,116 @@ const extractCity = (input: string): string | undefined => {
     return match[1].trim();
   }
   return undefined;
+};
+
+const toneFromUrgency = (urgencyCue: string): 'concise' | 'standard' => {
+  return urgencyCue === 'visitor signaled limited time or urgency' ? 'concise' : 'standard';
+};
+
+const buildRapportLeadIn = (leadData: LeadData, urgencyCue: string): string => {
+  const name = leadData.name ? ` ${leadData.name}` : '';
+  const service = leadData.serviceVertical ? SERVICE_VERTICAL_LABELS[leadData.serviceVertical] : leadData.services;
+  const tone = toneFromUrgency(urgencyCue);
+
+  const acknowledgements: string[] = [];
+  if (service) {
+    acknowledgements.push(`Love that you're building a ${service.toLowerCase()} operation${name ? ',' + name : ''}.`);
+  } else if (name) {
+    acknowledgements.push(`Appreciate you stopping by${name}.`);
+  } else {
+    acknowledgements.push('Appreciate you dropping in.');
+  }
+
+  if (urgencyCue === 'visitor signaled limited time or urgency') {
+    acknowledgements.push("I'll keep this tight so we cover what matters most.");
+  }
+
+  const appreciation = acknowledgements.join(' ');
+
+  const curiosityPrompts = [
+    'What kind of wins would make the next season feel like a breakout year for you?',
+    'What’s the dream outcome you’re chasing when you picture everything working smoothly?',
+    'When you look ahead a few months, what would tell you we crushed this together?'
+  ];
+
+  const challengePrompts = [
+    'What’s the piece that feels bottlenecked right now? Leads, crew, or the day-to-day systems?',
+    'What’s been toughest about keeping the momentum going lately?',
+    'Where do you feel the most friction as you try to scale?'
+  ];
+
+  const asks: string[] = [];
+  if (tone === 'concise') {
+    asks.push(curiosityPrompts[0]);
+  } else {
+    asks.push(curiosityPrompts[Math.floor(Math.random() * curiosityPrompts.length)]);
+    asks.push(challengePrompts[Math.floor(Math.random() * challengePrompts.length)]);
+  }
+
+  const ask = tone === 'concise'
+    ? `${asks[0]} (Feel free to keep it short and sweet.)`
+    : `${asks[0]} ${asks[1]}`;
+
+  return `${appreciation} ${ask}`.trim();
+};
+
+const craftAssistantReply = (
+  aiResponse: string,
+  leadData: LeadData,
+  userInput: string,
+  urgencyCue: string
+): string => {
+  const lowerResponse = aiResponse.toLowerCase();
+  const lowerInput = userInput.toLowerCase();
+
+  const alreadyWarm = lowerResponse.includes('what should i call you') || lowerResponse.includes('what’s your name');
+  const alreadyAcknowledged = lowerResponse.includes('appreciate') || lowerResponse.includes('love that') || lowerResponse.includes('awesome');
+  const alreadyAskedDream = lowerResponse.includes('what would success') || lowerResponse.includes('dream outcome');
+
+  if (alreadyWarm && alreadyAskedDream) {
+    return aiResponse;
+  }
+
+  const ensuresContact = ensureContactReminder(leadData);
+  const rapportLead = buildRapportLeadIn(leadData, urgencyCue);
+
+  if (!alreadyAcknowledged) {
+    const combined = `${ensuresContact} ${rapportLead} ${aiResponse}`.trim();
+    if (urgencyCue === 'visitor signaled limited time or urgency') {
+      return combined.split('. ').slice(0, 2).join('. ').trim();
+    }
+    return limitSentences(combined, 3);
+  }
+
+  if (!alreadyAskedDream && !matchesAnyKeyword(lowerInput, ['dream', 'goal', 'vision'])) {
+    const enriched = `${aiResponse.trim()} ${ensureContactReminder(leadData)} ${buildRapportLeadIn(leadData, urgencyCue)}`.trim();
+    return urgencyCue === 'visitor signaled limited time or urgency'
+      ? limitSentences(enriched, 2)
+      : limitSentences(enriched, 3);
+  }
+
+  const blended = `${ensureContactReminder(leadData)} ${aiResponse}`.trim();
+  return urgencyCue === 'visitor signaled limited time or urgency'
+    ? limitSentences(blended, 2)
+    : limitSentences(blended, 3);
+};
+
+const limitSentences = (text: string, max: number): string => {
+  const parts = text.split(/(?<=[.!?])\s+/).filter(Boolean);
+  if (parts.length <= max) {
+    return text;
+  }
+  return parts.slice(0, max).join(' ').trim();
+};
+
+const ensureContactReminder = (leadData: LeadData): string => {
+  const hasEmail = Boolean(leadData.email);
+  const hasPhone = Boolean(leadData.phone);
+
+  if (hasEmail || hasPhone) {
+    return '';
+  }
+  return "Quick thing before we go deeper—what's the best email or phone so our concierge team can follow up?";
 };
 
 const VERTICAL_FIELD_OVERRIDES: Partial<Record<ServiceVertical, IntakeQuestionKey[]>> = {
@@ -344,7 +455,7 @@ const SERVICE_VERTICAL_LABELS: Record<ServiceVertical, string> = {
   other: 'Service Business'
 };
 
-const EXIT_KEYWORDS = ['bye', 'goodbye', 'see ya', 'thats all', "that's all", 'done for now', 'talk later', 'thank you bye'];
+const EXIT_KEYWORDS = ['bye', 'goodbye', 'see ya', 'see you later', 'see ya later', 'thats all', "that's all", 'done for now', 'talk later', 'thank you bye', 'thanks, bye', 'im ready to go', 'i’m ready to go', 'i am ready to go', 'all set'];
 
 const normalizeForKeywordSearch = (value: string) => ` ${value.replace(/[^a-z0-9]+/g, ' ')} `;
 
@@ -1018,6 +1129,9 @@ Before we dive in, what name should I use for you, and what's the best contact t
     const limitLabel = typeof maxQuestionsSetting === 'number' ? maxQuestionsSetting : 'not set';
     const quickLimitReached = intake.preference === 'quick' && typeof maxQuestionsSetting === 'number' && questionsAsked >= maxQuestionsSetting;
     const ambitionCue = this.detectAmbitiousNumbers(userInput, leadData);
+    const urgencyCue = matchesAnyKeyword(userInput.toLowerCase(), URGENCY_KEYWORDS)
+      ? 'visitor signaled limited time or urgency'
+      : 'none';
 
     if (this.conversation.transferredToHuman) {
       return {
@@ -1068,6 +1182,7 @@ CURRENT CONVERSATION CONTEXT:
 - Submission Requested: ${this.conversation.transferredToHuman}
 - User just said: "${userInput}"
 - Ambition Cue: ${ambitionCue || 'none'}
+- Urgency Cue: ${urgencyCue}
 
 You must always respect the current mode:
 - If mode is "askAround", keep things light, ask one question at a time, learn how much time the visitor wants to spend chatting, and offer to start a full intake when appropriate.
@@ -1089,13 +1204,17 @@ You must always respect the current mode:
 Based on what you know, respond naturally and progress toward qualification.`;
 
     const aiResponse = await this.requestOpenAI(chatMessages, contextPrompt);
+    const craftedResponse = craftAssistantReply(aiResponse, leadData, userInput, urgencyCue);
 
     // Determine if we should provide quick replies based on context
-    const quickReplies = this.generateQuickReplies(leadData);
+    let quickReplies = this.generateQuickReplies(leadData);
+    if (urgencyCue === 'visitor signaled limited time or urgency') {
+      quickReplies = undefined;
+    }
 
     return {
       role: 'assistant',
-      content: aiResponse,
+      content: craftedResponse,
       quickReplies
     };
   }
