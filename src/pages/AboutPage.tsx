@@ -132,8 +132,8 @@ export default function AboutPage() {
                 "We're not just a lead generation service. We're true partners in our contractors' success, and advocates for homeowners who deserve better. That's what drives me every day."
               </p>
               <div className="mt-6">
-                <a href="mailto:Chris@TheEliteServiceHub.com" className="text-esh-gold hover:underline">
-                  Chris@TheEliteServiceHub.com
+                <a href="mailto:info@kmjk.pro" className="text-esh-gold hover:underline">
+                  info@kmjk.pro
                 </a>
               </div>
             </div>

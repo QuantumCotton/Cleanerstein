@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Facebook, Twitter, Instagram, Linkedin, Mail, MapPin } from 'lucide-react';
+import { Facebook, Twitter, Instagram, Linkedin, Mail, MapPin, MessageCircle } from 'lucide-react';
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
@@ -143,8 +143,17 @@ export default function Footer() {
             <ul className="space-y-3">
               <li className="flex items-start gap-2 text-zinc-500 text-sm">
                 <Mail size={16} className="mt-1 flex-shrink-0" />
-                <a href="mailto:Chris@TheEliteServiceHub.com" className="hover:text-esh-gold transition-colors">
-                  Chris@TheEliteServiceHub.com
+                <div className="flex flex-col">
+                  <span className="text-white font-medium">Chris Cotton</span>
+                  <a href="mailto:info@kmjk.pro" className="hover:text-esh-gold transition-colors">
+                    info@kmjk.pro
+                  </a>
+                </div>
+              </li>
+              <li className="flex items-start gap-2 text-zinc-500 text-sm">
+                <MessageCircle size={16} className="mt-1 flex-shrink-0" />
+                <a href="sms:+17727770622" className="hover:text-esh-gold transition-colors">
+                  Text: 772-777-0622
                 </a>
               </li>
               <li className="flex items-start gap-2 text-zinc-500 text-sm">

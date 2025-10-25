@@ -75,7 +75,7 @@ export default function ApplicationForm() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          to: 'Chris@TheEliteServiceHub.com',
+          to: 'info@kmjk.pro',
           subject: `New Contractor Application: ${formData.company_name}`,
           application: formData
         })
@@ -426,8 +426,8 @@ export default function ApplicationForm() {
           </div>
 
           <p className="text-center text-sm text-zinc-600">
-            By submitting this application, you agree to be contacted by Elite Service Hub
-            regarding partnership opportunities. For urgent inquiries, email Chris@TheEliteServiceHub.com
+            By submitting this application, you agree to be contacted by Chris Cotton and the Elite Service Hub team
+            regarding partnership opportunities. For urgent inquiries, email info@kmjk.pro.
           </p>
         </form>
       </div>

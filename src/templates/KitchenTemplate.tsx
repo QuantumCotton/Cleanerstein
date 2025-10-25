@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { CheckCircle, Star, ArrowRight } from 'lucide-react';
+import { CheckCircle, Star, ArrowRight, Loader2, MessageSquare } from 'lucide-react';
 import Button from '../components/shared/Button';
 
 interface KitchenTemplateProps {
@@ -12,6 +12,30 @@ interface KitchenTemplateProps {
   projectsCompleted: number;
   yearsExperience: number;
 }
+
+interface LeadFormData {
+  name: string;
+  email: string;
+  phone: string;
+  address: string;
+  timeline: string;
+  budget: string;
+  details: string;
+  images: File[];
+}
+
+const INITIAL_FORM_STATE: LeadFormData = {
+  name: '',
+  email: '',
+  phone: '',
+  address: '',
+  timeline: '',
+  budget: '',
+  details: '',
+  images: [],
+};
+
+const WEB3FORMS_ACCESS_KEY = '8e63e7e3-ab53-43a9-80c5-ebc113c25912';
 
 export default function KitchenTemplate({
   contractorName,
