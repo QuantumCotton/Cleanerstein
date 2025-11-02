@@ -24,7 +24,9 @@ type ServiceVertical =
 type WrapUpReason = 'user_exit' | 'inactivity' | 'submit' | 'quick_limit';
 
 const OPENAI_ENDPOINT = '/.netlify/functions/atlas-openai';
-const LEAD_EMAIL_ENDPOINT = '/.netlify/functions/send-atlas-lead';
+const WEB3FORMS_ENDPOINT = 'https://api.web3forms.com/submit';
+const WEB3FORMS_ACCESS_KEY = import.meta.env.VITE_WEB3FORMS_ACCESS_KEY || import.meta.env.WEB3FORMS_ACCESS_KEY;
+
 const OPENAI_TIMEOUT_MS = 60000; // 60 seconds for GPT-5 reasoning models
 const INACTIVITY_TIMEOUT_MS = 5 * 60 * 1000;
 
@@ -1417,32 +1419,62 @@ Based on what you know, respond naturally and progress toward qualification.`;
   }
 
   private async notifyNewLead(): Promise<void> {
+    if (!WEB3FORMS_ACCESS_KEY) {
+      console.warn('[Atlas] Missing Web3Forms access key; cannot send lead submission.');
+      return;
+    }
+
     try {
       const hasContactInfo = Boolean(this.conversation.leadData.email || this.conversation.leadData.phone);
 
+      const transcript = this.conversation.messages
+        .map(msg => {
+          const ts = new Date(msg.timestamp).toLocaleString();
+          return `[${ts}] ${msg.role.toUpperCase()}: ${msg.content}`;
+        })
+        .join('\n');
+
       const payload = {
-        conversationId: this.conversation.id,
-        leadData: this.conversation.leadData,
-        qualificationScore: this.conversation.qualificationScore,
-        startedAt: this.conversation.startedAt,
-        mode: this.conversation.mode,
-        intake: this.conversation.intake,
-        missingContactInfo: !hasContactInfo,
-        transcript: this.conversation.messages.map(msg => ({
-          role: msg.role,
-          content: msg.content,
-          timestamp: msg.timestamp
-        }))
+        access_key: WEB3FORMS_ACCESS_KEY,
+        subject: `[Atlas Lead] ${this.conversation.leadData.name || 'New Prospect'} (${this.conversation.qualificationScore}/100)` ,
+        emails: 'chris@theeliteservicehub.com',
+        from_name: this.conversation.leadData.name || 'Atlas Visitor',
+        from_email: 'noreply@eliteservicehub.com',
+        reply_to: this.conversation.leadData.email || '',
+        message: [
+          `Conversation ID: ${this.conversation.id}`,
+          `Started At: ${new Date(this.conversation.startedAt).toLocaleString()}`,
+          `Qualification Score: ${this.conversation.qualificationScore}`,
+          `Mode: ${this.conversation.mode}`,
+          `Intake Active: ${this.conversation.intake.active ? 'Yes' : 'No'}`,
+          `Intake Progress: ${this.conversation.intake.askedQuestions.join(', ') || 'none'}`,
+          `Missing Contact Info: ${hasContactInfo ? 'No' : 'Yes'}`,
+          '--- Lead Data ---',
+          JSON.stringify(this.conversation.leadData, null, 2),
+          '--- Conversation Transcript ---',
+          transcript
+        ].join('\n')
       };
 
-      await fetch(LEAD_EMAIL_ENDPOINT, {
+      const response = await fetch(WEB3FORMS_ENDPOINT, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
         body: JSON.stringify(payload)
       });
+
+      if (!response.ok) {
+        const text = await response.text();
+        throw new Error(`Web3Forms request failed: ${text}`);
+      }
+
+      const result = await response.json();
+      if (!result.success) {
+        throw new Error(`Web3Forms error: ${result.message || 'unknown error'}`);
+      }
+
       this.conversation.leadNotificationSent = true;
     } catch (error) {
-      console.error('[Atlas] Failed to send lead email', error);
+      console.error('[Atlas] Failed to send lead via Web3Forms', error);
     }
   }
 
