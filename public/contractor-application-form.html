@@ -981,30 +981,20 @@
                 return;
             }
 
-            const entries = collectEntries();
-            const payload = {};
+            const formData = new FormData(form);
+            formData.append('access_key', 'a82d80ea-a9f9-4328-9566-72ce33e5df07');
+            formData.append('subject', 'New Service Partner Application - ' + (formData.get('business-name') || 'Unknown'));
+            formData.append('from_name', formData.get('business-name') || formData.get('contact-name') || 'Elite Service Hub Partner');
+            formData.append('email', 'chris@theeliteservicehub.com');
 
-            Object.entries(entries).forEach(([key, value]) => {
-                payload[key] = Array.isArray(value) ? value.join(', ') : value;
-            });
-
-            payload['access_key'] = '8e63e7e3-ab53-43a9-80c5-ebc113c25912';
-            payload['subject'] = 'New Service Partner Application - ' + (payload['business-name'] || 'Unknown');
-            payload['from_name'] = payload['business-name'] || payload['contact-name'] || 'Elite Service Hub Partner';
-            payload['email'] = 'chris@theeliteservicehub.com';
-
-            const userEmail = (payload['email'] || '').toString();
+            const userEmail = (formData.get('email') || '').toString();
             if (userEmail) {
-                payload['reply_to'] = userEmail;
+                formData.append('reply_to', userEmail);
             }
 
             fetch('https://api.web3forms.com/submit', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Accept: 'application/json',
-                },
-                body: JSON.stringify(payload),
+                body: formData,
             })
                 .then((res) => res.json())
                 .then((data) => {
