@@ -449,7 +449,7 @@
                 <p>Our partners enjoy exclusive territory rights, pre-qualified leads, and zero marketing costs across remodeling, cleaning, detailing, fleet maintenance, and specialty trades. You only pay 15% commission on closed deals. No upfront fees. Ever.</p>
             </div>
 
-            <form id="contractor-form" name="contractor-application" method="POST" action="/.netlify/functions/submit-form" netlify-honeypot="bot-field">
+            <form id="contractor-form" name="contractor-application" method="POST" netlify-honeypot="bot-field">
                 <input type="hidden" name="form-name" value="contractor-application">
                 <div style="display:none">
                     <label>Don’t fill this out if you’re human: <input name="bot-field"></label>
@@ -956,6 +956,31 @@
         form.addEventListener('submit', function (e) {
             e.preventDefault();
 
+            const requiredFields = this.querySelectorAll('[required]');
+            let isValid = true;
+
+            requiredFields.forEach((field) => {
+                if (!field.value.trim() && field.type !== 'checkbox') {
+                    isValid = false;
+                    field.style.borderColor = '#ef4444';
+                } else if (field.type === 'checkbox' && field.dataset.wasRequired && !field.checked) {
+                    isValid = false;
+                    if (field.parentElement) {
+                        field.parentElement.style.borderColor = '#ef4444';
+                    }
+                } else {
+                    field.style.borderColor = '';
+                    if (field.parentElement?.classList?.contains('checkbox-item')) {
+                        field.parentElement.style.borderColor = '';
+                    }
+                }
+            });
+
+            if (!isValid) {
+                alert('Please fill in all required fields marked with *');
+                return;
+            }
+
             const entries = collectEntries();
             const payload = {};
 
@@ -966,10 +991,9 @@
             payload['access_key'] = '8e63e7e3-ab53-43a9-80c5-ebc113c25912';
             payload['subject'] = 'New Service Partner Application - ' + (payload['business-name'] || 'Unknown');
             payload['from_name'] = payload['business-name'] || payload['contact-name'] || 'Elite Service Hub Partner';
-            payload['emails'] = 'chris@theeliteservicehub.com';
+            payload['email'] = 'chris@theeliteservicehub.com';
 
             const userEmail = (payload['email'] || '').toString();
-            payload['from_email'] = 'noreply@eliteservicehub.com';
             if (userEmail) {
                 payload['reply_to'] = userEmail;
             }
