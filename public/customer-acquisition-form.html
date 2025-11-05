@@ -441,31 +441,17 @@
             e.preventDefault();
             
             const formData = new FormData(this);
-            const object = {};
-            formData.forEach((value, key) => {
-                if (key !== 'bot-field') {
-                    object[key] = value;
-                }
-            });
-            
-            // Web3Forms configuration
-            object['access_key'] = '8e63e7e3-ab53-43a9-80c5-ebc113c25912';
-            object['subject'] = 'New Service Request - ' + (object['first-name'] || '') + ' ' + (object['last-name'] || '');
-            object['from_name'] = (object['first-name'] || '') + ' ' + (object['last-name'] || '');
-            object['emails'] = 'chris@theeliteservicehub.com';
-            const userEmail = (object['email'] || '').toString();
-            object['from_email'] = 'noreply@eliteservicehub.com';
-            if (userEmail) object['reply_to'] = userEmail;
-            
-            const json = JSON.stringify(object);
+            formData.append('access_key', 'a82d80ea-a9f9-4328-9566-72ce33e5df07');
+            formData.append('subject', 'New Service Request - ' + (formData.get('first-name') || '') + ' ' + (formData.get('last-name') || ''));
+            formData.append('from_name', (formData.get('first-name') || '') + ' ' + (formData.get('last-name') || ''));
+            formData.append('emails', 'chris@theeliteservicehub.com');
+            const userEmail = (formData.get('email') || '').toString();
+            formData.append('from_email', 'noreply@eliteservicehub.com');
+            if (userEmail) formData.append('reply_to', userEmail);
             
             fetch('https://api.web3forms.com/submit', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json'
-                },
-                body: json
+                body: formData
             })
             .then(res => res.json())
             .then(data => {
