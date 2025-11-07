@@ -10,6 +10,7 @@ import WhyUsPage from './pages/WhyUsPage';
 import ContactPage from './pages/ContactPage';
 import BlogPage from './pages/BlogPage';
 import ThanksPage from './pages/ThanksPage';
+import OwnerQuestionnairePage from './pages/OwnerQuestionnairePageNew';
 
 // Admin Pages
 import AdminDashboard from './pages/admin/AdminDashboard';
@@ -29,6 +30,7 @@ function App() {
         <Route path="/blog" element={<LayoutWithAtlas><BlogPage /></LayoutWithAtlas>} />
         <Route path="/contact" element={<LayoutWithAtlas><ContactPage /></LayoutWithAtlas>} />
         <Route path="/thanks" element={<LayoutWithAtlas><ThanksPage /></LayoutWithAtlas>} />
+        <Route path="/erik" element={<LayoutWithAtlas><OwnerQuestionnairePage /></LayoutWithAtlas>} />
         
         {/* Admin Dashboard - Client Management */}
         <Route path="/admin" element={<AdminLayout><AdminDashboard /></AdminLayout>} />

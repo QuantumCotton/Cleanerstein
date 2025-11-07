@@ -20,6 +20,7 @@ export default function Navigation() {
     { name: 'Services', href: '/#services' },
     { name: 'About', href: '/about' },
     { name: 'Service Areas', href: '/service-areas' },
+    { name: 'Erik', href: '/erik' },
     { name: 'Contact', href: `mailto:${BRAND.contact.email}` },
   ];
 
