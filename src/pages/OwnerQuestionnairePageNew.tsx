@@ -18,6 +18,16 @@ export default function OwnerQuestionnairePageNew() {
     hasTestimonials: '',
     videoContent: '',
     
+    // Service Pricing & Details
+    cleaningPricing: '',
+    cleaningPackages: '',
+    pressureWashingPricing: '',
+    pressureWashingServices: '',
+    detailingPricing: '',
+    detailingServices: '',
+    handymanServices: '',
+    handymanPricing: '',
+    
     // Marketing Strategy
     targetCustomerDetails: '',
     servicesPrioritize: '',
@@ -332,6 +342,271 @@ export default function OwnerQuestionnairePageNew() {
                   <option value="maybe-later">Maybe later, not a priority</option>
                   <option value="no">No, not interested</option>
                 </select>
+              </div>
+            </div>
+
+            {/* Service Pricing & Offerings - THE MONEY SECTION */}
+            <div className="space-y-6">
+              <div className="border-b border-zinc-800 pb-4">
+                <h2 className="text-3xl font-light font-serif text-white">Service Pricing & Offerings</h2>
+                <p className="text-zinc-500 mt-2">Help us showcase your services with accurate pricing</p>
+              </div>
+
+              {/* RESIDENTIAL CLEANING */}
+              <div className="bg-blue-900/10 border border-blue-800/30 rounded-lg p-6 space-y-4">
+                <h3 className="text-xl font-semibold text-blue-400 mb-3">Residential Cleaning Pricing</h3>
+                
+                <div>
+                  <label htmlFor="cleaningPricing" className="block text-sm font-medium text-zinc-300 mb-2">
+                    How do you price residential cleaning?
+                  </label>
+                  <textarea
+                    id="cleaningPricing"
+                    name="cleaningPricing"
+                    rows={5}
+                    value={formData.cleaningPricing}
+                    onChange={handleChange}
+                    className="w-full px-4 py-3 bg-zinc-900 border border-zinc-800 rounded-lg text-white focus:outline-none focus:border-blue-500 transition-colors resize-none"
+                    placeholder="Examples:
+• Square footage rate: $0.15/sq ft
+• Flat rates: 1BR $120, 2BR $150, 3BR $180
+• Hourly rate: $45/hour (2 person crew)
+• Deep clean premium: +$50-100
+• Move in/out: Starting at $250
+
+Include your actual rates so we can display them accurately!"
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="cleaningPackages" className="block text-sm font-medium text-zinc-300 mb-2">
+                    Cleaning packages or recurring service discounts?
+                  </label>
+                  <textarea
+                    id="cleaningPackages"
+                    name="cleaningPackages"
+                    rows={4}
+                    value={formData.cleaningPackages}
+                    onChange={handleChange}
+                    className="w-full px-4 py-3 bg-zinc-900 border border-zinc-800 rounded-lg text-white focus:outline-none focus:border-blue-500 transition-colors resize-none"
+                    placeholder="Examples:
+• Weekly service: 10% off regular rate
+• Bi-weekly: 5% off
+• Monthly deep clean package: $XXX/month
+• First-time customer discount: 15% off
+
+We can create attractive package displays on the website!"
+                  />
+                </div>
+              </div>
+
+              {/* PRESSURE WASHING */}
+              <div className="bg-cyan-900/10 border border-cyan-800/30 rounded-lg p-6 space-y-4">
+                <h3 className="text-xl font-semibold text-cyan-400 mb-3">Pressure Washing Pricing</h3>
+                
+                <div>
+                  <label htmlFor="pressureWashingPricing" className="block text-sm font-medium text-zinc-300 mb-2">
+                    Pressure washing rates & pricing model
+                  </label>
+                  <textarea
+                    id="pressureWashingPricing"
+                    name="pressureWashingPricing"
+                    rows={5}
+                    value={formData.pressureWashingPricing}
+                    onChange={handleChange}
+                    className="w-full px-4 py-3 bg-zinc-900 border border-zinc-800 rounded-lg text-white focus:outline-none focus:border-blue-500 transition-colors resize-none"
+                    placeholder="Examples:
+• House washing: $0.25-0.40/sq ft or $200-500 per house
+• Driveway: $0.20/sq ft or $100-250 flat rate
+• Deck/Patio: $150-300 depending on size
+• Fence: $1-3 per linear foot
+• Roof soft wash: $300-600
+
+Give us real numbers to quote customers!"
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="pressureWashingServices" className="block text-sm font-medium text-zinc-300 mb-2">
+                    What surfaces/areas can you pressure wash? (Check all that apply)
+                  </label>
+                  <textarea
+                    id="pressureWashingServices"
+                    name="pressureWashingServices"
+                    rows={3}
+                    value={formData.pressureWashingServices}
+                    onChange={handleChange}
+                    className="w-full px-4 py-3 bg-zinc-900 border border-zinc-800 rounded-lg text-white focus:outline-none focus:border-blue-500 transition-colors resize-none"
+                    placeholder="List all: House siding, driveways, walkways, decks, patios, fences, roofs (soft wash), commercial buildings, parking lots, pool areas, docks/boats, concrete, brick, stucco, etc."
+                  />
+                </div>
+              </div>
+
+              {/* MOBILE DETAILING */}
+              <div className="bg-purple-900/10 border border-purple-800/30 rounded-lg p-6 space-y-4">
+                <h3 className="text-xl font-semibold text-purple-400 mb-3">Mobile Detailing Services</h3>
+                
+                <div>
+                  <label htmlFor="detailingServices" className="block text-sm font-medium text-zinc-300 mb-2">
+                    What detailing services do you offer? (Be specific!)
+                  </label>
+                  <textarea
+                    id="detailingServices"
+                    name="detailingServices"
+                    rows={6}
+                    value={formData.detailingServices}
+                    onChange={handleChange}
+                    className="w-full px-4 py-3 bg-zinc-900 border border-zinc-800 rounded-lg text-white focus:outline-none focus:border-blue-500 transition-colors resize-none"
+                    placeholder="Check all that you do:
+□ Basic wash & vacuum
+□ Full interior detail
+□ Full exterior detail
+□ Complete detail (interior + exterior)
+□ Paint correction (1-step, 2-step, 3-step)
+□ Ceramic coating
+□ Wax & polish
+□ Headlight restoration
+□ Engine bay cleaning
+□ Pet hair removal
+□ Odor elimination
+□ Leather conditioning
+□ Fabric protection
+□ Clay bar treatment
+
+List EVERYTHING you can do - even specialty services for luxury vehicles!"
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="detailingPricing" className="block text-sm font-medium text-zinc-300 mb-2">
+                    Detailing packages & pricing
+                  </label>
+                  <textarea
+                    id="detailingPricing"
+                    name="detailingPricing"
+                    rows={6}
+                    value={formData.detailingPricing}
+                    onChange={handleChange}
+                    className="w-full px-4 py-3 bg-zinc-900 border border-zinc-800 rounded-lg text-white focus:outline-none focus:border-blue-500 transition-colors resize-none"
+                    placeholder="Package examples:
+• Basic Detail - $80-120 (sedan/SUV)
+• Premium Detail - $150-250
+• Ultimate Detail - $300-500
+• Ceramic Coating - $500-1500
+• Paint Correction - Starting at $400
+
+Add-ons:
+• Pet hair removal +$50
+• Headlight restoration +$75
+• Engine bay +$50
+
+Give us your actual menu and prices!"
+                  />
+                </div>
+              </div>
+
+              {/* HANDYMAN SERVICES */}
+              <div className="bg-amber-900/10 border border-amber-800/30 rounded-lg p-6 space-y-4">
+                <h3 className="text-xl font-semibold text-amber-400 mb-3">Handyman Services</h3>
+                
+                <div>
+                  <label htmlFor="handymanServices" className="block text-sm font-medium text-zinc-300 mb-2">
+                    Complete list of handyman services you offer
+                  </label>
+                  <textarea
+                    id="handymanServices"
+                    name="handymanServices"
+                    rows={10}
+                    value={formData.handymanServices}
+                    onChange={handleChange}
+                    className="w-full px-4 py-3 bg-zinc-900 border border-zinc-800 rounded-lg text-white focus:outline-none focus:border-blue-500 transition-colors resize-none"
+                    placeholder="Check ALL services you can do:
+
+REPAIRS:
+□ Drywall repair & patching
+□ Interior/exterior painting
+□ Door repair & installation
+□ Window repair & caulking
+□ Deck repair & staining
+□ Fence repair
+□ Stucco repair
+□ Concrete crack repair
+□ Tile repair & re-grouting
+
+PLUMBING:
+□ Fix leaky faucets
+□ Unclog drains
+□ Toilet repair
+□ Garbage disposal installation
+□ Sink installation
+
+ELECTRICAL (if licensed):
+□ Light fixture installation
+□ Ceiling fan installation
+□ Outlet/switch replacement
+□ GFCI installation
+
+INSTALLATIONS:
+□ TV mounting
+□ Shelving installation
+□ Closet organization systems
+□ Cabinet hardware
+□ Mirrors & artwork hanging
+□ Blinds & curtain rods
+
+ASSEMBLY:
+□ Furniture assembly
+□ Grill assembly
+□ Gazebo/pergola assembly
+□ Playground equipment
+
+CARPENTRY:
+□ Trim & molding installation
+□ Custom shelving
+□ Cabinet installation
+□ Minor framing work
+
+MAINTENANCE:
+□ Gutter cleaning
+□ Pressure washing
+□ Weatherstripping
+□ Caulking & sealing
+□ Screen repair
+
+HIGH-END/LUXURY SERVICES:
+□ Smart home device installation
+□ Custom woodwork
+□ Fine art & chandelier installation
+□ Home theater setup
+□ Wine cellar maintenance
+□ Pool furniture assembly
+
+List EVERYTHING - even small jobs matter!"
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="handymanPricing" className="block text-sm font-medium text-zinc-300 mb-2">
+                    Handyman pricing structure
+                  </label>
+                  <textarea
+                    id="handymanPricing"
+                    name="handymanPricing"
+                    rows={4}
+                    value={formData.handymanPricing}
+                    onChange={handleChange}
+                    className="w-full px-4 py-3 bg-zinc-900 border border-zinc-800 rounded-lg text-white focus:outline-none focus:border-blue-500 transition-colors resize-none"
+                    placeholder="Examples:
+• Hourly rate: $65/hour (2 hour minimum)
+• Trip charge: $50 service call
+• Flat rate projects: Provide examples
+  - TV mounting: $125
+  - Drywall repair: $80-150
+  - Door installation: $200-400
+
+How do you charge? We need to display this clearly!"
+                  />
+                </div>
               </div>
             </div>
 
