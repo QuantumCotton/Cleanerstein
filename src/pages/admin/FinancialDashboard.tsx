@@ -5,7 +5,7 @@ export default function FinancialDashboard() {
   const financialMetrics = [
     { label: 'Total Revenue (YTD)', value: '$1.24M', change: '+45%', icon: DollarSign },
     { label: 'Gross Profit', value: '$186K', change: '+52%', icon: TrendingUp },
-    { label: 'Pending Payouts', value: '$42.8K', change: '8 contractors', icon: CreditCard },
+    { label: 'Monthly Recurring', value: '$42.8K', change: '68 clients', icon: CreditCard },
     { label: 'Outstanding Invoices', value: '$12.4K', change: '3 pending', icon: AlertCircle }
   ];
 
@@ -27,14 +27,14 @@ export default function FinancialDashboard() {
     { month: 'Q4', projected: 1050000, confidence: 'medium' }
   ];
 
-  // Contractor payouts
-  const payouts = [
-    { contractor: 'KMJK Construction', amount: '$12,450', projects: 3, dueDate: 'Jun 30' },
-    { contractor: 'Elite Bathrooms Pro', amount: '$8,920', projects: 2, dueDate: 'Jun 30' },
-    { contractor: 'Coastal Remodeling', amount: '$7,380', projects: 2, dueDate: 'Jul 5' },
-    { contractor: 'Premium Home Solutions', amount: '$6,240', projects: 2, dueDate: 'Jul 5' },
-    { contractor: 'Luxury Kitchens FL', amount: '$4,890', projects: 1, dueDate: 'Jul 10' },
-    { contractor: 'Modern Bath Co', amount: '$2,920', projects: 1, dueDate: 'Jul 10' }
+  // Recent invoices
+  const invoices = [
+    { client: 'Beaufort Medical Center', amount: '$8,450', services: 12, dueDate: 'Jun 30', status: 'Paid' },
+    { client: 'Port Royal Plaza', amount: '$6,920', services: 9, dueDate: 'Jun 30', status: 'Paid' },
+    { client: 'Lowcountry Bank', amount: '$4,380', services: 6, dueDate: 'Jul 5', status: 'Pending' },
+    { client: 'Seaside Properties LLC', amount: '$3,240', services: 18, dueDate: 'Jul 5', status: 'Pending' },
+    { client: 'Beaufort Commons', amount: '$2,890', services: 8, dueDate: 'Jul 10', status: 'Pending' },
+    { client: 'Harbor View Condos', amount: '$1,920', services: 4, dueDate: 'Jul 10', status: 'Sent' }
   ];
 
   // Expense breakdown
@@ -53,7 +53,7 @@ export default function FinancialDashboard() {
       {/* Header */}
       <div className="mb-8">
         <h1 className="text-3xl font-light font-serif mb-2">Financial Dashboard</h1>
-        <p className="text-zinc-500">Revenue tracking, forecasting, and financial metrics</p>
+        <p className="text-zinc-500">Cleanerstein revenue tracking, forecasting, and financial metrics</p>
       </div>
 
       {/* Financial Metrics */}
@@ -216,26 +216,32 @@ export default function FinancialDashboard() {
         </div>
       </div>
 
-      {/* Pending Contractor Payouts */}
+      {/* Recent Invoices */}
       <div className="bg-zinc-900 border border-zinc-800 p-6">
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-xl font-light font-serif">Pending Contractor Payouts</h2>
+          <h2 className="text-xl font-light font-serif">Recent Invoices</h2>
           <div className="text-right">
-            <div className="text-2xl font-light text-esh-gold">$42,800</div>
-            <div className="text-xs text-zinc-500">Total pending</div>
+            <div className="text-2xl font-light text-blue-500">$27,620</div>
+            <div className="text-xs text-zinc-500">This month</div>
           </div>
         </div>
         <div className="grid md:grid-cols-2 gap-4">
-          {payouts.map((payout) => (
-            <div key={payout.contractor} className="p-4 bg-black border border-zinc-800 flex justify-between items-center">
+          {invoices.map((invoice) => (
+            <div key={invoice.client} className="p-4 bg-black border border-zinc-800 flex justify-between items-center">
               <div>
-                <h3 className="font-medium mb-1">{payout.contractor}</h3>
+                <h3 className="font-medium mb-1">{invoice.client}</h3>
                 <div className="text-xs text-zinc-500">
-                  {payout.projects} projects · Due {payout.dueDate}
+                  {invoice.services} services · Due {invoice.dueDate}
                 </div>
               </div>
               <div className="text-right">
-                <div className="text-xl font-light text-esh-gold">{payout.amount}</div>
+                <div className="text-xl font-light text-blue-500">{invoice.amount}</div>
+                <div className={`text-xs ${
+                  invoice.status === 'Paid' ? 'text-green-500' :
+                  invoice.status === 'Pending' ? 'text-yellow-500' : 'text-zinc-500'
+                }`}>
+                  {invoice.status}
+                </div>
               </div>
             </div>
           ))}

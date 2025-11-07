@@ -4,12 +4,16 @@ export default {
   theme: {
     extend: {
       colors: {
-        // ESH Brand Colors
-        'esh-gold': '#D4AF37',
-        'esh-gold-light': '#E5C158',
-        'esh-gold-dark': '#B8941F',
-        'esh-navy': '#1A365D',
-        'esh-charcoal': '#2D3748',
+        // Cleanerstein Brand Colors
+        'cleanerstein-blue': '#2563EB',
+        'cleanerstein-blue-light': '#3B82F6',
+        'cleanerstein-blue-dark': '#1E40AF',
+        'cleanerstein-green': '#10B981',
+        'cleanerstein-green-dark': '#059669',
+        // Legacy aliases (for gradual migration)
+        'esh-gold': '#2563EB',
+        'esh-gold-light': '#3B82F6',
+        'esh-gold-dark': '#1E40AF',
       },
       fontFamily: {
         sans: ['Montserrat', 'system-ui', 'sans-serif'],

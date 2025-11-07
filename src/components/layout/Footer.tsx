@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
-import { Facebook, Twitter, Instagram, Linkedin, Mail, MapPin, MessageCircle } from 'lucide-react';
+import { Facebook, Twitter, Instagram, Mail, MapPin, Phone } from 'lucide-react';
+import { BRAND } from '../../constants/brand';
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
@@ -7,25 +8,21 @@ export default function Footer() {
   const footerLinks = {
     company: [
       { name: 'About Us', href: '/about' },
-      { name: 'How It Works', href: '/how-it-works' },
-      { name: 'Markets We Serve', href: '/markets' },
-      { name: 'Careers', href: '#careers' },
-      { name: 'Contact', href: '#contact' },
+      { name: 'Our Services', href: '/#services' },
+      { name: 'Service Areas', href: '/service-areas' },
+      { name: 'Contact', href: `mailto:${BRAND.contact.email}` },
     ],
-    contractors: [
-      { name: 'Become a Partner', href: '/apply' },
-      { name: 'Forms Library', href: '/forms' },
-      { name: 'Partner Portal', href: '/contractor/login' },
-      { name: 'Resources', href: '/blog' },
-      { name: 'Success Stories', href: '#success-stories' },
-      { name: 'FAQ', href: '/how-it-works' },
+    services: [
+      { name: 'Commercial Cleaning', href: '/services/commercial' },
+      { name: 'Residential Cleaning', href: '/services/residential' },
+      { name: 'Pressure Washing', href: '/services/pressure-washing' },
+      { name: 'Request Quote', href: `mailto:${BRAND.contact.email}` },
     ],
-    homeowners: [
-      { name: 'Find a Contractor', href: '#find-contractor' },
-      { name: 'Kitchen Remodeling', href: '#kitchen' },
-      { name: 'Bathroom Remodeling', href: '#bathroom' },
-      { name: 'Request Consultation', href: '#consultation' },
-      { name: 'Portfolio', href: '#portfolio' },
+    resources: [
+      { name: 'Free Estimate', href: `tel:${BRAND.contact.phoneRaw}` },
+      { name: 'FAQ', href: '/faq' },
+      { name: 'Testimonials', href: '/testimonials' },
+      { name: 'Blog', href: '/blog' },
     ],
     legal: [
       { name: 'Privacy Policy', href: '#privacy' },
@@ -35,10 +32,9 @@ export default function Footer() {
   };
 
   const socialLinks = [
-    { icon: Facebook, href: '#', label: 'Facebook' },
-    { icon: Twitter, href: '#', label: 'Twitter' },
-    { icon: Instagram, href: '#', label: 'Instagram' },
-    { icon: Linkedin, href: '#', label: 'LinkedIn' },
+    { icon: Facebook, href: BRAND.socialMedia.facebook, label: 'Facebook' },
+    { icon: Instagram, href: BRAND.socialMedia.instagram, label: 'Instagram' },
+    { icon: Twitter, href: BRAND.socialMedia.twitter, label: 'Twitter' },
   ];
 
   return (
@@ -49,14 +45,11 @@ export default function Footer() {
           {/* Brand Column */}
           <div className="lg:col-span-1">
             <Link to="/">
-              <img 
-                src="/images/logos/esh-dark-bg.png" 
-                alt="Elite Service Hub" 
-                className="h-20 w-auto mb-6"
-              />
+              <h2 className="text-2xl font-bold text-white mb-2">{BRAND.name}</h2>
+              <p className="text-zinc-500 text-xs uppercase tracking-wider">{BRAND.tagline}</p>
             </Link>
-            <p className="text-zinc-500 text-sm leading-relaxed mb-6">
-              Performance-Based Marketing for Elite Contractors & Service Pros. Zero upfront cost, 15% commission only.
+            <p className="text-zinc-500 text-sm leading-relaxed mb-6 mt-6">
+              Professional cleaning and pressure washing services for homes and businesses in {BRAND.location.city}, {BRAND.location.stateAbbr}.
             </p>
             <div className="flex gap-4">
               {socialLinks.map((social) => (
@@ -64,7 +57,7 @@ export default function Footer() {
                   key={social.label}
                   href={social.href}
                   aria-label={social.label}
-                  className="text-zinc-600 hover:text-esh-gold transition-colors"
+                  className="text-zinc-600 hover:text-blue-500 transition-colors"
                 >
                   <social.icon size={20} />
                 </a>
@@ -81,11 +74,11 @@ export default function Footer() {
               {footerLinks.company.map((link) => (
                 <li key={link.name}>
                   {link.href.startsWith('/') ? (
-                    <Link to={link.href} className="text-zinc-500 hover:text-esh-gold transition-colors text-sm">
+                    <Link to={link.href} className="text-zinc-500 hover:text-blue-500 transition-colors text-sm">
                       {link.name}
                     </Link>
                   ) : (
-                    <a href={link.href} className="text-zinc-500 hover:text-esh-gold transition-colors text-sm">
+                    <a href={link.href} className="text-zinc-500 hover:text-blue-500 transition-colors text-sm">
                       {link.name}
                     </a>
                   )}
@@ -94,20 +87,20 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* For Contractors Links */}
+          {/* Services Links */}
           <div>
             <h3 className="text-white font-semibold text-sm uppercase tracking-widest mb-4">
-              For Contractors
+              Services
             </h3>
             <ul className="space-y-3">
-              {footerLinks.contractors.map((link) => (
+              {footerLinks.services.map((link) => (
                 <li key={link.name}>
                   {link.href.startsWith('/') ? (
-                    <Link to={link.href} className="text-zinc-500 hover:text-esh-gold transition-colors text-sm">
+                    <Link to={link.href} className="text-zinc-500 hover:text-blue-500 transition-colors text-sm">
                       {link.name}
                     </Link>
                   ) : (
-                    <a href={link.href} className="text-zinc-500 hover:text-esh-gold transition-colors text-sm">
+                    <a href={link.href} className="text-zinc-500 hover:text-blue-500 transition-colors text-sm">
                       {link.name}
                     </a>
                   )}
@@ -116,20 +109,23 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* For Homeowners Links */}
+          {/* Resources Links */}
           <div>
             <h3 className="text-white font-semibold text-sm uppercase tracking-widest mb-4">
-              For Homeowners
+              Resources
             </h3>
             <ul className="space-y-3">
-              {footerLinks.homeowners.map((link) => (
+              {footerLinks.resources.map((link) => (
                 <li key={link.name}>
-                  <a
-                    href={link.href}
-                    className="text-zinc-500 hover:text-esh-gold transition-colors text-sm"
-                  >
-                    {link.name}
-                  </a>
+                  {link.href.startsWith('/') ? (
+                    <Link to={link.href} className="text-zinc-500 hover:text-blue-500 transition-colors text-sm">
+                      {link.name}
+                    </Link>
+                  ) : (
+                    <a href={link.href} className="text-zinc-500 hover:text-blue-500 transition-colors text-sm">
+                      {link.name}
+                    </a>
+                  )}
                 </li>
               ))}
             </ul>
@@ -142,23 +138,26 @@ export default function Footer() {
             </h3>
             <ul className="space-y-3">
               <li className="flex items-start gap-2 text-zinc-500 text-sm">
-                <Mail size={16} className="mt-1 flex-shrink-0" />
+                <Phone size={16} className="mt-1 flex-shrink-0" />
                 <div className="flex flex-col">
-                  <span className="text-white font-medium">Chris Cotton</span>
-                  <a href="mailto:info@kmjk.pro" className="hover:text-esh-gold transition-colors">
-                    info@kmjk.pro
+                  <a href={`tel:${BRAND.contact.phoneRaw}`} className="text-white font-medium hover:text-blue-500 transition-colors">
+                    {BRAND.contact.phone}
                   </a>
+                  <span className="text-xs">Call for free quote</span>
                 </div>
               </li>
               <li className="flex items-start gap-2 text-zinc-500 text-sm">
-                <MessageCircle size={16} className="mt-1 flex-shrink-0" />
-                <a href="sms:+17727770622" className="hover:text-esh-gold transition-colors">
-                  Text: 772-777-0622
+                <Mail size={16} className="mt-1 flex-shrink-0" />
+                <a href={`mailto:${BRAND.contact.email}`} className="hover:text-blue-500 transition-colors">
+                  {BRAND.contact.email}
                 </a>
               </li>
               <li className="flex items-start gap-2 text-zinc-500 text-sm">
                 <MapPin size={16} className="mt-1 flex-shrink-0" />
-                <span>Treasure Coast, Florida</span>
+                <div className="flex flex-col">
+                  <span>{BRAND.location.city}, {BRAND.location.stateAbbr}</span>
+                  <span className="text-xs">{BRAND.location.serviceArea}</span>
+                </div>
               </li>
             </ul>
           </div>
@@ -168,14 +167,14 @@ export default function Footer() {
         <div className="border-t border-zinc-900 pt-8">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
             <p className="text-zinc-600 text-sm">
-              © {currentYear} Elite Service Hub. All rights reserved.
+              © {currentYear} {BRAND.businessName}. All rights reserved.
             </p>
             <div className="flex gap-6">
               {footerLinks.legal.map((link) => (
                 <a
                   key={link.name}
                   href={link.href}
-                  className="text-zinc-600 hover:text-esh-gold transition-colors text-sm"
+                  className="text-zinc-600 hover:text-blue-500 transition-colors text-sm"
                 >
                   {link.name}
                 </a>

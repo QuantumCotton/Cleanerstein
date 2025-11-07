@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Menu, X } from 'lucide-react';
+import { Menu, X, Phone } from 'lucide-react';
 import Button from '../shared/Button';
+import { BRAND } from '../../constants/brand';
 
 export default function Navigation() {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -16,12 +17,10 @@ export default function Navigation() {
   }, []);
 
   const navLinks = [
-    { name: 'How It Works', href: '/how-it-works' },
-    { name: 'For Contractors', href: '/for-contractors' },
-    { name: 'Forms', href: '/forms' },
-    { name: 'Markets', href: '/markets' },
+    { name: 'Services', href: '/#services' },
     { name: 'About', href: '/about' },
-    { name: 'Blog', href: '/blog' },
+    { name: 'Service Areas', href: '/service-areas' },
+    { name: 'Contact', href: `mailto:${BRAND.contact.email}` },
   ];
 
   return (
@@ -35,31 +34,40 @@ export default function Navigation() {
       <nav className="max-w-7xl mx-auto px-6 py-4">
         <div className="flex items-center justify-between">
           {/* Logo */}
-          <Link to="/" className="flex items-center">
-            <img 
-              src='/images/logos/esh-dark-bg.png'
-              alt="Elite Service Hub" 
-              className="h-12 w-auto transition-opacity hover:opacity-80"
-            />
+          <Link to="/" className="flex items-center group">
+            <h1 className="text-2xl font-bold text-white group-hover:text-blue-500 transition-colors">
+              {BRAND.name}
+            </h1>
           </Link>
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center gap-8">
             {navLinks.map((link) => (
-              <Link
-                key={link.name}
-                to={link.href}
-                className="text-base font-medium transition-all text-white hover:text-zinc-300 hover:underline underline-offset-4"
-              >
-                {link.name}
-              </Link>
+              link.href.startsWith('/') ? (
+                <Link
+                  key={link.name}
+                  to={link.href}
+                  className="text-base font-medium transition-all text-white hover:text-blue-500"
+                >
+                  {link.name}
+                </Link>
+              ) : (
+                <a
+                  key={link.name}
+                  href={link.href}
+                  className="text-base font-medium transition-all text-white hover:text-blue-500"
+                >
+                  {link.name}
+                </a>
+              )
             ))}
             <Button 
               variant="secondary"
-              className="px-6 py-3 text-xs"
-              onClick={() => { window.location.href = '/become-a-provider/'; }}
+              className="px-6 py-3 text-xs bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-2"
+              onClick={() => { window.location.href = `tel:${BRAND.contact.phoneRaw}`; }}
             >
-              Get Started
+              <Phone size={16} />
+              {BRAND.contact.phone}
             </Button>
           </div>
 
@@ -77,24 +85,36 @@ export default function Navigation() {
           <div className="md:hidden mt-4 pb-4 border-t border-zinc-800">
             <div className="flex flex-col gap-4 pt-4">
               {navLinks.map((link) => (
-                <Link
-                  key={link.name}
-                  to={link.href}
-                  className="text-base font-medium text-white"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                >
-                  {link.name}
-                </Link>
+                link.href.startsWith('/') ? (
+                  <Link
+                    key={link.name}
+                    to={link.href}
+                    className="text-base font-medium text-white"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    {link.name}
+                  </Link>
+                ) : (
+                  <a
+                    key={link.name}
+                    href={link.href}
+                    className="text-base font-medium text-white"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    {link.name}
+                  </a>
+                )
               ))}
               <Button 
                 variant="accent"
-                className="w-full text-xs"
+                className="w-full text-xs bg-blue-600 hover:bg-blue-700 text-white flex items-center justify-center gap-2"
                 onClick={() => {
                   setIsMobileMenuOpen(false);
-                  window.location.href = '/become-a-provider/';
+                  window.location.href = `tel:${BRAND.contact.phoneRaw}`;
                 }}
               >
-                Get Started
+                <Phone size={16} />
+                Call {BRAND.contact.phone}
               </Button>
             </div>
           </div>

@@ -1,120 +1,150 @@
-import { TrendingUp, Users, FileText, DollarSign, AlertCircle } from 'lucide-react';
+import { Users, Calendar, DollarSign, FileText, Phone, Sparkles } from 'lucide-react';
+import { BRAND } from '../../constants/brand';
 
 export default function AdminDashboard() {
   const stats = [
-    { label: 'Active Leads', value: '47', change: '+12%', trend: 'up' as const, icon: TrendingUp },
-    { label: 'Active Contractors', value: '12', change: '+2', trend: 'up' as const, icon: Users },
-    { label: 'Open Work Orders', value: '23', change: '-3', trend: 'down' as const, icon: FileText },
-    { label: 'Monthly Revenue', value: '$45.2K', change: '+23%', trend: 'up' as const, icon: DollarSign },
+    {
+      label: 'Total Clients',
+      value: '142',
+      change: '+23 this week',
+      icon: Users,
+      color: 'text-blue-400'
+    },
+    {
+      label: 'Pending Quotes',
+      value: '8',
+      change: 'Awaiting response',
+      icon: FileText,
+      color: 'text-amber-400'
+    },
+    {
+      label: 'Scheduled Today',
+      value: '5',
+      change: '3 completed',
+      icon: Calendar,
+      color: 'text-green-400'
+    },
+    {
+      label: 'This Month Revenue',
+      value: '$12,840',
+      change: '+28%',
+      icon: DollarSign,
+      color: 'text-emerald-400'
+    }
   ];
 
-  const recentLeads = [
-    { id: 1, name: 'Sarah Johnson', project: 'Kitchen Remodel', budget: '$65K', score: 95, status: 'hot' },
-    { id: 2, name: 'Michael Chen', project: 'Bathroom Renovation', budget: '$42K', score: 88, status: 'warm' },
-    { id: 3, name: 'Emily Rodriguez', project: 'Kitchen & Bath', budget: '$110K', score: 97, status: 'hot' },
-    { id: 4, name: 'David Thompson', project: 'Master Bath', budget: '$35K', score: 72, status: 'warm' },
+  const recentClients = [
+    { name: 'ABC Office Complex', email: 'manager@abcoffice.com', service: 'Commercial Cleaning', status: 'quoted', date: '2 hours ago', value: '$2,400/mo' },
+    { name: 'Sarah Johnson', email: 'sarah@example.com', service: 'Residential Cleaning', status: 'scheduled', date: 'Tomorrow 9 AM', value: '$180' },
+    { name: 'Mike Davis', email: 'mike@example.com', service: 'Pressure Washing', status: 'new', date: '1 day ago', value: '$450' }
   ];
 
   const urgentActions = [
-    { id: 1, type: 'lead', message: 'High-value lead ($110K) waiting for contractor match', priority: 'high' },
-    { id: 2, type: 'contractor', message: 'KMJK Construction needs photo approval', priority: 'medium' },
-    { id: 3, type: 'payment', message: 'Commission payment due for 3 completed projects', priority: 'high' },
+    { text: 'Send quote to ABC Office Complex - $2,400/mo contract', priority: 'high' },
+    { text: 'Confirm tomorrow\'s appointments (5 scheduled)', priority: 'high' },
+    { text: 'Follow up with Mike Davis on pressure washing quote', priority: 'medium' }
   ];
 
   return (
     <div className="p-8">
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-3xl font-light font-serif mb-2">Welcome back, Chris</h1>
-        <p className="text-zinc-500">Here's what's happening with Elite Service Hub today.</p>
+        <h1 className="text-3xl font-bold text-white mb-2">
+          <Sparkles className="inline mr-3 text-blue-500" size={32} />
+          {BRAND.name} Dashboard
+        </h1>
+        <p className="text-zinc-400">Client management and scheduling for {BRAND.location.city}, {BRAND.location.stateAbbr}</p>
       </div>
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        {stats.map((stat) => {
-          const Icon = stat.icon;
-          return (
-            <div key={stat.label} className="bg-zinc-900 border border-zinc-800 p-6">
-              <div className="flex items-center justify-between mb-4">
-                <span className="text-sm text-zinc-500">{stat.label}</span>
-                <Icon size={20} className="text-esh-gold" />
-              </div>
-              <div className="text-3xl font-light mb-2">{stat.value}</div>
-              <div className={`text-sm ${stat.trend === 'up' ? 'text-green-500' : 'text-red-500'}`}>
-                {stat.change} from last month
-              </div>
+        {stats.map((stat) => (
+          <div key={stat.label} className="bg-zinc-900 border border-zinc-800 p-6">
+            <div className="flex items-center justify-between mb-4">
+              <span className="text-sm text-zinc-500">{stat.label}</span>
+              <stat.icon size={20} className={stat.color} />
             </div>
-          );
-        })}
+            <div className="text-3xl font-light mb-2">{stat.value}</div>
+            <div className="text-sm">{stat.change}</div>
+          </div>
+        ))}
       </div>
 
-      <div className="grid lg:grid-cols-3 gap-6">
-        {/* Recent Leads */}
-        <div className="lg:col-span-2 bg-zinc-900 border border-zinc-800 p-6">
-          <h2 className="text-xl font-light font-serif mb-6">Recent High-Quality Leads</h2>
-          <div className="space-y-4">
-            {recentLeads.map((lead) => (
-              <div key={lead.id} className="flex items-center justify-between p-4 bg-black border border-zinc-800">
-                <div className="flex-1">
-                  <div className="flex items-center gap-3 mb-1">
-                    <h3 className="font-medium">{lead.name}</h3>
-                    <span className={`px-2 py-1 text-xs rounded ${
-                      lead.status === 'hot' ? 'bg-red-500/20 text-red-400' : 'bg-yellow-500/20 text-yellow-400'
-                    }`}>
-                      {lead.status === 'hot' ? '🔥 HOT' : '⚡ WARM'}
-                    </span>
-                  </div>
-                  <p className="text-sm text-zinc-500">{lead.project}</p>
-                </div>
-                <div className="text-right">
-                  <div className="font-medium text-esh-gold">{lead.budget}</div>
-                  <div className="text-sm text-zinc-500">Score: {lead.score}/100</div>
-                </div>
-              </div>
+      {/* Recent Clients */}
+      <div className="overflow-x-auto">
+        <table className="w-full">
+          <thead>
+            <tr className="text-left text-zinc-400 text-sm border-b border-zinc-800">
+              <th className="pb-3 font-medium">Client</th>
+              <th className="pb-3 font-medium">Email</th>
+              <th className="pb-3 font-medium">Service</th>
+              <th className="pb-3 font-medium">Status</th>
+              <th className="pb-3 font-medium">Value</th>
+              <th className="pb-3 font-medium">Date/Time</th>
+            </tr>
+          </thead>
+          <tbody>
+            {recentClients.map((client, idx) => (
+              <tr key={idx} className="border-b border-zinc-800 hover:bg-zinc-800/50">
+                <td className="py-4 text-white">{client.name}</td>
+                <td className="py-4 text-zinc-400">{client.email}</td>
+                <td className="py-4 text-zinc-300">{client.service}</td>
+                <td className="py-4">
+                  <span className={`px-2 py-1 text-xs rounded ${
+                    client.status === 'scheduled' ? 'bg-green-500/20 text-green-400' :
+                    client.status === 'quoted' ? 'bg-yellow-500/20 text-yellow-400' :
+                    'bg-blue-500/20 text-blue-400'
+                  }`}>
+                    {client.status.toUpperCase()}
+                  </span>
+                </td>
+                <td className="py-4 text-emerald-400 font-semibold">{client.value}</td>
+                <td className="py-4 text-zinc-500">{client.date}</td>
+              </tr>
             ))}
-          </div>
-          <button className="w-full mt-4 py-3 border border-zinc-800 hover:bg-zinc-800 transition-colors">
-            View All Leads
-          </button>
-        </div>
+          </tbody>
+        </table>
+      </div>
 
-        {/* Urgent Actions */}
-        <div className="bg-zinc-900 border border-zinc-800 p-6">
-          <h2 className="text-xl font-light font-serif mb-6">Urgent Actions</h2>
-          <div className="space-y-4">
-            {urgentActions.map((action) => (
-              <div key={action.id} className="p-4 bg-black border-l-4 border-l-red-500">
-                <div className="flex items-start gap-3">
-                  <AlertCircle size={18} className={action.priority === 'high' ? 'text-red-500' : 'text-yellow-500'} />
-                  <div className="flex-1">
-                    <p className="text-sm text-zinc-300">{action.message}</p>
-                    <p className="text-xs text-zinc-600 mt-1">Priority: {action.priority}</p>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
+      <div className="mt-4 pt-4 border-t border-zinc-800 flex gap-4">
+        <button className="text-blue-400 hover:text-blue-300 transition-colors text-sm font-medium">
+          View All Clients →
+        </button>
+        <button className="text-blue-400 hover:text-blue-300 transition-colors text-sm font-medium">
+          Create Quote →
+        </button>
+        <button className="text-blue-400 hover:text-blue-300 transition-colors text-sm font-medium">
+          Schedule Appointment →
+        </button>
       </div>
 
       {/* Quick Actions */}
-      <div className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-4">
-        <button className="p-6 bg-esh-gold text-black hover:bg-esh-gold-dark transition-colors">
-          <div className="text-2xl mb-2">📝</div>
-          <div className="font-medium">Create Work Order</div>
-        </button>
-        <button className="p-6 bg-zinc-900 border border-zinc-800 hover:bg-zinc-800 transition-colors">
-          <div className="text-2xl mb-2">👤</div>
-          <div className="font-medium">Add Contractor</div>
-        </button>
-        <button className="p-6 bg-zinc-900 border border-zinc-800 hover:bg-zinc-800 transition-colors">
-          <div className="text-2xl mb-2">📊</div>
-          <div className="font-medium">View Reports</div>
-        </button>
-        <button className="p-6 bg-zinc-900 border border-zinc-800 hover:bg-zinc-800 transition-colors">
-          <div className="text-2xl mb-2">⚙️</div>
-          <div className="font-medium">System Settings</div>
-        </button>
+      <div className="bg-zinc-900 border border-zinc-800 p-6 mt-8">
+        <h2 className="text-xl font-semibold text-white mb-4 flex items-center gap-2">
+          <Phone size={20} className="text-blue-400" />
+          Quick Actions
+        </h2>
+        <div className="space-y-3">
+          {urgentActions.map((action, idx) => (
+            <div key={idx} className="flex items-start gap-3 p-3 bg-zinc-800/50 hover:bg-zinc-800 cursor-pointer transition-colors">
+              <div className={`w-2 h-2 rounded-full mt-2 flex-shrink-0 ${
+                action.priority === 'high' ? 'bg-red-400' :
+                action.priority === 'medium' ? 'bg-yellow-400' :
+                'bg-blue-400'
+              }`} />
+              <div className="flex-1">
+                <p className="text-white">{action.text}</p>
+                <span className={`inline-block mt-1 px-2 py-0.5 text-xs rounded ${
+                  action.priority === 'high' ? 'bg-red-500/20 text-red-400' :
+                  action.priority === 'medium' ? 'bg-yellow-500/20 text-yellow-400' :
+                  'bg-blue-500/20 text-blue-400'
+                }`}>
+                  {action.priority.toUpperCase()} PRIORITY
+                </span>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );

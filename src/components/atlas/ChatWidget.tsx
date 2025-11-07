@@ -16,7 +16,7 @@ interface StreamingMessageState {
 
 export default function ChatWidget({ 
   position = 'bottom-right',
-  primaryColor = '#D4AF37'
+  primaryColor = '#2563EB'  // Cleanerstein blue
 }: ChatWidgetProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
@@ -150,12 +150,12 @@ export default function ChatWidget({
       <button
         onClick={() => setIsOpen(true)}
         className={`fixed ${position === 'bottom-right' ? 'bottom-6 right-6' : 'bottom-6 left-6'} 
-          bg-esh-gold hover:bg-esh-gold-dark text-black rounded-full p-4 shadow-2xl
+          bg-blue-600 hover:bg-blue-700 text-white rounded-full p-4 shadow-2xl
           transition-all duration-300 hover:scale-110 z-50 group`}
         style={{ backgroundColor: primaryColor }}
       >
         <MessageCircle size={28} className="group-hover:rotate-12 transition-transform" />
-        <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full animate-pulse" />
+        <span className="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full animate-pulse" />
       </button>
     );
   }
@@ -167,26 +167,26 @@ export default function ChatWidget({
         shadow-2xl z-50 flex flex-col transition-all duration-300`}
     >
       {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b bg-black text-white">
+      <div className="flex items-center justify-between p-4 border-b bg-blue-600 text-white">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-esh-gold rounded-full flex items-center justify-center">
-            <MessageCircle size={20} className="text-black" />
+          <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center">
+            <MessageCircle size={20} className="text-blue-600" />
           </div>
           <div>
-            <h3 className="font-semibold">Atlas AI</h3>
-            <p className="text-xs text-zinc-400">Elite Service Hub Assistant</p>
+            <h3 className="font-semibold">Cleanerstein Assistant</h3>
+            <p className="text-xs text-blue-100">Get a Free Quote</p>
           </div>
         </div>
         <div className="flex items-center gap-2">
           <button
             onClick={() => setIsMinimized(!isMinimized)}
-            className="hover:bg-zinc-800 p-2 rounded"
+            className="hover:bg-blue-700 p-2 rounded"
           >
             <Minimize2 size={18} />
           </button>
           <button
             onClick={() => setIsOpen(false)}
-            className="hover:bg-zinc-800 p-2 rounded"
+            className="hover:bg-blue-700 p-2 rounded"
           >
             <X size={18} />
           </button>
@@ -213,7 +213,7 @@ export default function ChatWidget({
                   <div
                     className={`max-w-[80%] p-3 rounded-lg ${
                       msg.role === 'user'
-                        ? 'bg-black text-white'
+                        ? 'bg-blue-600 text-white'
                         : 'bg-white text-black border border-zinc-200'
                     }`}
                   >
@@ -256,7 +256,7 @@ export default function ChatWidget({
                 onChange={(e) => setInputValue(e.target.value)}
                 onKeyPress={handleKeyPress}
                 placeholder="Type your message..."
-                className="flex-1 px-4 py-2 border border-zinc-300 rounded-lg focus:outline-none focus:border-esh-gold text-black bg-white"
+                className="flex-1 px-4 py-2 border border-zinc-300 rounded-lg focus:outline-none focus:border-blue-600 text-black bg-white"
               />
               <Button
                 variant="accent"
@@ -268,7 +268,7 @@ export default function ChatWidget({
               </Button>
             </div>
             <p className="text-xs text-zinc-500 mt-2 text-center">
-              Powered by Elite Service Hub
+              Powered by Cleanerstein
             </p>
           </div>
         </>

@@ -593,16 +593,16 @@ class AtlasEngine {
     // Add initial greeting
     this.addMessage({
       role: 'assistant',
-      content: `Hey there! I'm Atlas, your friendly concierge at Elite Service Hub. 🤖✨
+      content: `Hi! I'm here to help you get a free quote for cleaning or pressure washing services in Beaufort. ✨
 
-Before we dive in, what name should I use for you, and what's the best contact to follow up (email or phone)? Are you a contractor looking to grow, or just checking things out?`,
+What's your name and the best way to reach you (email or phone)? Also, what type of service are you interested in today?`,
       quickReplies: [
-        "I'm a contractor",
-        'Just browsing today',
-        'What is Elite Service Hub?',
-        'Sure, my name is...',
-        'Here is my email',
-        'Here is my phone number'
+        'Commercial Cleaning',
+        'Residential Cleaning',
+        'Pressure Washing',
+        'Not sure yet',
+        'My name is...',
+        'Here is my contact'
       ]
     });
   }

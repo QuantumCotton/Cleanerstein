@@ -25,7 +25,7 @@ exports.handler = async (event: FormEvent): Promise<ApiResponse> => {
     console.log(`Form submission received: ${formName}`, formData);
 
     // Create email content
-    let emailContent = `SERVICE PARTNER APPLICATION - Elite Service Hub\n`;
+    let emailContent = `NEW QUOTE REQUEST - Cleanerstein\n`;
     emailContent += `================================================\n\n`;
 
     Object.entries(formData).forEach(([key, value]) => {
@@ -50,9 +50,10 @@ exports.handler = async (event: FormEvent): Promise<ApiResponse> => {
     });
 
     await transporter.sendMail({
-      from: process.env.EMAIL_FROM || 'noreply@theeliteservicehub.com',
-      to: process.env.LEAD_EMAIL_TO || 'chris@theeliteservicehub.com',
-      subject: `New Service Partner Application - ${formData['business-name'] || 'Unknown'}`,
+      from: process.env.EMAIL_FROM || 'noreply@cleanerstein.com',
+      to: process.env.LEAD_EMAIL_TO || 'info@cleanerstein.com',
+      subject: `New Quote Request - ${formData['name'] || formData['business-name'] || 'Potential Client'}`,
+      html: `<pre style="font-family: Arial, sans-serif; white-space: pre-wrap;">${emailContent}</pre>`,
       text: emailContent,
       replyTo: formData.email || '',
     });

@@ -15,12 +15,8 @@
     letter-spacing: 0.02em;
   }
 
-  /* ESH Logo Transparent Background Treatment */
-  img[src*="esh-dark-bg"] {
-    mix-blend-mode: multiply; /* Removes black background, blends with dark sections */
-  }
-
-  img[src*="esh-light-bg"] {
-    mix-blend-mode: screen; /* Removes white background, blends with light sections */
+  /* Cleanerstein Brand Styles */
+  .cleanerstein-gradient {
+    background: linear-gradient(135deg, #2563EB 0%, #10B981 100%);
   }
 }

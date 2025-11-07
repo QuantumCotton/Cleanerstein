@@ -12,17 +12,17 @@ export default function ExecutiveDashboard() {
       period: 'vs last quarter'
     },
     {
-      label: 'Active Contractors',
-      value: '12',
-      change: '+3',
+      label: 'Active Clients',
+      value: '248',
+      change: '+42',
       trend: 'up' as const,
       icon: Users,
       period: 'this quarter'
     },
     {
-      label: 'Completed Projects',
-      value: '127',
-      change: '+18%',
+      label: 'Services Completed',
+      value: '1,247',
+      change: '+28%',
       trend: 'up' as const,
       icon: Briefcase,
       period: 'vs last quarter'
@@ -36,17 +36,17 @@ export default function ExecutiveDashboard() {
       period: 'vs last month'
     },
     {
-      label: 'Avg Project Value',
-      value: '$58,750',
-      change: '+$4.2K',
+      label: 'Avg Service Value',
+      value: '$285',
+      change: '+$18',
       trend: 'up' as const,
       icon: TrendingUp,
       period: 'vs last quarter'
     },
     {
-      label: 'Lead Quality Score',
-      value: '84/100',
-      change: '+7',
+      label: 'Client Satisfaction',
+      value: '4.9/5.0',
+      change: '+0.2',
       trend: 'up' as const,
       icon: Target,
       period: 'vs last month'
@@ -65,19 +65,19 @@ export default function ExecutiveDashboard() {
 
   const maxRevenue = Math.max(...revenueData.map(d => d.revenue));
 
-  // Market breakdown
-  const marketData = [
-    { market: 'Treasure Coast', revenue: '$312,450', share: 68, contractors: 8, projects: 78 },
-    { market: 'Space Coast (Planned)', revenue: '$0', share: 0, contractors: 0, projects: 0 },
-    { market: 'Tampa Bay (Planned)', revenue: '$0', share: 0, contractors: 0, projects: 0 }
+  // Service breakdown
+  const serviceData = [
+    { service: 'Residential Cleaning', revenue: '$184,250', share: 45, clients: 142, services: 856 },
+    { service: 'Commercial Cleaning', revenue: '$158,400', share: 39, clients: 68, services: 324 },
+    { service: 'Pressure Washing', revenue: '$65,600', share: 16, clients: 38, services: 67 }
   ];
 
-  // Top contractors
-  const topContractors = [
-    { name: 'KMJK Construction', revenue: '$185,250', projects: 42, rating: 5.0, growth: '+28%' },
-    { name: 'Elite Bathrooms Pro', revenue: '$98,400', projects: 28, rating: 4.9, growth: '+45%' },
-    { name: 'Coastal Remodeling', revenue: '$76,850', projects: 19, rating: 4.8, growth: '+12%' },
-    { name: 'Premium Home Solutions', revenue: '$62,300', projects: 22, rating: 4.9, growth: '+35%' }
+  // Top clients by revenue
+  const topClients = [
+    { name: 'Beaufort Medical Center', revenue: '$42,500', services: 48, type: 'Commercial', frequency: 'Weekly' },
+    { name: 'Port Royal Plaza', revenue: '$38,200', services: 36, type: 'Commercial', frequency: 'Bi-weekly' },
+    { name: 'Seaside Properties LLC', revenue: '$28,400', services: 52, type: 'Residential', frequency: 'Monthly' },
+    { name: 'Lowcountry Bank', revenue: '$24,800', services: 24, type: 'Commercial', frequency: 'Weekly' }
   ];
 
   // Conversion funnel
@@ -96,7 +96,7 @@ export default function ExecutiveDashboard() {
       {/* Header */}
       <div className="mb-8">
         <h1 className="text-4xl font-light font-serif mb-2">Executive Dashboard</h1>
-        <p className="text-zinc-500">High-level business metrics and performance indicators</p>
+        <p className="text-zinc-500">Cleanerstein business metrics and performance indicators</p>
       </div>
 
       {/* KPI Grid */}
@@ -162,29 +162,27 @@ export default function ExecutiveDashboard() {
           </div>
         </div>
 
-        {/* Market Breakdown */}
+        {/* Service Breakdown */}
         <div className="bg-zinc-900 border border-zinc-800 p-6">
-          <h2 className="text-xl font-light font-serif mb-6">Market Breakdown</h2>
+          <h2 className="text-xl font-light font-serif mb-6">Service Breakdown</h2>
           <div className="space-y-4">
-            {marketData.map((market) => (
-              <div key={market.market} className="pb-4 border-b border-zinc-800 last:border-0">
+            {serviceData.map((service) => (
+              <div key={service.service} className="pb-4 border-b border-zinc-800 last:border-0">
                 <div className="flex justify-between items-start mb-2">
-                  <h3 className="font-medium text-sm">{market.market}</h3>
-                  <span className="text-esh-gold font-medium">{market.revenue}</span>
+                  <h3 className="font-medium text-sm">{service.service}</h3>
+                  <span className="text-blue-500 font-medium">{service.revenue}</span>
                 </div>
                 <div className="grid grid-cols-3 gap-2 text-xs text-zinc-500 mb-2">
-                  <div>{market.contractors} contractors</div>
-                  <div>{market.projects} projects</div>
-                  <div>{market.share}% share</div>
+                  <div>{service.clients} clients</div>
+                  <div>{service.services} services</div>
+                  <div>{service.share}% share</div>
                 </div>
-                {market.share > 0 && (
-                  <div className="w-full bg-zinc-800 h-2">
-                    <div 
-                      className="bg-esh-gold h-2"
-                      style={{ width: `${market.share}%` }}
-                    />
-                  </div>
-                )}
+                <div className="w-full bg-zinc-800 h-2">
+                  <div 
+                    className="bg-blue-500 h-2"
+                    style={{ width: `${service.share}%` }}
+                  />
+                </div>
               </div>
             ))}
           </div>
@@ -192,23 +190,23 @@ export default function ExecutiveDashboard() {
       </div>
 
       <div className="grid lg:grid-cols-2 gap-6 mb-8">
-        {/* Top Contractors */}
+        {/* Top Clients */}
         <div className="bg-zinc-900 border border-zinc-800 p-6">
-          <h2 className="text-xl font-light font-serif mb-6">Top Performing Contractors</h2>
+          <h2 className="text-xl font-light font-serif mb-6">Top Clients by Revenue</h2>
           <div className="space-y-4">
-            {topContractors.map((contractor, idx) => (
-              <div key={contractor.name} className="flex items-center gap-4 p-4 bg-black border border-zinc-800">
-                <div className="text-2xl font-light text-esh-gold w-8">#{idx + 1}</div>
+            {topClients.map((client, idx) => (
+              <div key={client.name} className="flex items-center gap-4 p-4 bg-black border border-zinc-800">
+                <div className="text-2xl font-light text-blue-500 w-8">#{idx + 1}</div>
                 <div className="flex-1">
-                  <h3 className="font-medium mb-1">{contractor.name}</h3>
+                  <h3 className="font-medium mb-1">{client.name}</h3>
                   <div className="flex items-center gap-4 text-xs text-zinc-500">
-                    <span>{contractor.projects} projects</span>
-                    <span>⭐ {contractor.rating}</span>
-                    <span className="text-green-500">{contractor.growth}</span>
+                    <span>{client.services} services</span>
+                    <span>{client.type}</span>
+                    <span className="text-green-500">{client.frequency}</span>
                   </div>
                 </div>
                 <div className="text-right">
-                  <div className="font-medium text-esh-gold">{contractor.revenue}</div>
+                  <div className="font-medium text-blue-500">{client.revenue}</div>
                 </div>
               </div>
             ))}

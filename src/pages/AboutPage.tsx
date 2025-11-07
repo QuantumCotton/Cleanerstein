@@ -1,35 +1,34 @@
-import { Target, Heart, Handshake, Lightbulb, Shield } from 'lucide-react';
+import { Sparkles, Heart, Shield, Award, Users } from 'lucide-react';
 import Button from '../components/shared/Button';
-import { useNavigate } from 'react-router-dom';
+import { BRAND } from '../constants/brand';
 
 export default function AboutPage() {
-  const navigate = useNavigate();
 
   const values = [
     {
-      icon: Target,
-      title: 'Excellence',
-      description: 'We partner only with the top 1-5% of contractors who demonstrate exceptional craftsmanship and service.'
+      icon: Sparkles,
+      title: 'Spotless Results',
+      description: 'We don\'t cut corners. Every surface, every corner, every detail receives our meticulous attention.'
     },
     {
       icon: Heart,
-      title: 'Transparency',
-      description: 'No hidden fees, no surprises. Our performance-based model aligns everyone\'s interests.'
-    },
-    {
-      icon: Handshake,
-      title: 'Partnership',
-      description: 'We succeed only when our contractors and homeowners succeed. True win-win-win.'
-    },
-    {
-      icon: Lightbulb,
-      title: 'Innovation',
-      description: 'Leveraging technology to create a better matching and marketing platform.'
+      title: 'Customer First',
+      description: 'Your satisfaction is our priority. We listen, we adapt, and we deliver exactly what you need.'
     },
     {
       icon: Shield,
-      title: 'Integrity',
-      description: 'Doing the right thing, even when no one is watching. Building trust through action.'
+      title: 'Eco-Friendly',
+      description: 'Safe for your family, pets, and the environment. We use only green, non-toxic cleaning products.'
+    },
+    {
+      icon: Award,
+      title: 'Professional Team',
+      description: 'Licensed, insured, and thoroughly trained. Our team brings expertise to every job.'
+    },
+    {
+      icon: Users,
+      title: 'Local & Trusted',
+      description: 'Beaufort is our home. We\'re your neighbors, committed to serving our community with integrity.'
     }
   ];
 
@@ -40,42 +39,81 @@ export default function AboutPage() {
         <div className="absolute inset-0 bg-gradient-to-br from-zinc-900 via-black to-black"></div>
         <div className="relative z-10 max-w-4xl mx-auto px-6 text-center">
           <p className="text-sm tracking-widest text-zinc-500 uppercase mb-4">Our Story</p>
-          <h1 className="text-5xl md:text-6xl font-light mb-6 font-serif">About Elite Service Hub</h1>
-          <p className="text-xl text-zinc-400">Redefining home improvement through strategic partnerships</p>
+          <h1 className="text-5xl md:text-6xl font-light mb-6 font-serif">About {BRAND.name}</h1>
+          <p className="text-xl text-zinc-400">8 years of excellence serving Port Royal and the Lowcountry</p>
         </div>
       </section>
 
       {/* Story */}
       <section className="py-20 border-t border-zinc-900">
-        <div className="max-w-4xl mx-auto px-6">
-          <h2 className="text-4xl font-light mb-12 font-serif">Our Story</h2>
+        <div className="max-w-6xl mx-auto px-6">
+          <div className="grid md:grid-cols-2 gap-12 items-center mb-20">
+            <div>
+              <h2 className="text-4xl font-light mb-6 font-serif">Our Story</h2>
+              <p className="text-lg text-zinc-400 leading-relaxed">
+                Since 2017, Cleanerstein has been setting high standards for professional cleaning and pressure washing in Port Royal and the Lowcountry. We set high standards for ourselves as a challenge and as the reflection of our work ethic - striving to meet customer needs and exceed expectations on every job.
+              </p>
+            </div>
+            {/* IDEAL IMAGE: Your team photo in front of company vehicle or at the office */}
+            <div className="relative h-80 rounded-lg overflow-hidden border border-zinc-800">
+              <img 
+                src="https://images.unsplash.com/photo-1556911220-bff31c812dba?w=800&q=80" 
+                alt="Replace with: Cleanerstein team photo - your actual staff in uniform, smiling and professional"
+                className="w-full h-full object-cover"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+            </div>
+          </div>
+
+          <h2 className="text-3xl font-light mb-12 font-serif text-center">Our Journey</h2>
           
-          <div className="space-y-8 text-lg text-zinc-400 leading-relaxed">
-            <div>
-              <h3 className="text-2xl text-white mb-4 font-light font-serif">The Problem</h3>
-              <p>
-                Homeowners struggle to find trustworthy contractors. They waste hours researching, calling, and meeting with multiple contractors, many of whom are unqualified or overpriced. Meanwhile, elite contractors waste thousands on marketing that brings low-quality leads.
+          <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+            {/* IDEAL IMAGES: Action shots of your team at work, before/afters, or equipment */}
+            <div className="group">
+              <div className="relative h-64 rounded-lg overflow-hidden border border-zinc-800 mb-4">
+                <img 
+                  src="https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=600&q=80" 
+                  alt="Replace with: Your team member actively cleaning - shows professionalism and equipment"
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent flex items-end p-6">
+                  <h3 className="text-xl text-white font-light">Same Trusted Crew</h3>
+                </div>
+              </div>
+              <p className="text-zinc-400">
+                No revolving door of new hires. You get the same professional crew every visit - trained, background-checked, and committed to excellence.
               </p>
             </div>
 
-            <div>
-              <h3 className="text-2xl text-white mb-4 font-light font-serif">The Insight</h3>
-              <p>
-                Both sides want the same thing: quality matches. Homeowners want vetted, exceptional contractors. Elite contractors want pre-qualified, ready-to-buy homeowners. The problem isn't supply or demand—it's the matching process.
+            <div className="group">
+              <div className="relative h-64 rounded-lg overflow-hidden border border-zinc-800 mb-4">
+                <img 
+                  src="https://images.unsplash.com/photo-1600880292089-90a7e086ee0c?w=600&q=80" 
+                  alt="Replace with: Happy client in their clean space or testimonial photo"
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent flex items-end p-6">
+                  <h3 className="text-xl text-white font-light">Customer Satisfaction</h3>
+                </div>
+              </div>
+              <p className="text-zinc-400">
+                With 1-day turnaround time and 8 years of experience, our clients choose us for reliability, thoroughness, and consistent quality. We show up on time, every time.
               </p>
             </div>
 
-            <div>
-              <h3 className="text-2xl text-white mb-4 font-light font-serif">The Solution</h3>
-              <p>
-                Elite Service Hub rigorously vets contractors, builds their brand through custom marketing sites, and delivers pre-qualified leads. We charge zero upfront fees and take only 15% commission on completed projects. If a lead doesn't close, contractors pay nothing.
-              </p>
-            </div>
-
-            <div>
-              <h3 className="text-2xl text-white mb-4 font-light font-serif">The Vision</h3>
-              <p>
-                We're building a nationwide network of elite contractors, creating the go-to platform for high-end home remodeling. Every homeowner deserves access to exceptional craftsmanship, and every elite contractor deserves a predictable pipeline of quality projects.
+            <div className="group">
+              <div className="relative h-64 rounded-lg overflow-hidden border border-zinc-800 mb-4">
+                <img 
+                  src="https://images.unsplash.com/photo-1521791136064-7986c2920216?w=600&q=80" 
+                  alt="Replace with: Beaufort, SC landmark or local community photo showing your roots"
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent flex items-end p-6">
+                  <h3 className="text-xl text-white font-light">Local & Trusted</h3>
+                </div>
+              </div>
+              <p className="text-zinc-400">
+                Port Royal is our home base. Family-owned and operated, we're your neighbors committed to serving the Lowcountry with integrity for over 8 years.
               </p>
             </div>
           </div>
@@ -83,11 +121,11 @@ export default function AboutPage() {
       </section>
 
       {/* Mission */}
-      <section className="py-20 border-t border-zinc-900 bg-esh-gold">
+      <section className="py-20 border-t border-zinc-900 bg-blue-600">
         <div className="max-w-4xl mx-auto px-6 text-center">
-          <h2 className="text-4xl font-light mb-6 text-black font-serif">Our Mission</h2>
-          <p className="text-2xl font-light text-black/80 leading-relaxed">
-            To connect homeowners with elite contractors through a transparent, performance-based platform that creates exceptional experiences for everyone involved.
+          <h2 className="text-4xl font-light mb-6 text-white font-serif">Our Mission</h2>
+          <p className="text-2xl font-light text-white/90 leading-relaxed">
+            To provide exceptional cleaning and pressure washing services that create healthier, more beautiful spaces for homes and businesses in Beaufort and the surrounding Lowcountry.
           </p>
         </div>
       </section>
@@ -102,8 +140,8 @@ export default function AboutPage() {
 
           <div className="grid md:grid-cols-3 gap-8">
             {values.map((value) => (
-              <div key={value.title} className="p-8 border border-zinc-800 bg-black/40 hover:border-esh-gold transition-colors">
-                <value.icon size={40} className="text-esh-gold mb-4" />
+              <div key={value.title} className="p-8 border border-zinc-800 bg-black/40 hover:border-blue-500 transition-colors">
+                <value.icon size={40} className="text-blue-500 mb-4" />
                 <h3 className="text-2xl font-light mb-4 font-serif">{value.title}</h3>
                 <p className="text-zinc-400 leading-relaxed">{value.description}</p>
               </div>
@@ -112,29 +150,36 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* Team */}
+      {/* Service Guarantee */}
       <section className="py-20 border-t border-zinc-900 bg-gradient-to-b from-black to-zinc-900">
         <div className="max-w-4xl mx-auto px-6">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-light mb-4 font-serif">Leadership</h2>
+          <div className="text-center mb-12">
+            <h2 className="text-4xl font-light mb-4 font-serif">Our Guarantee</h2>
           </div>
 
           <div className="max-w-2xl mx-auto">
-            <div className="p-8 border border-zinc-800 bg-black/60">
-              <div className="mb-6">
-                <h3 className="text-3xl font-light mb-2 font-serif">Chris Cotton</h3>
-                <p className="text-esh-gold uppercase tracking-wider text-sm">Founder & CEO</p>
-              </div>
-              <p className="text-zinc-400 leading-relaxed mb-4">
-                Chris founded Elite Service Hub after witnessing firsthand the broken contractor-homeowner matching process. With a background in marketing and a passion for quality craftsmanship, he built ESH to solve the problem for both sides.
+            <div className="p-8 border border-blue-500 bg-black/60">
+              <p className="text-zinc-300 leading-relaxed mb-6 text-lg">
+                We stand behind every job we do. If you're not completely satisfied with our cleaning service, we'll return and make it right—at no additional cost to you.
               </p>
-              <p className="text-zinc-400 leading-relaxed">
-                "We're not just a lead generation service. We're true partners in our contractors' success, and advocates for homeowners who deserve better. That's what drives me every day."
-              </p>
-              <div className="mt-6">
-                <a href="mailto:info@kmjk.pro" className="text-esh-gold hover:underline">
-                  info@kmjk.pro
-                </a>
+              <ul className="space-y-4 text-zinc-400">
+                <li className="flex items-start gap-3">
+                  <Sparkles size={20} className="text-blue-500 mt-1 flex-shrink-0" />
+                  <span><strong className="text-white">100% Satisfaction Guarantee</strong> - If it's not spotless, we'll come back</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <Shield size={20} className="text-blue-500 mt-1 flex-shrink-0" />
+                  <span><strong className="text-white">Fully Licensed & Insured</strong> - Your property is protected</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <Heart size={20} className="text-blue-500 mt-1 flex-shrink-0" />
+                  <span><strong className="text-white">Background-Checked Team</strong> - Trustworthy professionals in your space</span>
+                </li>
+              </ul>
+              <div className="mt-8 pt-6 border-t border-zinc-800">
+                <p className="text-zinc-400 text-center">
+                  Questions? Call us at <a href={`tel:${BRAND.contact.phoneRaw}`} className="text-blue-400 hover:underline font-semibold">{BRAND.contact.phone}</a>
+                </p>
               </div>
             </div>
           </div>
@@ -144,16 +189,24 @@ export default function AboutPage() {
       {/* CTA */}
       <section className="py-20 border-t border-zinc-900">
         <div className="max-w-4xl mx-auto px-6 text-center">
-          <h2 className="text-4xl font-light mb-6 font-serif">Join Us on This Journey</h2>
+          <h2 className="text-4xl font-light mb-6 font-serif">Ready for a Cleaner Space?</h2>
           <p className="text-xl text-zinc-400 mb-8">
-            Whether you're a homeowner planning a remodel or a contractor looking to grow your business
+            Experience the {BRAND.name} difference. Get your free quote today.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button variant="accent" className="px-12 py-5" onClick={() => navigate('/')}>
-              Find a Contractor
+            <Button 
+              variant="accent" 
+              className="px-12 py-5 bg-blue-600 hover:bg-blue-700"
+              onClick={() => window.location.href = `tel:${BRAND.contact.phoneRaw}`}
+            >
+              Call {BRAND.contact.phone}
             </Button>
-            <Button variant="primary" className="px-12 py-5" onClick={() => navigate('/apply')}>
-              Become a Partner
+            <Button 
+              variant="primary" 
+              className="px-12 py-5"
+              onClick={() => window.location.href = `mailto:${BRAND.contact.email}`}
+            >
+              Email for Quote
             </Button>
           </div>
         </div>

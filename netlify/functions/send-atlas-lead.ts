@@ -112,7 +112,7 @@ export const handler = async (event: any) => {
     await transporter.sendMail({
       from: process.env.EMAIL_FROM,
       to: process.env.LEAD_EMAIL_TO,
-      subject: `[Atlas Lead] ${payload.leadData?.name ?? 'New Prospect'} (${payload.qualificationScore}/100)` ,
+      subject: `[Cleanerstein Quote] ${payload.leadData?.name ?? 'New Client'} (Score: ${payload.qualificationScore}/100)` ,
       text: `${summary}\n\n--- Conversation Transcript ---\n${transcript}`,
       html: `<pre style="font-family: 'Courier New', monospace; white-space: pre-wrap;">${summary}\n\n--- Conversation Transcript ---\n${transcript}</pre>`
     });
