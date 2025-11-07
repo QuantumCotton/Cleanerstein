@@ -34,8 +34,6 @@ export default function OwnerQuestionnairePageNew() {
     shortTermGoals: '',
     longTermVision: '',
     specificSupport: '',
-    budgetRange: '',
-    
     additionalNotes: ''
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -161,7 +159,7 @@ export default function OwnerQuestionnairePageNew() {
                 <textarea
                   id="websiteLikes"
                   name="websiteLikes"
-                  required
+
                   rows={3}
                   value={formData.websiteLikes}
                   onChange={handleChange}
@@ -177,7 +175,7 @@ export default function OwnerQuestionnairePageNew() {
                 <textarea
                   id="websiteDislikes"
                   name="websiteDislikes"
-                  required
+
                   rows={3}
                   value={formData.websiteDislikes}
                   onChange={handleChange}
@@ -208,7 +206,7 @@ export default function OwnerQuestionnairePageNew() {
                 <textarea
                   id="brandPersonality"
                   name="brandPersonality"
-                  required
+
                   rows={3}
                   value={formData.brandPersonality}
                   onChange={handleChange}
@@ -239,7 +237,7 @@ export default function OwnerQuestionnairePageNew() {
                 <textarea
                   id="websiteFeatures"
                   name="websiteFeatures"
-                  required
+
                   rows={3}
                   value={formData.websiteFeatures}
                   onChange={handleChange}
@@ -263,7 +261,7 @@ export default function OwnerQuestionnairePageNew() {
                 <select
                   id="hasPhotos"
                   name="hasPhotos"
-                  required
+
                   value={formData.hasPhotos}
                   onChange={handleChange}
                   className="w-full px-4 py-3 bg-zinc-900 border border-zinc-800 rounded-lg text-white focus:outline-none focus:border-blue-500 transition-colors"
@@ -283,7 +281,7 @@ export default function OwnerQuestionnairePageNew() {
                 <select
                   id="needPhotography"
                   name="needPhotography"
-                  required
+
                   value={formData.needPhotography}
                   onChange={handleChange}
                   className="w-full px-4 py-3 bg-zinc-900 border border-zinc-800 rounded-lg text-white focus:outline-none focus:border-blue-500 transition-colors"
@@ -303,7 +301,7 @@ export default function OwnerQuestionnairePageNew() {
                 <select
                   id="hasTestimonials"
                   name="hasTestimonials"
-                  required
+
                   value={formData.hasTestimonials}
                   onChange={handleChange}
                   className="w-full px-4 py-3 bg-zinc-900 border border-zinc-800 rounded-lg text-white focus:outline-none focus:border-blue-500 transition-colors"
@@ -323,7 +321,7 @@ export default function OwnerQuestionnairePageNew() {
                 <select
                   id="videoContent"
                   name="videoContent"
-                  required
+
                   value={formData.videoContent}
                   onChange={handleChange}
                   className="w-full px-4 py-3 bg-zinc-900 border border-zinc-800 rounded-lg text-white focus:outline-none focus:border-blue-500 transition-colors"
@@ -351,7 +349,7 @@ export default function OwnerQuestionnairePageNew() {
                 <textarea
                   id="targetCustomerDetails"
                   name="targetCustomerDetails"
-                  required
+
                   rows={4}
                   value={formData.targetCustomerDetails}
                   onChange={handleChange}
@@ -367,7 +365,7 @@ export default function OwnerQuestionnairePageNew() {
                 <textarea
                   id="servicesPrioritize"
                   name="servicesPrioritize"
-                  required
+
                   rows={3}
                   value={formData.servicesPrioritize}
                   onChange={handleChange}
@@ -383,7 +381,7 @@ export default function OwnerQuestionnairePageNew() {
                 <textarea
                   id="geographicExpansion"
                   name="geographicExpansion"
-                  required
+
                   rows={2}
                   value={formData.geographicExpansion}
                   onChange={handleChange}
@@ -399,7 +397,7 @@ export default function OwnerQuestionnairePageNew() {
                 <select
                   id="pricingStrategy"
                   name="pricingStrategy"
-                  required
+
                   value={formData.pricingStrategy}
                   onChange={handleChange}
                   className="w-full px-4 py-3 bg-zinc-900 border border-zinc-800 rounded-lg text-white focus:outline-none focus:border-blue-500 transition-colors"
@@ -428,7 +426,7 @@ export default function OwnerQuestionnairePageNew() {
                 <textarea
                   id="leadSources"
                   name="leadSources"
-                  required
+
                   rows={3}
                   value={formData.leadSources}
                   onChange={handleChange}
@@ -444,7 +442,7 @@ export default function OwnerQuestionnairePageNew() {
                 <textarea
                   id="conversionChallenges"
                   name="conversionChallenges"
-                  required
+
                   rows={3}
                   value={formData.conversionChallenges}
                   onChange={handleChange}
@@ -460,7 +458,7 @@ export default function OwnerQuestionnairePageNew() {
                 <textarea
                   id="followUpProcess"
                   name="followUpProcess"
-                  required
+
                   rows={3}
                   value={formData.followUpProcess}
                   onChange={handleChange}
@@ -477,7 +475,7 @@ export default function OwnerQuestionnairePageNew() {
                   type="text"
                   id="crm"
                   name="crm"
-                  required
+
                   value={formData.crm}
                   onChange={handleChange}
                   className="w-full px-4 py-3 bg-zinc-900 border border-zinc-800 rounded-lg text-white focus:outline-none focus:border-blue-500 transition-colors"
@@ -500,7 +498,7 @@ export default function OwnerQuestionnairePageNew() {
                 <textarea
                   id="shortTermGoals"
                   name="shortTermGoals"
-                  required
+
                   rows={3}
                   value={formData.shortTermGoals}
                   onChange={handleChange}
@@ -516,7 +514,7 @@ export default function OwnerQuestionnairePageNew() {
                 <textarea
                   id="longTermVision"
                   name="longTermVision"
-                  required
+
                   rows={4}
                   value={formData.longTermVision}
                   onChange={handleChange}
@@ -532,36 +530,13 @@ export default function OwnerQuestionnairePageNew() {
                 <textarea
                   id="specificSupport"
                   name="specificSupport"
-                  required
+
                   rows={4}
                   value={formData.specificSupport}
                   onChange={handleChange}
                   className="w-full px-4 py-3 bg-zinc-900 border border-zinc-800 rounded-lg text-white focus:outline-none focus:border-blue-500 transition-colors resize-none"
                   placeholder="From your intake: Acquiring new business accounts, hiring reliable people, business plan for top-tier client expansion..."
                 />
-              </div>
-
-              <div>
-                <label htmlFor="budgetRange" className="block text-sm font-medium text-zinc-300 mb-2">
-                  Monthly marketing budget you're comfortable with *
-                </label>
-                <select
-                  id="budgetRange"
-                  name="budgetRange"
-                  required
-                  value={formData.budgetRange}
-                  onChange={handleChange}
-                  className="w-full px-4 py-3 bg-zinc-900 border border-zinc-800 rounded-lg text-white focus:outline-none focus:border-blue-500 transition-colors"
-                >
-                  <option value="">Select...</option>
-                  <option value="500-1000">$500 - $1,000</option>
-                  <option value="1000-2000">$1,000 - $2,000</option>
-                  <option value="2000-3000">$2,000 - $3,000</option>
-                  <option value="3000-5000">$3,000 - $5,000</option>
-                  <option value="5000-plus">$5,000+</option>
-                  <option value="results-based">Prefer results-based/commission model</option>
-                  <option value="unsure">Not sure yet</option>
-                </select>
               </div>
             </div>
 
