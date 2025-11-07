@@ -23,8 +23,86 @@ export default function OwnerQuestionnairePageNew() {
     cleaningPackages: '',
     pressureWashingPricing: '',
     pressureWashingServices: '',
-    detailingPricing: '',
+    
+    // Detailing Checkboxes
+    detailingBasicWash: false,
+    detailingInterior: false,
+    detailingExterior: false,
+    detailingComplete: false,
+    detailingPaint1Step: false,
+    detailingPaint2Step: false,
+    detailingPaint3Step: false,
+    detailingCeramic: false,
+    detailingWax: false,
+    detailingClay: false,
+    detailingHeadlight: false,
+    detailingEngine: false,
+    detailingPetHair: false,
+    detailingOdor: false,
+    detailingLeather: false,
+    detailingFabric: false,
     detailingServices: '',
+    detailingPricing: '',
+    
+    // Handyman Checkboxes - Repairs
+    handymanDrywall: false,
+    handymanPainting: false,
+    handymanDoor: false,
+    handymanWindow: false,
+    handymanDeck: false,
+    handymanFence: false,
+    handymanStucco: false,
+    handymanConcrete: false,
+    handymanTile: false,
+    
+    // Handyman Checkboxes - Plumbing
+    handymanFaucet: false,
+    handymanDrain: false,
+    handymanToilet: false,
+    handymanDisposal: false,
+    handymanSink: false,
+    
+    // Handyman Checkboxes - Electrical
+    handymanLight: false,
+    handymanFan: false,
+    handymanOutlet: false,
+    handymanGFCI: false,
+    
+    // Handyman Checkboxes - Installations
+    handymanTV: false,
+    handymanShelving: false,
+    handymanCloset: false,
+    handymanCabinet: false,
+    handymanMirror: false,
+    handymanBlinds: false,
+    
+    // Handyman Checkboxes - Assembly
+    handymanFurniture: false,
+    handymanGrill: false,
+    handymanGazebo: false,
+    handymanPlayground: false,
+    
+    // Handyman Checkboxes - Carpentry
+    handymanTrim: false,
+    handymanCustomShelving: false,
+    handymanCabinetInstall: false,
+    handymanFraming: false,
+    
+    // Handyman Checkboxes - Maintenance
+    handymanGutter: false,
+    handymanPressureWash: false,
+    handymanWeatherstrip: false,
+    handymanCaulk: false,
+    handymanScreen: false,
+    
+    // Handyman Checkboxes - Luxury
+    handymanSmartHome: false,
+    handymanCustomWood: false,
+    handymanChandelier: false,
+    handymanHomeTheater: false,
+    handymanWineCellar: false,
+    handymanPoolFurniture: false,
+    
     handymanServices: '',
     handymanPricing: '',
     
@@ -50,9 +128,10 @@ export default function OwnerQuestionnairePageNew() {
   const [isSubmitted, setIsSubmitted] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const target = e.target as HTMLInputElement;
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value
+      [target.name]: target.type === 'checkbox' ? target.checked : target.value
     });
   };
 
@@ -443,37 +522,68 @@ Give us real numbers to quote customers!"
               </div>
 
               {/* MOBILE DETAILING */}
-              <div className="bg-purple-900/10 border border-purple-800/30 rounded-lg p-6 space-y-4">
-                <h3 className="text-xl font-semibold text-purple-400 mb-3">Mobile Detailing Services</h3>
+              <div className="bg-purple-900/10 border border-purple-800/30 rounded-lg p-6 space-y-6">
+                <h3 className="text-xl font-semibold text-purple-400 mb-4">Mobile Detailing Services</h3>
                 
+                {/* Basic Services */}
+                <div>
+                  <h4 className="text-sm font-semibold text-purple-300 mb-3">Basic Services</h4>
+                  <div className="space-y-2 ml-4 text-sm text-zinc-300">
+                    <label className="flex items-center"><input type="checkbox" name="detailingBasicWash" checked={formData.detailingBasicWash} onChange={handleChange} className="mr-2" /> Basic wash & vacuum</label>
+                    <label className="flex items-center"><input type="checkbox" name="detailingInterior" checked={formData.detailingInterior} onChange={handleChange} className="mr-2" /> Full interior detail</label>
+                    <label className="flex items-center"><input type="checkbox" name="detailingExterior" checked={formData.detailingExterior} onChange={handleChange} className="mr-2" /> Full exterior detail</label>
+                    <label className="flex items-center"><input type="checkbox" name="detailingComplete" checked={formData.detailingComplete} onChange={handleChange} className="mr-2" /> Complete detail (interior + exterior)</label>
+                  </div>
+                </div>
+
+                {/* Paint & Protection */}
+                <div>
+                  <h4 className="text-sm font-semibold text-purple-300 mb-3">Paint & Protection Services</h4>
+                  <div className="space-y-2 ml-4 text-sm text-zinc-300">
+                    <label className="flex items-center"><input type="checkbox" name="detailingPaint1Step" checked={formData.detailingPaint1Step} onChange={handleChange} className="mr-2" /> Paint correction (1-step)</label>
+                    <label className="flex items-center"><input type="checkbox" name="detailingPaint2Step" checked={formData.detailingPaint2Step} onChange={handleChange} className="mr-2" /> Paint correction (2-step)</label>
+                    <label className="flex items-center"><input type="checkbox" name="detailingPaint3Step" checked={formData.detailingPaint3Step} onChange={handleChange} className="mr-2" /> Paint correction (3-step)</label>
+                    <label className="flex items-center"><input type="checkbox" name="detailingCeramic" checked={formData.detailingCeramic} onChange={handleChange} className="mr-2" /> Ceramic coating</label>
+                    <label className="flex items-center"><input type="checkbox" name="detailingWax" checked={formData.detailingWax} onChange={handleChange} className="mr-2" /> Wax & polish</label>
+                    <label className="flex items-center"><input type="checkbox" name="detailingClay" checked={formData.detailingClay} onChange={handleChange} className="mr-2" /> Clay bar treatment</label>
+                  </div>
+                </div>
+
+                {/* Specialty Services */}
+                <div>
+                  <h4 className="text-sm font-semibold text-purple-300 mb-3">Specialty Services</h4>
+                  <div className="space-y-2 ml-4 text-sm text-zinc-300">
+                    <label className="flex items-center"><input type="checkbox" name="detailingHeadlight" checked={formData.detailingHeadlight} onChange={handleChange} className="mr-2" /> Headlight restoration</label>
+                    <label className="flex items-center"><input type="checkbox" name="detailingEngine" checked={formData.detailingEngine} onChange={handleChange} className="mr-2" /> Engine bay cleaning</label>
+                    <label className="flex items-center"><input type="checkbox" name="detailingPetHair" checked={formData.detailingPetHair} onChange={handleChange} className="mr-2" /> Pet hair removal</label>
+                    <label className="flex items-center"><input type="checkbox" name="detailingOdor" checked={formData.detailingOdor} onChange={handleChange} className="mr-2" /> Odor elimination</label>
+                    <label className="flex items-center"><input type="checkbox" name="detailingLeather" checked={formData.detailingLeather} onChange={handleChange} className="mr-2" /> Leather conditioning</label>
+                    <label className="flex items-center"><input type="checkbox" name="detailingFabric" checked={formData.detailingFabric} onChange={handleChange} className="mr-2" /> Fabric protection</label>
+                  </div>
+                </div>
+
+                {/* Additional Services Text Box */}
                 <div>
                   <label htmlFor="detailingServices" className="block text-sm font-medium text-zinc-300 mb-2">
-                    What detailing services do you offer? (Be specific!)
+                    Additional specialty services (boats, yachts, RVs, etc.)
                   </label>
                   <textarea
                     id="detailingServices"
                     name="detailingServices"
-                    rows={6}
+                    rows={4}
                     value={formData.detailingServices}
                     onChange={handleChange}
                     className="w-full px-4 py-3 bg-zinc-900 border border-zinc-800 rounded-lg text-white focus:outline-none focus:border-blue-500 transition-colors resize-none"
-                    placeholder="Check all that you do:
-□ Basic wash & vacuum
-□ Full interior detail
-□ Full exterior detail
-□ Complete detail (interior + exterior)
-□ Paint correction (1-step, 2-step, 3-step)
-□ Ceramic coating
-□ Wax & polish
-□ Headlight restoration
-□ Engine bay cleaning
-□ Pet hair removal
-□ Odor elimination
-□ Leather conditioning
-□ Fabric protection
-□ Clay bar treatment
+                    placeholder="Examples:
+• Boat & yacht detailing
+• Boat paint correction
+• Yacht trim restoration
+• RV exterior cleaning
+• Aircraft detailing
+• Motorcycle detailing
+• Heavy equipment cleaning
 
-List EVERYTHING you can do - even specialty services for luxury vehicles!"
+List any specialty services we missed!"
                   />
                 </div>
 
@@ -506,88 +616,127 @@ Give us your actual menu and prices!"
               </div>
 
               {/* HANDYMAN SERVICES */}
-              <div className="bg-amber-900/10 border border-amber-800/30 rounded-lg p-6 space-y-4">
-                <h3 className="text-xl font-semibold text-amber-400 mb-3">Handyman Services</h3>
+              <div className="bg-amber-900/10 border border-amber-800/30 rounded-lg p-6 space-y-6">
+                <h3 className="text-xl font-semibold text-amber-400 mb-4">Handyman Services</h3>
                 
+                {/* Repairs */}
+                <div>
+                  <h4 className="text-sm font-semibold text-amber-300 mb-3">Repairs</h4>
+                  <div className="space-y-2 ml-4 text-sm text-zinc-300">
+                    <label className="flex items-center"><input type="checkbox" name="handymanDrywall" checked={formData.handymanDrywall} onChange={handleChange} className="mr-2" /> Drywall repair & patching</label>
+                    <label className="flex items-center"><input type="checkbox" name="handymanPainting" checked={formData.handymanPainting} onChange={handleChange} className="mr-2" /> Interior/exterior painting</label>
+                    <label className="flex items-center"><input type="checkbox" name="handymanDoor" checked={formData.handymanDoor} onChange={handleChange} className="mr-2" /> Door repair & installation</label>
+                    <label className="flex items-center"><input type="checkbox" name="handymanWindow" checked={formData.handymanWindow} onChange={handleChange} className="mr-2" /> Window repair & caulking</label>
+                    <label className="flex items-center"><input type="checkbox" name="handymanDeck" checked={formData.handymanDeck} onChange={handleChange} className="mr-2" /> Deck repair & staining</label>
+                    <label className="flex items-center"><input type="checkbox" name="handymanFence" checked={formData.handymanFence} onChange={handleChange} className="mr-2" /> Fence repair</label>
+                    <label className="flex items-center"><input type="checkbox" name="handymanStucco" checked={formData.handymanStucco} onChange={handleChange} className="mr-2" /> Stucco repair</label>
+                    <label className="flex items-center"><input type="checkbox" name="handymanConcrete" checked={formData.handymanConcrete} onChange={handleChange} className="mr-2" /> Concrete crack repair</label>
+                    <label className="flex items-center"><input type="checkbox" name="handymanTile" checked={formData.handymanTile} onChange={handleChange} className="mr-2" /> Tile repair & re-grouting</label>
+                  </div>
+                </div>
+
+                {/* Plumbing */}
+                <div>
+                  <h4 className="text-sm font-semibold text-amber-300 mb-3">Plumbing</h4>
+                  <div className="space-y-2 ml-4 text-sm text-zinc-300">
+                    <label className="flex items-center"><input type="checkbox" className="mr-2" /> Fix leaky faucets</label>
+                    <label className="flex items-center"><input type="checkbox" className="mr-2" /> Unclog drains</label>
+                    <label className="flex items-center"><input type="checkbox" className="mr-2" /> Toilet repair</label>
+                    <label className="flex items-center"><input type="checkbox" className="mr-2" /> Garbage disposal installation</label>
+                    <label className="flex items-center"><input type="checkbox" className="mr-2" /> Sink installation</label>
+                  </div>
+                </div>
+
+                {/* Electrical */}
+                <div>
+                  <h4 className="text-sm font-semibold text-amber-300 mb-3">Electrical (if licensed)</h4>
+                  <div className="space-y-2 ml-4 text-sm text-zinc-300">
+                    <label className="flex items-center"><input type="checkbox" className="mr-2" /> Light fixture installation</label>
+                    <label className="flex items-center"><input type="checkbox" className="mr-2" /> Ceiling fan installation</label>
+                    <label className="flex items-center"><input type="checkbox" className="mr-2" /> Outlet/switch replacement</label>
+                    <label className="flex items-center"><input type="checkbox" className="mr-2" /> GFCI installation</label>
+                  </div>
+                </div>
+
+                {/* Installations */}
+                <div>
+                  <h4 className="text-sm font-semibold text-amber-300 mb-3">Installations</h4>
+                  <div className="space-y-2 ml-4 text-sm text-zinc-300">
+                    <label className="flex items-center"><input type="checkbox" className="mr-2" /> TV mounting</label>
+                    <label className="flex items-center"><input type="checkbox" className="mr-2" /> Shelving installation</label>
+                    <label className="flex items-center"><input type="checkbox" className="mr-2" /> Closet organization systems</label>
+                    <label className="flex items-center"><input type="checkbox" className="mr-2" /> Cabinet hardware</label>
+                    <label className="flex items-center"><input type="checkbox" className="mr-2" /> Mirrors & artwork hanging</label>
+                    <label className="flex items-center"><input type="checkbox" className="mr-2" /> Blinds & curtain rods</label>
+                  </div>
+                </div>
+
+                {/* Assembly */}
+                <div>
+                  <h4 className="text-sm font-semibold text-amber-300 mb-3">Assembly</h4>
+                  <div className="space-y-2 ml-4 text-sm text-zinc-300">
+                    <label className="flex items-center"><input type="checkbox" className="mr-2" /> Furniture assembly</label>
+                    <label className="flex items-center"><input type="checkbox" className="mr-2" /> Grill assembly</label>
+                    <label className="flex items-center"><input type="checkbox" className="mr-2" /> Gazebo/pergola assembly</label>
+                    <label className="flex items-center"><input type="checkbox" className="mr-2" /> Playground equipment</label>
+                  </div>
+                </div>
+
+                {/* Carpentry */}
+                <div>
+                  <h4 className="text-sm font-semibold text-amber-300 mb-3">Carpentry</h4>
+                  <div className="space-y-2 ml-4 text-sm text-zinc-300">
+                    <label className="flex items-center"><input type="checkbox" className="mr-2" /> Trim & molding installation</label>
+                    <label className="flex items-center"><input type="checkbox" className="mr-2" /> Custom shelving</label>
+                    <label className="flex items-center"><input type="checkbox" className="mr-2" /> Cabinet installation</label>
+                    <label className="flex items-center"><input type="checkbox" className="mr-2" /> Minor framing work</label>
+                  </div>
+                </div>
+
+                {/* Maintenance */}
+                <div>
+                  <h4 className="text-sm font-semibold text-amber-300 mb-3">Maintenance</h4>
+                  <div className="space-y-2 ml-4 text-sm text-zinc-300">
+                    <label className="flex items-center"><input type="checkbox" className="mr-2" /> Gutter cleaning</label>
+                    <label className="flex items-center"><input type="checkbox" className="mr-2" /> Pressure washing</label>
+                    <label className="flex items-center"><input type="checkbox" className="mr-2" /> Weatherstripping</label>
+                    <label className="flex items-center"><input type="checkbox" className="mr-2" /> Caulking & sealing</label>
+                    <label className="flex items-center"><input type="checkbox" className="mr-2" /> Screen repair</label>
+                  </div>
+                </div>
+
+                {/* High-End/Luxury */}
+                <div>
+                  <h4 className="text-sm font-semibold text-amber-300 mb-3">High-End/Luxury Services</h4>
+                  <div className="space-y-2 ml-4 text-sm text-zinc-300">
+                    <label className="flex items-center"><input type="checkbox" className="mr-2" /> Smart home device installation</label>
+                    <label className="flex items-center"><input type="checkbox" className="mr-2" /> Custom woodwork</label>
+                    <label className="flex items-center"><input type="checkbox" className="mr-2" /> Fine art & chandelier installation</label>
+                    <label className="flex items-center"><input type="checkbox" className="mr-2" /> Home theater setup</label>
+                    <label className="flex items-center"><input type="checkbox" className="mr-2" /> Wine cellar maintenance</label>
+                    <label className="flex items-center"><input type="checkbox" className="mr-2" /> Pool furniture assembly</label>
+                  </div>
+                </div>
+
+                {/* Additional Services Text Box */}
                 <div>
                   <label htmlFor="handymanServices" className="block text-sm font-medium text-zinc-300 mb-2">
-                    Complete list of handyman services you offer
+                    Other services or specialties we missed
                   </label>
                   <textarea
                     id="handymanServices"
                     name="handymanServices"
-                    rows={10}
+                    rows={3}
                     value={formData.handymanServices}
                     onChange={handleChange}
                     className="w-full px-4 py-3 bg-zinc-900 border border-zinc-800 rounded-lg text-white focus:outline-none focus:border-blue-500 transition-colors resize-none"
-                    placeholder="Check ALL services you can do:
-
-REPAIRS:
-□ Drywall repair & patching
-□ Interior/exterior painting
-□ Door repair & installation
-□ Window repair & caulking
-□ Deck repair & staining
-□ Fence repair
-□ Stucco repair
-□ Concrete crack repair
-□ Tile repair & re-grouting
-
-PLUMBING:
-□ Fix leaky faucets
-□ Unclog drains
-□ Toilet repair
-□ Garbage disposal installation
-□ Sink installation
-
-ELECTRICAL (if licensed):
-□ Light fixture installation
-□ Ceiling fan installation
-□ Outlet/switch replacement
-□ GFCI installation
-
-INSTALLATIONS:
-□ TV mounting
-□ Shelving installation
-□ Closet organization systems
-□ Cabinet hardware
-□ Mirrors & artwork hanging
-□ Blinds & curtain rods
-
-ASSEMBLY:
-□ Furniture assembly
-□ Grill assembly
-□ Gazebo/pergola assembly
-□ Playground equipment
-
-CARPENTRY:
-□ Trim & molding installation
-□ Custom shelving
-□ Cabinet installation
-□ Minor framing work
-
-MAINTENANCE:
-□ Gutter cleaning
-□ Pressure washing
-□ Weatherstripping
-□ Caulking & sealing
-□ Screen repair
-
-HIGH-END/LUXURY SERVICES:
-□ Smart home device installation
-□ Custom woodwork
-□ Fine art & chandelier installation
-□ Home theater setup
-□ Wine cellar maintenance
-□ Pool furniture assembly
-
-List EVERYTHING - even small jobs matter!"
+                    placeholder="List any other handyman services you offer that we didn't mention..."
                   />
                 </div>
 
                 <div>
                   <label htmlFor="handymanPricing" className="block text-sm font-medium text-zinc-300 mb-2">
-                    Handyman pricing structure
+                    Handyman pricing and other services
                   </label>
                   <textarea
                     id="handymanPricing"
