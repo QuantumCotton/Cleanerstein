@@ -593,17 +593,9 @@ class AtlasEngine {
     // Add initial greeting
     this.addMessage({
       role: 'assistant',
-      content: `Hi! I'm here to help you get a free quote for cleaning or pressure washing services in Beaufort. ✨
+      content: `Hey! Thanks for reaching out to Cleanerstein. 👋
 
-What's your name and the best way to reach you (email or phone)? Also, what type of service are you interested in today?`,
-      quickReplies: [
-        'Commercial Cleaning',
-        'Residential Cleaning',
-        'Pressure Washing',
-        'Not sure yet',
-        'My name is...',
-        'Here is my contact'
-      ]
+How are you doing today?`
     });
   }
 
