@@ -11,6 +11,8 @@ import ContactPage from './pages/ContactPage';
 import BlogPage from './pages/BlogPage';
 import ThanksPage from './pages/ThanksPage';
 import OwnerQuestionnairePage from './pages/OwnerQuestionnairePageNew';
+import Dashboard from './pages/Dashboard';
+import PressureWashingGuidePage from './pages/PressureWashingGuidePage';
 
 // Admin Pages
 import AdminDashboard from './pages/admin/AdminDashboard';
@@ -31,6 +33,8 @@ function App() {
         <Route path="/contact" element={<LayoutWithAtlas><ContactPage /></LayoutWithAtlas>} />
         <Route path="/thanks" element={<LayoutWithAtlas><ThanksPage /></LayoutWithAtlas>} />
         <Route path="/erik" element={<LayoutWithAtlas><OwnerQuestionnairePage /></LayoutWithAtlas>} />
+        <Route path="/dashboard" element={<LayoutWithAtlas><Dashboard /></LayoutWithAtlas>} />
+        <Route path="/pressure-washing-guide" element={<LayoutWithAtlas><PressureWashingGuidePage /></LayoutWithAtlas>} />
         
         {/* Admin Dashboard - Client Management */}
         <Route path="/admin" element={<AdminLayout><AdminDashboard /></AdminLayout>} />
