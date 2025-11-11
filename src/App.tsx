@@ -13,6 +13,24 @@ import ThanksPage from './pages/ThanksPage';
 import OwnerQuestionnairePage from './pages/OwnerQuestionnairePageNew';
 import Dashboard from './pages/Dashboard';
 import PressureWashingGuidePage from './pages/PressureWashingGuidePage';
+import LandingPagesDashboard from './pages/LandingPagesDashboard';
+
+// Landing Pages for Affluent Areas
+import DatawIslandPressureWashing from './pages/landing/DatawIslandPressureWashing';
+import DatawIslandMobileDetailing from './pages/landing/DatawIslandMobileDetailing';
+import DatawIslandResidentialCleaning from './pages/landing/DatawIslandResidentialCleaning';
+import DatawIslandCommercialCleaning from './pages/landing/DatawIslandCommercialCleaning';
+import DatawIslandEpoxyServices from './pages/landing/DatawIslandEpoxyServices';
+import CallawassieIslandPressureWashing from './pages/landing/CallawassieIslandPressureWashing';
+import CallawassieIslandMobileDetailing from './pages/landing/CallawassieIslandMobileDetailing';
+import CallawassieIslandResidentialCleaning from './pages/landing/CallawassieIslandResidentialCleaning';
+import CallawassieIslandCommercialCleaning from './pages/landing/CallawassieIslandCommercialCleaning';
+import CallawassieIslandEpoxyServices from './pages/landing/CallawassieIslandEpoxyServices';
+import BraysIslandPressureWashing from './pages/landing/BraysIslandPressureWashing';
+import BraysIslandMobileDetailing from './pages/landing/BraysIslandMobileDetailing';
+import BraysIslandResidentialCleaning from './pages/landing/BraysIslandResidentialCleaning';
+import BraysIslandCommercialCleaning from './pages/landing/BraysIslandCommercialCleaning';
+import BraysIslandEpoxyServices from './pages/landing/BraysIslandEpoxyServices';
 
 // Admin Pages
 import AdminDashboard from './pages/admin/AdminDashboard';
@@ -35,6 +53,28 @@ function App() {
         <Route path="/erik" element={<LayoutWithAtlas><OwnerQuestionnairePage /></LayoutWithAtlas>} />
         <Route path="/dashboard" element={<LayoutWithAtlas><Dashboard /></LayoutWithAtlas>} />
         <Route path="/pressure-washing-guide" element={<LayoutWithAtlas><PressureWashingGuidePage /></LayoutWithAtlas>} />
+        <Route path="/landing-pages" element={<LayoutWithAtlas><LandingPagesDashboard /></LayoutWithAtlas>} />
+        
+        {/* Dataw Island Landing Pages */}
+        <Route path="/dataw-island/pressure-washing" element={<LayoutWithAtlas><DatawIslandPressureWashing /></LayoutWithAtlas>} />
+        <Route path="/dataw-island/mobile-detailing" element={<LayoutWithAtlas><DatawIslandMobileDetailing /></LayoutWithAtlas>} />
+        <Route path="/dataw-island/residential-cleaning" element={<LayoutWithAtlas><DatawIslandResidentialCleaning /></LayoutWithAtlas>} />
+        <Route path="/dataw-island/commercial-cleaning" element={<LayoutWithAtlas><DatawIslandCommercialCleaning /></LayoutWithAtlas>} />
+        <Route path="/dataw-island/epoxy-services" element={<LayoutWithAtlas><DatawIslandEpoxyServices /></LayoutWithAtlas>} />
+        
+        {/* Callawassie Island Landing Pages */}
+        <Route path="/callawassie-island/pressure-washing" element={<LayoutWithAtlas><CallawassieIslandPressureWashing /></LayoutWithAtlas>} />
+        <Route path="/callawassie-island/mobile-detailing" element={<LayoutWithAtlas><CallawassieIslandMobileDetailing /></LayoutWithAtlas>} />
+        <Route path="/callawassie-island/residential-cleaning" element={<LayoutWithAtlas><CallawassieIslandResidentialCleaning /></LayoutWithAtlas>} />
+        <Route path="/callawassie-island/commercial-cleaning" element={<LayoutWithAtlas><CallawassieIslandCommercialCleaning /></LayoutWithAtlas>} />
+        <Route path="/callawassie-island/epoxy-services" element={<LayoutWithAtlas><CallawassieIslandEpoxyServices /></LayoutWithAtlas>} />
+        
+        {/* Brays Island Landing Pages */}
+        <Route path="/brays-island/pressure-washing" element={<LayoutWithAtlas><BraysIslandPressureWashing /></LayoutWithAtlas>} />
+        <Route path="/brays-island/mobile-detailing" element={<LayoutWithAtlas><BraysIslandMobileDetailing /></LayoutWithAtlas>} />
+        <Route path="/brays-island/residential-cleaning" element={<LayoutWithAtlas><BraysIslandResidentialCleaning /></LayoutWithAtlas>} />
+        <Route path="/brays-island/commercial-cleaning" element={<LayoutWithAtlas><BraysIslandCommercialCleaning /></LayoutWithAtlas>} />
+        <Route path="/brays-island/epoxy-services" element={<LayoutWithAtlas><BraysIslandEpoxyServices /></LayoutWithAtlas>} />
         
         {/* Admin Dashboard - Client Management */}
         <Route path="/admin" element={<AdminLayout><AdminDashboard /></AdminLayout>} />

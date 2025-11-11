@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { FileText, FormInput } from 'lucide-react';
+import { FileText, FormInput, MapPin } from 'lucide-react';
 import Button from '../components/shared/Button';
 
 export default function Dashboard() {
@@ -15,7 +15,7 @@ export default function Dashboard() {
           </p>
         </div>
 
-        <div className="grid md:grid-cols-2 gap-8 max-w-2xl mx-auto">
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-4xl mx-auto">
           {/* Form Link */}
           <Link to="/erik" className="block">
             <div className="p-8 border border-zinc-800 hover:border-blue-500 bg-black/40 transition-all group rounded-lg text-center">
@@ -44,6 +44,22 @@ export default function Dashboard() {
               </p>
               <Button variant="secondary" className="w-full">
                 View Guide
+              </Button>
+            </div>
+          </Link>
+
+          {/* Landing Pages Dashboard Link */}
+          <Link to="/landing-pages" className="block">
+            <div className="p-8 border border-zinc-800 hover:border-blue-500 bg-black/40 transition-all group rounded-lg text-center">
+              <MapPin className="w-16 h-16 text-blue-500 mx-auto mb-6 group-hover:scale-110 transition-transform" />
+              <h3 className="text-2xl font-light mb-4 text-white font-serif">
+                Landing Pages
+              </h3>
+              <p className="text-zinc-400 leading-relaxed mb-6">
+                View all 15 targeted landing pages for affluent areas around Beaufort, SC.
+              </p>
+              <Button variant="secondary" className="w-full">
+                View Pages
               </Button>
             </div>
           </Link>
