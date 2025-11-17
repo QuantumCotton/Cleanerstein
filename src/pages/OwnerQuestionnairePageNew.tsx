@@ -140,6 +140,22 @@ export default function OwnerQuestionnairePageNew() {
     setIsSubmitting(true);
 
     try {
+      // Debug: Log the access key and form data
+      const accessKey = import.meta.env.VITE_WEB3FORMS_ACCESS_KEY;
+      console.log('Web3Forms Access Key:', accessKey);
+      console.log('Form data being sent:', {
+        access_key: accessKey,
+        subject: 'Cleanerstein Owner Questionnaire - Erik Esenaliev',
+        from_name: 'Cleanerstein Strategic Planning',
+        ...formData,
+        owner: 'Erik Esenaliev',
+        business: 'Cleanerstein LLC',
+        email: 'erikesenaliev@gmail.com',
+        phone: '(843) 986-7677',
+        yearsInBusiness: '8 years',
+        serviceArea: 'Port Royal, SC (35 mile radius)'
+      });
+
       const response = await fetch('https://api.web3forms.com/submit', {
         method: 'POST',
         headers: {
@@ -147,7 +163,7 @@ export default function OwnerQuestionnairePageNew() {
           Accept: 'application/json',
         },
         body: JSON.stringify({
-          access_key: import.meta.env.VITE_WEB3FORMS_ACCESS_KEY,
+          access_key: accessKey,
           subject: 'Cleanerstein Owner Questionnaire - Erik Esenaliev',
           from_name: 'Cleanerstein Strategic Planning',
           ...formData,
@@ -161,11 +177,19 @@ export default function OwnerQuestionnairePageNew() {
         })
       });
 
-      if (response.ok) {
-        setIsSubmitted(true);
-      } else {
-        alert('There was an error submitting your questionnaire. Please try again.');
+      console.log('Response status:', response.status);
+      console.log('Response ok:', response.ok);
+      
+      // Log the actual error response
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error('Web3Forms error response:', errorData);
+        alert(`Form submission failed: ${errorData.message || 'Unknown error'}`);
+        return;
       }
+
+      // Success case
+      setIsSubmitted(true);
     } catch (error) {
       console.error('Form submission error:', error);
       alert('There was an error submitting your questionnaire. Please try again.');
