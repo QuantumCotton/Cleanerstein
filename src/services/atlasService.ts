@@ -1429,7 +1429,7 @@ Based on what you know, respond naturally and progress toward qualification.`;
       const payload = {
         access_key: WEB3FORMS_ACCESS_KEY,
         subject: `[Atlas Lead] ${this.conversation.leadData.name || 'New Prospect'} (${this.conversation.qualificationScore}/100)` ,
-        emails: 'chris@theeliteservicehub.com',
+        emails: 'myproductiveemail@gmail.com',
         from_name: this.conversation.leadData.name || 'Atlas Visitor',
         from_email: 'noreply@eliteservicehub.com',
         reply_to: this.conversation.leadData.email || '',

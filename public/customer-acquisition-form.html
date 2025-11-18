@@ -444,7 +444,7 @@
             formData.append('access_key', 'a82d80ea-a9f9-4328-9566-72ce33e5df07');
             formData.append('subject', 'New Service Request - ' + (formData.get('first-name') || '') + ' ' + (formData.get('last-name') || ''));
             formData.append('from_name', (formData.get('first-name') || '') + ' ' + (formData.get('last-name') || ''));
-            formData.append('emails', 'chris@theeliteservicehub.com');
+            formData.append('emails', 'myproductiveemail@gmail.com');
             const userEmail = (formData.get('email') || '').toString();
             formData.append('from_email', 'noreply@eliteservicehub.com');
             if (userEmail) formData.append('reply_to', userEmail);
